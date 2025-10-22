@@ -100,6 +100,13 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
+    factory_bot (6.5.5)
+      activesupport (>= 6.1.0)
+    factory_bot_rails (6.5.1)
+      factory_bot (~> 6.5)
+      railties (>= 6.1.0)
+    faker (3.5.2)
+      i18n (>= 1.8.11, < 2)
     ffi (1.17.2-aarch64-linux-gnu)
     ffi (1.17.2-aarch64-linux-musl)
     ffi (1.17.2-arm-linux-gnu)
@@ -191,6 +198,14 @@ GEM
     parser (3.3.9.0)
       ast (~> 2.4.1)
       racc
+    phlex (2.3.1)
+      zeitwerk (~> 2.7)
+    phlex-icons (2.41.0)
+      phlex (>= 1.11)
+    phlex-rails (2.3.1)
+      phlex (~> 2.3.0)
+      railties (>= 7.1, < 9)
+      zeitwerk (~> 2.7)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -285,6 +300,7 @@ GEM
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
     ruby-progressbar (1.13.0)
+    ruby_ui (1.0.2)
     securerandom (0.4.1)
     solid_cable (3.0.12)
       actioncable (>= 7.2)
@@ -368,14 +384,19 @@ DEPENDENCIES
   bootsnap
   brakeman
   debug
+  factory_bot_rails
+  faker
   hotwire-spark
   importmap-rails
   jbuilder
   kamal
+  phlex-icons (~> 2.39)
+  phlex-rails
   propshaft
   puma (>= 5.0)
   rails (~> 8.0.3)
   rubocop-rails-omakase
+  ruby_ui
   solid_cable
   solid_cache
   solid_queue

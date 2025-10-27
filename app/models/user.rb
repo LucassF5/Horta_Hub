@@ -8,4 +8,7 @@ class User < ApplicationRecord
     user: "user",
     admin: "admin"
   }
+
+  validates :username, presence: true, length: { minimum: 3, maximum: 30 }
+  validates :email_address, presence: true, uniqueness: true
 end

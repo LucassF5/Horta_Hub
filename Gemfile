@@ -3,6 +3,7 @@ source "https://rubygems.org"
 gem "bootsnap", require: false
 gem "importmap-rails"
 gem "jbuilder"
+gem "jwt"
 gem "kamal", require: false
 gem "phlex-icons", "~> 2.42"
 gem "phlex-rails"

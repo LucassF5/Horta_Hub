@@ -4,7 +4,7 @@ gem "bootsnap", require: false
 gem "importmap-rails"
 gem "jbuilder"
 gem "kamal", require: false
-gem "phlex-icons", "~> 2.39"
+gem "phlex-icons", "~> 2.42"
 gem "phlex-rails"
 gem "propshaft"
 gem "puma", ">= 5.0"

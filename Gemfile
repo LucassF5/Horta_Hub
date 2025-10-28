@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem "bcrypt", "~> 3.1"
 gem "bootsnap", require: false
 gem "importmap-rails"
 gem "jbuilder"
@@ -37,5 +38,3 @@ end
 group :test do
   gem "faker"
 end
-
-gem "bcrypt", "~> 3.1"

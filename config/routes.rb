@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resource :session
   resources :users, only: %i[ new create destroy ]
   resources :passwords, param: :token
+  resources :products
 
   root "home#index"
 end

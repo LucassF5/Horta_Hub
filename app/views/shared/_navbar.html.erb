@@ -1,0 +1,21 @@
+<nav class="bg-white shadow-md">
+    <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between py-4">
+            <div class="text-2xl font-bold text-gray-800">
+                <%= link_to "Horta Hub", root_path, class: "hover:text-green-600" %>
+            </div>
+
+            <div>
+                <ul class="flex items-center space-x-6">
+                    <% if authenticated? %>
+                    <li><%= link_to "Dashboard", "/dashboard", class: "text-gray-600 hover:text-green-600 transition-colors duration-300" %></li>
+                    <li><%= button_to "Deslogar", session_path, method: :delete, class: "bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300" %></li>
+                    <% else %>
+                    <li><%= link_to "Login", new_session_path, class: "text-gray-600 hover:text-green-600 transition-colors duration-300" %></li>
+                    <li><%= link_to "Sign up", new_user_path, class: "bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors duration-300" %></li>
+                    <% end %>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

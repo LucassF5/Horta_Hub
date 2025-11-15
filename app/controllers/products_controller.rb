@@ -1,5 +1,5 @@
 class ProductsController < ApplicationController
-    before_action :authenticate_user!
+    before_action :require_authentication
     before_action :set_product, only: [ :show, :edit, :update, :destroy ]
 
     def index

@@ -8,10 +8,14 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <% @products.each do |product| %>
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="p-4">
-                    <h2 class="text-xl font-semibold mb-2 text-gray-800"><%= product.name %></h2>
-                    <p class="text-gray-600 mb-4"><%= number_to_currency(product.price) %></p>
-                    <%= link_to "Ver Detalhes", product_path(product), class: "bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors duration-300" %>
+                <div class="p-4 flex flex-col justify-between h-full">
+                    <div class="flex justify-between mb-2">
+                        <h2 class="text-xl font-semibold text-gray-800"><%= product.name %></h2>
+                        <%= render LinkToComponent.new(label: "Edit", path: edit_product_path(product), theme: :warning) %>
+                        <%= button_to "Apagar", product_path(product), method: :delete, class: "bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300"%>
+                    </div>
+                    <p class="text-gray-600 mb-4">Valor: <%= number_to_currency(product.price) %></p>
+                    <%= render LinkToComponent.new(label: "Ver Detalhes", path: product_path(product), theme: :success)%>
                 </div>
             </div>
             <% end %>

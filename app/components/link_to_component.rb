@@ -17,6 +17,12 @@ class LinkToComponent < ViewComponent::Base
       "btn btn-secondary"
     when :success
       "btn btn-success"
+    when :warning
+      "btn btn-warning"
+    when :danger
+      "btn btn-danger"
+    when :white
+      "btn btn-white"
     else
       "hover:underline text-blue-600"
     end

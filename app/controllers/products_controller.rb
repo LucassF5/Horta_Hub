@@ -35,8 +35,8 @@ class ProductsController < ApplicationController
     end
 
     def destroy
-        @product.destroy
-        redirect_to products_path, notice: "Produto deletado com sucesso", status: :see_other
+        @product.destroy!
+        redirect_to products_path, alert: "Produto deletado com sucesso", status: :see_other
     end
 
     private

@@ -20,6 +20,7 @@ gem "tailwindcss-rails"
 gem "thruster", require: false
 gem "turbo-rails"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
+gem "view_component"
 
 group :development, :test do
   gem "annotaterb"

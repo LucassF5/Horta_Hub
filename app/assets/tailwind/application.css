@@ -12,7 +12,7 @@
 
 @layer components {
     .btn {
-        @apply text-white px-4 py-2 rounded-md inline-flex items-center justify-center text-center w-auto transition-colors duration-300;
+        @apply border border-gray-200 text-white text-sm px-4 py-2 rounded-md shadow-sm inline-flex items-center justify-center text-center w-auto transition-colors duration-300;
     }
 
     .btn-primary {
@@ -28,7 +28,11 @@
     }
 
     .btn-warning {
-        @apply bg-yellow-500 hover:bg-yellow-600 text-black;
+        @apply bg-yellow-300 hover:bg-yellow-400 text-black;
+    }
+
+    .btn-white {
+        @apply bg-white hover:bg-gray-100 text-gray-800;
     }
 }
 

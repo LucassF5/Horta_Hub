@@ -2,8 +2,36 @@
 
 :root {
     --background: #a1eeb2;
+    --foreground: #a1d0ee;
 }
 
 @theme inline{
     --color-background: var(--background);
+    --color-foreground: var(--foreground);
+}
+
+@layer components {
+    .btn {
+        @apply text-white px-4 py-2 rounded-md inline-flex items-center justify-center text-center w-auto transition-colors duration-300;
+    }
+
+    .btn-primary {
+        @apply bg-sky-500 hover:bg-sky-600;
+    }
+    
+    .btn-success {
+        @apply bg-green-500 hover:bg-green-600;
+    }
+
+    .btn-danger {
+        @apply bg-red-500 hover:bg-red-600;
+    }
+
+    .btn-warning {
+        @apply bg-yellow-500 hover:bg-yellow-600 text-black;
+    }
+}
+
+@utility container {
+    max-width: 1400px;
 }

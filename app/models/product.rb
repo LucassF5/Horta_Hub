@@ -11,3 +11,14 @@ class Product < ApplicationRecord
         Rails.logger.info "Formatted product name to: #{name}"
     end
 end
+
+# == Schema Information
+#
+# Table name: products
+#
+#  id         :integer          not null, primary key
+#  name       :string           not null
+#  price      :decimal(10, 2)   not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#

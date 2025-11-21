@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class LinkToComponent < ViewComponent::Base
-  def initialize(label:, path:, theme:nil)
+  def initialize(label:, path:, theme: nil)
     @label = label
     @path = path
     @theme = theme

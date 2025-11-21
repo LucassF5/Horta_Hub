@@ -12,7 +12,7 @@
                     <div class="flex justify-between mb-2">
                         <h2 class="text-xl font-semibold text-gray-800"><%= product.name %></h2>
                         <%= render LinkToComponent.new(label: "Edit", path: edit_product_path(product), theme: :warning) %>
-                        <%= button_to "Apagar", product_path(product), method: :delete, class: "bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300"%>
+                        <%= button_to "Apagar", product_path(product), method: :delete, class: "border border-gray-200 bg-red-500 text-white px-4 py-2 rounded-md shadow-sm hover:bg-red-600 transition-colors duration-300"%>
                     </div>
                     <p class="text-gray-600 mb-4">Valor: <%= number_to_currency(product.price) %></p>
                     <%= render LinkToComponent.new(label: "Ver Detalhes", path: product_path(product), theme: :success)%>

@@ -1,0 +1,17 @@
+<div class="mx-auto bg-background flex flex-col justify-center items-center">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Novo Cliente</h1>
+        <% if @client.errors.any? %>
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            <h2 class="font-bold mb-2"><%= pluralize(@client.errors.count, "error") %> prohibited this user from being saved:</h2>
+            <ul class="list-disc list-inside">
+                <% @client.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+                <% end %>
+            </ul>
+        </div>
+        <% end %>
+    </div>
+
+    <%= render partial: "form", client: @product %>
+</div>

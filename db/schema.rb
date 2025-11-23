@@ -12,10 +12,10 @@
 
 ActiveRecord::Schema[8.1].define(version: 2025_11_21_143806) do
   create_table "clients", force: :cascade do |t|
+    t.string "client_type", null: false
     t.datetime "created_at", null: false
     t.string "name", limit: 65, null: false
-    t.string "phone", null: false
-    t.string "type", null: false
+    t.string "phone"
     t.datetime "updated_at", null: false
   end
 

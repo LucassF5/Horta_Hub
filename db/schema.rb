@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_21_143806) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_29_064533) do
   create_table "clients", force: :cascade do |t|
     t.string "client_type", null: false
     t.datetime "created_at", null: false
@@ -24,6 +24,20 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_21_143806) do
     t.string "name", null: false
     t.decimal "price", precision: 10, scale: 2, null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "sales", force: :cascade do |t|
+    t.integer "client_id", null: false
+    t.datetime "created_at", null: false
+    t.text "observations", limit: 255
+    t.string "payment_status", null: false
+    t.string "payment_type", null: false
+    t.date "sale_date", null: false
+    t.decimal "total_amount", precision: 10, scale: 2
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["client_id"], name: "index_sales_on_client_id"
+    t.index ["user_id"], name: "index_sales_on_user_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -45,5 +59,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_21_143806) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "sales", "clients"
+  add_foreign_key "sales", "users"
   add_foreign_key "sessions", "users"
 end

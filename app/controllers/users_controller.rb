@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  allow_unauthenticated_access only: %i[ new create ]
+  unauthenticated_access_only only: %i[ new create ]
 
   def new
     @user = User.new
@@ -16,6 +16,9 @@ class UsersController < ApplicationController
   end
 
   def destroy
+    terminate_session
+    Current.user.destroy
+    redirect_to new_session_path, notice: "Conta excluída com sucesso."
   end
 
   private

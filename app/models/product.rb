@@ -1,6 +1,8 @@
 class Product < ApplicationRecord
     before_save :format_name
 
+    has_many :sale_items, dependent: :destroy
+
     validates :name, length: { in: 3..50 }, uniqueness: true, presence: true
     validates :price, numericality: { greater_than: 0 }, presence: true
 

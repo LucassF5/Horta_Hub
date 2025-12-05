@@ -10,13 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_29_064533) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_05_025529) do
   create_table "clients", force: :cascade do |t|
     t.string "client_type", null: false
     t.datetime "created_at", null: false
     t.string "name", limit: 65, null: false
     t.string "phone"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "payments", force: :cascade do |t|
+    t.decimal "amount"
+    t.datetime "created_at", null: false
+    t.datetime "paid_at"
+    t.string "payment_method", null: false
+    t.integer "sale_id", null: false
+    t.string "status", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sale_id"], name: "index_payments_on_sale_id"
   end
 
   create_table "products", force: :cascade do |t|
@@ -26,12 +37,21 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_29_064533) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "sale_items", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "product_id", null: false
+    t.integer "quantity", null: false
+    t.integer "sale_id", null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_sale_items_on_product_id"
+    t.index ["sale_id"], name: "index_sale_items_on_sale_id"
+  end
+
   create_table "sales", force: :cascade do |t|
     t.integer "client_id", null: false
     t.datetime "created_at", null: false
     t.text "observations", limit: 255
-    t.string "payment_status", null: false
-    t.string "payment_type", null: false
     t.date "sale_date", null: false
     t.decimal "total_amount", precision: 10, scale: 2
     t.datetime "updated_at", null: false
@@ -59,6 +79,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_29_064533) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "payments", "sales"
+  add_foreign_key "sale_items", "products"
+  add_foreign_key "sale_items", "sales"
   add_foreign_key "sales", "clients"
   add_foreign_key "sales", "users"
   add_foreign_key "sessions", "users"

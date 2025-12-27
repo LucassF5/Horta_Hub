@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :passwords, param: :token
   resources :products
   resources :clients
+  resources :sales
 
   root "home#index"
 end

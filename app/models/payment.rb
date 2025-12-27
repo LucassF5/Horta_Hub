@@ -2,16 +2,16 @@ class Payment < ApplicationRecord
   belongs_to :sale
 
     enum :status, {
-    pending: 'pending',
-    paid: 'paid',
-    failed: 'failed'    
+    pending: "pending",
+    paid: "paid",
+    failed: "failed"
   }
 
   enum :payment_method, {
-    cash: 'cash',
-    credit_card: 'credit_card',
-    debit_card: 'debit_card',
-    pix: 'pix'
+    cash: "cash",
+    credit_card: "credit_card",
+    debit_card: "debit_card",
+    pix: "pix"
   }
 end
 

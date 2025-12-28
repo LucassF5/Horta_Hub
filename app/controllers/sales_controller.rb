@@ -19,7 +19,7 @@ class SalesController < ApplicationController
     @sale = Current.user.sales.new(sale_params)
 
     if @sale.save
-      redirect_to @sale, notice: "Sale was successfully created."
+      redirect_to sales_path, notice: "Sale was successfully created."
     else
       set_form_dependencies
       render :new, status: :unprocessable_entity

@@ -11,18 +11,7 @@
             <div>
                 <ul class="flex items-center space-x-6">
                     <% if authenticated? %>
-                    <%
-=begin%>
-                    <li><%= link_to "Dashboard", "/dashboard", class: "text-gray-600 hover:text-green-600 transition-colors duration-300" %></li>
-                    <%
-=end%>
-                    <li><%= render(LinkToComponent.new(label: "Clients", path: clients_path, theme: :success)) %></li>
-                    <li><%= render(LinkToComponent.new(label: "Products", path: products_path, theme: :success)) %></li>
-                    <li><%= render(LinkToComponent.new(label: "Sales", path: sales_path, theme: :success)) %></li>
-                    <li><%= button_to "Deslogar", session_path, method: :delete, class: "bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300" %></li>
-                    <% else %>
-                    <li><%= render(LinkToComponent.new(label: "Login", path: new_session_path, theme: :primary)) %></li>
-                    <li><%= render(LinkToComponent.new(label: "Sign up", path: new_user_path, theme: :success)) %></li>
+                        
                     <% end %>
                 </ul>
             </div>

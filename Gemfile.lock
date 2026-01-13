@@ -207,7 +207,7 @@ GEM
       racc
     phlex (2.3.1)
       zeitwerk (~> 2.7)
-    phlex-icons (2.50.0)
+    phlex-icons (2.53.0)
       phlex (>= 1.11)
     phlex-rails (2.3.1)
       phlex (~> 2.3.0)
@@ -403,7 +403,7 @@ DEPENDENCIES
   jbuilder
   jwt
   kamal
-  phlex-icons (~> 2.50)
+  phlex-icons (~> 2.53)
   phlex-rails
   propshaft
   puma (>= 5.0)

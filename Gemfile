@@ -6,7 +6,7 @@ gem "importmap-rails"
 gem "jbuilder"
 gem "jwt"
 gem "kamal", require: false
-gem "phlex-icons", "~> 2.50"
+gem "phlex-icons", "~> 2.55"
 gem "phlex-rails"
 gem "propshaft"
 gem "puma", ">= 5.0"

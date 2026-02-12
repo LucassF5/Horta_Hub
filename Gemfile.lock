@@ -75,7 +75,7 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
-    annotaterb (4.21.0)
+    annotaterb (4.22.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
     ast (2.4.3)
@@ -139,7 +139,7 @@ GEM
     jbuilder (2.14.1)
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
-    json (2.18.0)
+    json (2.18.1)
     jwt (3.1.2)
       base64
     kamal (2.10.1)

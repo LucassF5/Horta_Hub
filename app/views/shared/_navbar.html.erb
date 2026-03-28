@@ -1,28 +1,15 @@
-<nav class="bg-white shadow-md">
+<nav class="bg-white shadow-md mt-4 rounded-2xl">
     <div class="container mx-auto px-4">
         <div class="flex items-center justify-between py-4">
+            <div class="flex items-center">
+                <%= render RubyUI::SidebarTrigger.new %>
+            </div>
             <%=  link_to root_path, class: "hover:text-green-600" do %>
             <div class="flex items-center text-2xl font-bold text-gray-800">
                 <%= image_tag "HortaHubIcon.png", class: "w-10 h-10 mr-2" %>
                 Horta Hub
             </div>
             <% end %>
-
-            <div>
-                <ul class="flex items-center space-x-6">
-                    <% if authenticated? %>
-                    <li>
-                        <form method="post" action="<%= session_path %>" style="display: inline;">
-                            <input type="hidden" name="_method" value="delete" />
-                            <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>" />
-                            <%= render RubyUI::Button.new(type: :submit, variant: :destructive) { "Deslogar" } %>
-                        </form>
-                    </li>
-                    <li><%= render RubyUI::Link.new(href: new_session_path, variant: :primary) { "Login" } %></li>
-                    <li><%= render RubyUI::Link.new(href: new_user_path, variant: :secondary) { "Sign up" } %></li>
-                    <% end %>
-                </ul>
-            </div>
         </div>
     </div>
 </nav>

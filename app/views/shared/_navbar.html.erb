@@ -11,14 +11,15 @@
             <div>
                 <ul class="flex items-center space-x-6">
                     <% if authenticated? %>
-                    <%
-=begin%>
-                    <li><%= link_to "Dashboard", "/dashboard", class: "text-gray-600 hover:text-green-600 transition-colors duration-300" %></li>
-                    <%
-=end%>
-                    <li><%= button_to "Deslogar", session_path, method: :delete, class: "bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300" %></li>
+                    <li>
+                        <form method="post" action="<%= session_path %>" style="display: inline;">
+                            <input type="hidden" name="_method" value="delete" />
+                            <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>" />
+                            <%= render RubyUI::Button.new(type: :submit, variant: :destructive) { "Deslogar" } %>
+                        </form>
+                    </li>
                     <li><%= render RubyUI::Link.new(href: new_session_path, variant: :primary) { "Login" } %></li>
-                    <li><%= render RubyUI::Link.new(href: new_user_path, variant: :success) { "Sign up" } %></li>
+                    <li><%= render RubyUI::Link.new(href: new_user_path, variant: :secondary) { "Sign up" } %></li>
                     <% end %>
                 </ul>
             </div>

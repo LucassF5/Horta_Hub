@@ -10,10 +10,14 @@
         </p>
         <% end %>
 
-        <div class="flex space-x-4">
-            <%= link_to "Editar", edit_client_path(@client), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-            <%= button_to "Deletar", @client, method: :delete, data: { turbo_confirm: "Tem certeza que deseja deletar este cliente?" }, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
-            <%= link_to "Voltar para Clientes", clients_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+        <div class="flex gap-4">
+            <%= render RubyUI::Link.new(href: edit_client_path(@client), variant: :primary) { "Editar" } %>
+            <form method="post" action="<%= client_path(@client) %>" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja deletar este cliente?');">
+                <input type="hidden" name="_method" value="delete" />
+                <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>" />
+                <%= render RubyUI::Button.new(type: :submit, variant: :destructive) { "Deletar" } %>
+            </form>
+            <%= render RubyUI::Link.new(href: clients_path, variant: :outline) { "Voltar para Clientes" } %>
         </div>
     </div>
 </div>

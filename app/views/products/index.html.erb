@@ -2,7 +2,7 @@
     <div class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Produtos</h1>
-            <%= link_to "Novo Produto", new_product_path, class: "bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors duration-300" %>
+            <%= render RubyUI::Link.new(href: new_product_path, variant: :primary) { "Novo Produto" } %>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -11,11 +11,15 @@
                 <div class="p-4 flex flex-col justify-between h-full">
                     <div class="flex justify-between mb-2">
                         <h2 class="text-xl font-semibold text-gray-800"><%= product.name %></h2>
-                        <%= render LinkToComponent.new(label: "Edit", path: edit_product_path(product), theme: :warning) %>
-                        <%= button_to "Apagar", product_path(product), method: :delete, class: "border border-gray-200 bg-red-500 text-white px-4 py-2 rounded-md shadow-sm hover:bg-red-600 transition-colors duration-300"%>
+                        <%= render RubyUI::Link.new(href: edit_product_path(product), variant: :primary) { "Ver Detalhes" } %>
+                        <form method="post" action="<%= product_path(product) %>" style="display: inline;">
+                            <input type="hidden" name="_method" value="delete" />
+                            <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>" />
+                            <%= render RubyUI::Button.new(type: :submit, variant: :destructive) { "Apagar" } %>
+                        </form>
                     </div>
                     <p class="text-gray-600 mb-4">Valor: <%= number_to_currency(product.price) %></p>
-                    <%= render LinkToComponent.new(label: "Ver Detalhes", path: product_path(product), theme: :success)%>
+                    <%= render RubyUI::Link.new(href: product_path(product), variant: :success) { "Edit" } %>
                 </div>
             </div>
             <% end %>

@@ -42,7 +42,7 @@ module RubyUI
           "disabled:pointer-events-none disabled:opacity-50",
           "group-has-[[data-sidebar=menu-action]]/menu-item:pr-8",
           "aria-disabled:pointer-events-none aria-disabled:opacity-50",
-          "data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium",
+          "data-[active=true]:bg-emerald-200 data-[active=true]:font-medium",
           "data-[active=true]:text-sidebar-accent-foreground",
           "data-[state=open]:hover:bg-sidebar-accent",
           "data-[state=open]:hover:text-sidebar-accent-foreground",

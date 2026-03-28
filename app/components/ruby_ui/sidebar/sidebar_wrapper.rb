@@ -2,7 +2,7 @@
 
 module RubyUI
   class SidebarWrapper < Base
-    SIDEBAR_WIDTH = "16rem"
+    SIDEBAR_WIDTH = "13rem"
     SIDEBAR_WIDTH_ICON = "3rem"
 
     def view_template(&)

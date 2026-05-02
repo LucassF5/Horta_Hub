@@ -29,8 +29,9 @@
       <% if authenticated? %>
         <%= render RubyUI::Sidebar.new(variant: :inset, class: "hidden md:flex") do %>
           <%= render RubyUI::SidebarContent.new do %>
-              <%= render RubyUI::SidebarHeader.new %>
-              <%= render RubyUI::SidebarGroup.new do %>
+            <%= render RubyUI::SidebarHeader.new %>
+
+            <%= render RubyUI::SidebarGroup.new do %>
               <%= render RubyUI::SidebarGroupContent.new do %>
                 <%= render RubyUI::SidebarMenu.new do %>
                   <%= render RubyUI::SidebarMenuItem.new do %>
@@ -49,6 +50,14 @@
                     <% end %>
                   <% end %>
                 <% end %>
+              <% end %>
+            <% end %>
+
+            <div class="flex-1"></div>
+
+            <%= render RubyUI::SidebarFooter.new do %>
+              <%= form_with url: session_path, method: :delete, local: true do %>
+                <%= render RubyUI::Button.new(type: :submit, variant: :destructive, class: "w-full") { "Deslogar" } %>
               <% end %>
             <% end %>
           <% end %>

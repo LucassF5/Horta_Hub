@@ -26,25 +26,27 @@
 <body class="text-foreground min-h-screen flex flex-col">
 
     <%= render RubyUI::SidebarWrapper.new do %>
-      <%= render RubyUI::Sidebar.new(variant: :inset, class: "hidden md:flex") do %>
-        <%= render RubyUI::SidebarContent.new do %>
-            <%= render RubyUI::SidebarHeader.new %>
-            <%= render RubyUI::SidebarGroup.new do %>
-            <%= render RubyUI::SidebarGroupContent.new do %>
-              <%= render RubyUI::SidebarMenu.new do %>
-                <%= render RubyUI::SidebarMenuItem.new do %>
-                  <%= render RubyUI::SidebarMenuButton.new(as: :a, href: root_path, active: current_page?(root_path)) do %>
-                    <span>Home</span>
+      <% if authenticated? %>
+        <%= render RubyUI::Sidebar.new(variant: :inset, class: "hidden md:flex") do %>
+          <%= render RubyUI::SidebarContent.new do %>
+              <%= render RubyUI::SidebarHeader.new %>
+              <%= render RubyUI::SidebarGroup.new do %>
+              <%= render RubyUI::SidebarGroupContent.new do %>
+                <%= render RubyUI::SidebarMenu.new do %>
+                  <%= render RubyUI::SidebarMenuItem.new do %>
+                    <%= render RubyUI::SidebarMenuButton.new(as: :a, href: root_path, active: current_page?(root_path)) do %>
+                      <span>Home</span>
+                    <% end %>
                   <% end %>
-                <% end %>
-                <%= render RubyUI::SidebarMenuItem.new do %>
-                  <%= render RubyUI::SidebarMenuButton.new(as: :a, href: products_path, active: current_page?(products_path)) do %>
-                    <span>Produtos</span>
+                  <%= render RubyUI::SidebarMenuItem.new do %>
+                    <%= render RubyUI::SidebarMenuButton.new(as: :a, href: products_path, active: current_page?(products_path)) do %>
+                      <span>Produtos</span>
+                    <% end %>
                   <% end %>
-                <% end %>
-                <%= render RubyUI::SidebarMenuItem.new do %>
-                  <%= render RubyUI::SidebarMenuButton.new(as: :a, href: clients_path, active: current_page?(clients_path)) do %>
-                    <span>Clientes</span>
+                  <%= render RubyUI::SidebarMenuItem.new do %>
+                    <%= render RubyUI::SidebarMenuButton.new(as: :a, href: clients_path, active: current_page?(clients_path)) do %>
+                      <span>Clientes</span>
+                    <% end %>
                   <% end %>
                 <% end %>
               <% end %>
@@ -53,7 +55,6 @@
         <% end %>
       <% end %>
 
-    
       <main class="flex-1 px-5 m-4 bg-neutral-100 rounded-lg">
         <div class="flex items-center gap-4 mb-6">
             <h1 class="text-lg font-semibold"><%= content_for?(:page_title) ? yield(:page_title) : "" %></h1>

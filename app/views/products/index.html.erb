@@ -1,28 +1,29 @@
-<div class="flex-grow">
-    <div class="container mx-auto px-4 py-8">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Produtos</h1>
-            <%= render RubyUI::Link.new(href: new_product_path, variant: :primary) { "Novo Produto" } %>
-        </div>
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Produtos</h1>
+    <%= render RubyUI::Link.new(href: new_product_path, variant: :primary) { "Novo Produto" } %>
+  </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <% @products.each do |product| %>
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="p-4 flex flex-col justify-between h-full">
-                    <div class="flex justify-between mb-2">
-                        <h2 class="text-xl font-semibold text-gray-800"><%= product.name %></h2>
-                        <%= render RubyUI::Link.new(href: edit_product_path(product), variant: :primary) { "Ver Detalhes" } %>
-                        <form method="post" action="<%= product_path(product) %>" style="display: inline;">
-                            <input type="hidden" name="_method" value="delete" />
-                            <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>" />
-                            <%= render RubyUI::Button.new(type: :submit, variant: :destructive) { "Apagar" } %>
-                        </form>
-                    </div>
-                    <p class="text-gray-600 mb-4">Valor: <%= number_to_currency(product.price) %></p>
-                    <%= render RubyUI::Link.new(href: product_path(product), variant: :success) { "Edit" } %>
-                </div>
-            </div>
-            <% end %>
-        </div>
-    </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <% @products.each do |product| %>
+      <%= render RubyUI::Card.new do %>
+        <%= render RubyUI::CardHeader.new do %>
+          <%= render RubyUI::CardTitle.new { product.name } %>
+          <%= render RubyUI::CardDescription.new { "Valor: #{number_to_currency(product.price)}" } %>
+        <% end %>
+
+        <%= render RubyUI::CardFooter.new do %>
+          <div class="flex items-center justify-end gap-2">
+            <%= render RubyUI::Link.new(href: product_path(product), variant: :outline) { "Ver" } %>
+            <%= render RubyUI::Link.new(href: edit_product_path(product), variant: :primary) { "Editar" } %>
+            <form method="post" action="<%= product_path(product) %>" style="display: inline;">
+              <input type="hidden" name="_method" value="delete" />
+              <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>" />
+              <%= render RubyUI::Button.new(type: :submit, variant: :destructive) { "Apagar" } %>
+            </form>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
 </div>

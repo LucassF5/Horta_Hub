@@ -69,6 +69,15 @@
             <h1 class="text-lg font-semibold"><%= content_for?(:page_title) ? yield(:page_title) : "" %></h1>
         </div>
 
+        <% if flash.any? %>
+          <div class="mb-4">
+            <% flash.each do |type, message| %>
+              <% css = type.to_s == 'alert' ? 'py-2 px-3 bg-red-50 mb-2 text-red-500 font-medium rounded-lg inline-block' : 'py-2 px-3 bg-green-50 mb-2 text-green-500 font-medium rounded-lg inline-block' %>
+              <p class="<%= css %>" id="<%= type %>"><%= message %></p>
+            <% end %>
+          </div>
+        <% end %>  
+
         <%= yield %>
       </main>
     <% end %>

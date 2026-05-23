@@ -6,7 +6,7 @@ class UsersController < ApplicationController
   end
 
   def create
-    @user = User.create!(user_params)
+    @user = User.create(user_params)
 
     if @user.save
       redirect_to new_session_path, notice: "Conta criada com sucesso!"

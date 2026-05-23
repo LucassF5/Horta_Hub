@@ -27,7 +27,7 @@ class ProductsController < ApplicationController
     end
 
     def update
-        if @product.update!(product_params)
+        if @product.update(product_params)
             redirect_to products_path, notice: "Produto atualizado com sucesso"
         else
             render :edit, status: :unprocessable_entity
@@ -35,7 +35,7 @@ class ProductsController < ApplicationController
     end
 
     def destroy
-        @product.destroy!
+        @product.destroy
         redirect_to products_path, alert: "Produto deletado com sucesso", status: :see_other
     end
 

@@ -11,7 +11,8 @@ class UsersController < ApplicationController
     if @user.save
       redirect_to new_session_path, notice: "Conta criada com sucesso!"
     else
-      redirect_to :new, status: :unprocessable_entity
+      flash.now[:alert] = "Erro ao criar conta. Verifique os dados e tente novamente."
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -24,6 +25,6 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:email_address, :password, :username)
+    params.expect(user: [ :email_address, :password, :username ])
   end
 end

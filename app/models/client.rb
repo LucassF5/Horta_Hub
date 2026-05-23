@@ -13,9 +13,9 @@ end
 # Table name: clients
 #
 #  id          :integer          not null, primary key
+#  client_type :string           not null
 #  name        :string(65)       not null
 #  phone       :string
-#  client_type :string           not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #

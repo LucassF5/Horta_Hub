@@ -10,18 +10,40 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_21_143806) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_24_080000) do
   create_table "clients", force: :cascade do |t|
     t.string "client_type", null: false
     t.datetime "created_at", null: false
     t.string "name", limit: 65, null: false
+    t.integer "organization_id", null: false
     t.string "phone"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "memberships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "organization_id", null: false
+    t.string "role", default: "viewer", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["organization_id", "user_id"], name: "index_memberships_on_organization_id_and_user_id", unique: true
+    t.index ["organization_id"], name: "index_memberships_on_organization_id"
+    t.index ["user_id"], name: "index_memberships_on_user_id"
+  end
+
+  create_table "organizations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", limit: 100, null: false
+    t.string "slug", null: false
+    t.string "status", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_organizations_on_slug", unique: true
   end
 
   create_table "products", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
+    t.integer "organization_id", null: false
     t.decimal "price", precision: 10, scale: 2, null: false
     t.datetime "updated_at", null: false
   end
@@ -39,11 +61,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_21_143806) do
     t.datetime "created_at", null: false
     t.string "email_address", null: false
     t.string "password_digest", null: false
-    t.string "role", default: "user", null: false
     t.datetime "updated_at", null: false
     t.string "username", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "clients", "organizations"
+  add_foreign_key "memberships", "organizations"
+  add_foreign_key "memberships", "users"
+  add_foreign_key "products", "organizations"
   add_foreign_key "sessions", "users"
 end

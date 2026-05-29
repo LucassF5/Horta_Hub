@@ -28,6 +28,7 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "factory_bot_rails"
   gem "hotwire-spark"
+  gem "rspec-rails", "~> 7.1"
   gem "rubocop-rails-omakase", require: false
 end
 
@@ -37,5 +38,7 @@ group :development do
 end
 
 group :test do
+  gem "capybara"
   gem "faker"
+  gem "shoulda-matchers", "~> 6.0"
 end

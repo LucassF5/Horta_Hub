@@ -1,4 +1,6 @@
 class Client < ApplicationRecord
+    belongs_to :organization
+
     validates :name, presence: true, length: { minimum: 3, maximum: 30 }
     validates :client_type, presence: true
 

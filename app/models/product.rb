@@ -1,7 +1,9 @@
 class Product < ApplicationRecord
+    belongs_to :organization
+
     before_save :format_name
 
-    validates :name, length: { in: 3..50 }, uniqueness: true, presence: true
+    validates :name, length: { in: 3..50 }, uniqueness: { scope: :organization_id }, presence: true
     validates :price, numericality: { greater_than: 0 }, presence: true
 
     private

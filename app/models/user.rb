@@ -1,8 +1,14 @@
 class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
+  has_one :membership, dependent: :destroy
+  has_one :organization, through: :membership
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
+
+  def membership_for(organization)
+    membership if membership&.organization_id == organization&.id
+  end
 
   validates :username, presence: true, length: { minimum: 3, maximum: 30 }
   validates :email_address, presence: true, uniqueness: true

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_24_080000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_24_123001) do
   create_table "clients", force: :cascade do |t|
     t.string "client_type", null: false
     t.datetime "created_at", null: false
@@ -28,7 +28,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_080000) do
     t.integer "user_id", null: false
     t.index ["organization_id", "user_id"], name: "index_memberships_on_organization_id_and_user_id", unique: true
     t.index ["organization_id"], name: "index_memberships_on_organization_id"
-    t.index ["user_id"], name: "index_memberships_on_user_id"
+    t.index ["user_id"], name: "index_memberships_on_user_id_unique", unique: true
   end
 
   create_table "organizations", force: :cascade do |t|

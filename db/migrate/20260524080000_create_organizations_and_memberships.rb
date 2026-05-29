@@ -16,7 +16,7 @@ class CreateOrganizationsAndMemberships < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :memberships, [:organization_id, :user_id], unique: true
+    add_index :memberships, [ :organization_id, :user_id ], unique: true
 
     add_column :products, :organization_id, :integer, null: false
     add_foreign_key :products, :organizations
@@ -36,7 +36,7 @@ class CreateOrganizationsAndMemberships < ActiveRecord::Migration[8.1]
     remove_foreign_key :products, :organizations
     remove_column :products, :organization_id
 
-    remove_index :memberships, column: [:organization_id, :user_id]
+    remove_index :memberships, column: [ :organization_id, :user_id ]
     drop_table :memberships
 
     remove_index :organizations, :slug

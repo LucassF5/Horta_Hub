@@ -9,7 +9,7 @@ class Views::Products::New < Views::Base
     div(class: "mt-8 mx-auto bg-background flex flex-col justify-center items-center") do
       div(class: "container mx-auto px-4 py-8") do
         h1(class: "text-3xl font-bold text-gray-800 mb-8") { "Novo Produto" }
-        
+
         render_errors if @product.errors.any?
       end
 

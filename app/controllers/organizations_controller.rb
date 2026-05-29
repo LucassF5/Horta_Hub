@@ -26,10 +26,10 @@ class OrganizationsController < ApplicationController
   private
 
   def organization_params
-    params.expect(organization: [:name])
+    params.expect(organization: [ :name ])
   end
 
   def user_params
-    params.expect(user: [:username, :email_address, :password])
+    params.expect(user: [ :username, :email_address, :password ])
   end
 end

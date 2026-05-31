@@ -76,7 +76,7 @@ Sistema multi-organização para gestão de hortas urbanas. Rails 8.1, Phlex vie
 
 ## Regras Importantes
 
-1. **Nunca usar ERB** — apenas Phlex
+1. **Nunca usar ERB** — apenas Phlex (exceção: mailer views em `app/views/*_mailer/` usam ERB)
 2. **Nunca buscar recursos sem escopo de organização**
 3. **Sempre adicionar testes** ao criar/modificar funcionalidades
 4. **Sempre usar I18n** para textos visíveis ao usuário quando possível

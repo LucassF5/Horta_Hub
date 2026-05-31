@@ -11,6 +11,22 @@ applyTo: "app/controllers/**/*.rb"
 - `before_action :set_resource` para `show`, `edit`, `update`, `destroy`
 - Autenticação via concern `Authentication` (já incluído no `ApplicationController`)
 
+## Helpers de Autenticação
+
+- `allow_unauthenticated_access` — pula autenticação (ex: login, cadastro, reset de senha)
+- `unauthenticated_access_only` — redireciona se já logado (ex: página de login)
+- `authenticated?` — verifica se há sessão ativa
+- `start_new_session_for(user)` — cria sessão e seta cookie
+- `terminate_session` — destrói sessão e limpa cookie
+
+```ruby
+class SessionsController < ApplicationController
+  allow_unauthenticated_access only: %i[new create]
+  unauthenticated_access_only only: %i[new create]
+  rate_limit to: 10, within: 3.minutes, only: :create
+end
+```
+
 ## Convenções
 
 - **Escopo obrigatório**: sempre usar `Current.organization.resources` — nunca `Resource.all` ou `Resource.find`

@@ -45,7 +45,13 @@ module Authentication
     end
 
     def set_current_organization
+      return unless authenticated?
+
       Current.organization = Current.user&.organization
+
+      if Current.organization.nil?
+        redirect_to new_organization_path, alert: "Você precisa criar ou pertencer a uma organização."
+      end
     end
 
     def start_new_session_for(user)

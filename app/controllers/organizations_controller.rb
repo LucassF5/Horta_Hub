@@ -1,5 +1,6 @@
 class OrganizationsController < ApplicationController
   unauthenticated_access_only only: %i[new create]
+  skip_before_action :set_current_organization, only: %i[new create]
 
   def new
     @organization = Organization.new

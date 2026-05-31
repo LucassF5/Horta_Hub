@@ -4,32 +4,38 @@ class ClientsController < ApplicationController
 
   def index
     @clients = Client.all
+    render Views::Clients::Index.new(clients: @clients)
   end
 
   def show
+    render Views::Clients::Show.new(client: @client)
   end
 
   def new
     @client = Client.new
+    render Views::Clients::New.new(client: @client)
   end
 
   def create
-    @client = Client.create(client_params)
+    @client = Client.new(client_params)
+    @client.organization = Current.user.organization
+
     if @client.save
       redirect_to clients_path, notice: "Cliente criado com sucesso!"
     else
-      render :new, status: :unprocessable_entity
+      render Views::Clients::New.new(client: @client), status: :unprocessable_entity
     end
   end
 
   def edit
+    render Views::Clients::Edit.new(client: @client)
   end
 
   def update
     if @client.update(client_params)
       redirect_to clients_path, notice: "Cliente atualizado com sucesso!"
     else
-      render :edit, status: :unprocessable_entity
+      render Views::Clients::Edit.new(client: @client), status: :unprocessable_entity
     end
   end
 

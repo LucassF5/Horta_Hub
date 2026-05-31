@@ -231,4 +231,21 @@ RSpec.describe "Products", type: :request do
       expect(response.body).not_to include(other_product.name)
     end
   end
+
+  context "when user has no organization" do
+    before do
+      user_without_org = create(:user)
+      session = create(:session, user: user_without_org)
+      allow_any_instance_of(ApplicationController).to receive(:authenticated?).and_return(true)
+      allow_any_instance_of(ApplicationController).to receive(:resume_session).and_return(true)
+      allow(Current).to receive(:session).and_return(session)
+      allow(Current).to receive(:user).and_return(user_without_org)
+      allow(Current).to receive(:organization).and_return(nil)
+    end
+
+    it "redirects to new organization page" do
+      get products_path
+      expect(response).to redirect_to(new_organization_path)
+    end
+  end
 end

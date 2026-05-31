@@ -112,7 +112,6 @@ RSpec.describe "Products Management", type: :system do
     it "successfully deletes a product" do
       visit products_path
 
-      # format_name callback titleizes the name
       expect(page).to have_content("Product To Delete")
 
       expect {

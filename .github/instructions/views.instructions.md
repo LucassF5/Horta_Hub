@@ -26,6 +26,13 @@ applyTo: "app/views/**/*.rb"
 
 Button, Card (Header, Title, Description, Footer), Form, Input, Link, Select, Textarea, Alert, Avatar, Sheet, Sidebar, Typography
 
+## Componentes de Formulário RubyUI
+
+- `RubyUI::FormField` — wrapper de campo
+- `RubyUI::FormFieldLabel` — label com `for:`
+- `RubyUI::Button` — submit com `type: :submit`
+- Classes de input padronizadas via método privado `input_classes`
+
 ## Exemplo — View de Listagem
 
 ```ruby
@@ -71,33 +78,59 @@ class Views::Resources::Index < Views::Base
 end
 ```
 
-## Exemplo — View de Formulário
+## Pattern FormComponent (formulários reutilizáveis)
+
+Para recursos CRUD, criar um `FormComponent` compartilhado entre `new` e `edit`:
 
 ```ruby
-class Views::Resources::New < Views::Base
-  def initialize(resource:)
+# app/views/resources/form_component.rb
+class Views::Resources::FormComponent < Views::Base
+  def initialize(resource:, url:)
     @resource = resource
+    @url = url
   end
 
   def view_template
-    div(class: "container mx-auto px-4 py-8 max-w-lg") do
-      h1(class: "text-2xl font-bold mb-6") { "Novo Recurso" }
-      render_form
+    form_with(
+      model: @resource,
+      url: @url,
+      local: true,
+      class: "bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-lg"
+    ) do |f|
+      render_form_fields(f)
     end
   end
 
   private
 
-  def render_form
-    form_with(model: @resource, class: "space-y-4") do |f|
-      render RubyUI::Form::Field.new do
-        render RubyUI::Form::Label.new(for: :name) { "Nome" }
-        render RubyUI::Input.new(type: :text, name: "resource[name]", id: :name, placeholder: "Nome do recurso")
-        render RubyUI::Form::FieldError.new(:name, object: @resource)
-      end
+  def render_form_fields(form)
+    render RubyUI::FormField.new do
+      render RubyUI::FormFieldLabel.new(for: "resource_name") { "Nome" }
+      form.text_field(:name, id: "resource_name", placeholder: "Nome", class: input_classes)
+    end
 
-      render RubyUI::Button.new(type: :submit, variant: :primary) { "Salvar" }
+    div(class: "flex items-center justify-between") do
+      render RubyUI::Button.new(type: :submit) { "Salvar" }
     end
   end
+
+  def input_classes
+    [
+      "flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] border-border ring-0 ring-ring/0",
+      "placeholder:text-muted-foreground",
+      "disabled:cursor-not-allowed disabled:opacity-50",
+      "focus-visible:outline-none focus-visible:ring-ring/50 focus-visible:ring-2 focus-visible:border-ring focus-visible:shadow-sm"
+    ].join(" ")
+  end
 end
+```
+
+Nas views `new` e `edit`, renderizar o FormComponent com a URL correta:
+
+```ruby
+# new.rb
+render Views::Resources::FormComponent.new(resource: @resource, url: helpers.resources_path)
+
+# edit.rb
+render Views::Resources::FormComponent.new(resource: @resource, url: helpers.resource_path(@resource))
 ```

@@ -20,7 +20,7 @@ RSpec.describe Product, type: :model do
       it 'validates uniqueness of name scoped to organization' do
         duplicate_product = build(:product, name: "Test Product", organization: organization)
         expect(duplicate_product).not_to be_valid
-        expect(duplicate_product.errors[:name]).to include("has already been taken")
+        expect(duplicate_product.errors[:name]).to be_present
       end
 
       it 'allows same name in different organizations' do

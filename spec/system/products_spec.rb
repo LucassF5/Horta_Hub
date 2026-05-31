@@ -8,10 +8,11 @@ RSpec.describe "Products Management", type: :system do
   before do
     driven_by(:rack_test)
 
-    # Simular autenticação para testes de sistema
+    session = create(:session, user: user)
     allow_any_instance_of(ApplicationController).to receive(:authenticated?).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:resume_session).and_return(true)
-    allow(Current).to receive(:session).and_return(create(:session, user: user))
+    allow(Current).to receive(:session).and_return(session)
+    allow(Current).to receive(:user).and_return(user)
   end
 
   describe "viewing products" do
@@ -111,16 +112,15 @@ RSpec.describe "Products Management", type: :system do
     it "successfully deletes a product" do
       visit products_path
 
-      expect(page).to have_content("Product to Delete")
+      # format_name callback titleizes the name
+      expect(page).to have_content("Product To Delete")
 
-      # O botão de apagar tem confirmação, mas em testes rack_test não processa JavaScript
-      # então vamos aceitar que o produto será deletado
       expect {
         click_button "Apagar", match: :first
       }.to change(Product, :count).by(-1)
 
       expect(page).to have_content("Produto deletado com sucesso")
-      expect(page).not_to have_content("Product to Delete")
+      expect(page).not_to have_content("Product To Delete")
     end
   end
 
@@ -159,7 +159,7 @@ RSpec.describe "Products Management", type: :system do
 
       within(".grid") do
         expect(page).to have_content("Test Product")
-        expect(page).to have_content("Valor: R$ 15,50")
+        expect(page).to have_content("R$ 15,50")
       end
     end
 

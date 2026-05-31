@@ -1,0 +1,102 @@
+pt-BR:
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "A validação falhou: %{errors}"
+        blank: "não pode ficar em branco"
+        taken: "já está em uso"
+        too_short: "é muito curto (mínimo: %{count} caracteres)"
+        too_long: "é muito longo (máximo: %{count} caracteres)"
+        invalid: "não é válido"
+        not_a_number: "não é um número"
+        greater_than: "deve ser maior que %{count}"
+        greater_than_or_equal_to: "deve ser maior ou igual a %{count}"
+        less_than: "deve ser menor que %{count}"
+        less_than_or_equal_to: "deve ser menor ou igual a %{count}"
+        required: "é obrigatório(a)"
+        confirmation: "não é igual a confirmação"
+        accepted: "deve ser aceito"
+        empty: "não pode ficar vazio"
+        not_an_integer: "não é um número inteiro"
+        inclusion: "não está incluído na lista"
+        exclusion: "não está disponível"
+        equal_to: "deve ser igual a %{count}"
+        even: "deve ser par"
+        odd: "deve ser ímpar"
+        present: "deve ficar em branco"
+  errors:
+    messages:
+      blank: "não pode ficar em branco"
+      taken: "já está em uso"
+      too_short: "é muito curto (mínimo: %{count} caracteres)"
+      too_long: "é muito longo (máximo: %{count} caracteres)"
+      invalid: "não é válido"
+      not_a_number: "não é um número"
+      greater_than: "deve ser maior que %{count}"
+      required: "é obrigatório(a)"
+  number:
+    currency:
+      format:
+        unit: "R$"
+        precision: 2
+        separator: ","
+        delimiter: "."
+        format: "%u %n"
+    format:
+      separator: ","
+      delimiter: "."
+      precision: 2
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d/%m"
+      long: "%d de %B de %Y"
+    day_names:
+      - domingo
+      - segunda-feira
+      - terça-feira
+      - quarta-feira
+      - quinta-feira
+      - sexta-feira
+      - sábado
+    abbr_day_names:
+      - dom
+      - seg
+      - ter
+      - qua
+      - qui
+      - sex
+      - sáb
+    month_names:
+      - ~
+      - janeiro
+      - fevereiro
+      - março
+      - abril
+      - maio
+      - junho
+      - julho
+      - agosto
+      - setembro
+      - outubro
+      - novembro
+      - dezembro
+    abbr_month_names:
+      - ~
+      - jan
+      - fev
+      - mar
+      - abr
+      - mai
+      - jun
+      - jul
+      - ago
+      - set
+      - out
+      - nov
+      - dez
+  time:
+    formats:
+      default: "%d/%m/%Y %H:%M"
+      short: "%d/%m %H:%M"
+      long: "%d de %B de %Y, %H:%M"

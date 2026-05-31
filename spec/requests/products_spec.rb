@@ -7,10 +7,11 @@ RSpec.describe "Products", type: :request do
   let!(:product) { create(:product, organization: organization) }
 
   before do
-    # Simular autenticação
+    session = create(:session, user: user)
     allow_any_instance_of(ApplicationController).to receive(:authenticated?).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:resume_session).and_return(true)
-    allow(Current).to receive(:session).and_return(create(:session, user: user))
+    allow(Current).to receive(:session).and_return(session)
+    allow(Current).to receive(:user).and_return(user)
   end
 
   describe "GET /products" do

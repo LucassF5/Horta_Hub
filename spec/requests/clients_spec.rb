@@ -7,9 +7,11 @@ RSpec.describe "Clients", type: :request do
   let!(:client) { create(:client, organization: organization) }
 
   before do
+    session = create(:session, user: user)
     allow_any_instance_of(ApplicationController).to receive(:authenticated?).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:resume_session).and_return(true)
-    allow(Current).to receive(:session).and_return(create(:session, user: user))
+    allow(Current).to receive(:session).and_return(session)
+    allow(Current).to receive(:user).and_return(user)
   end
 
   describe "GET /clients" do
@@ -51,6 +53,53 @@ RSpec.describe "Clients", type: :request do
     it "renders the new client form" do
       get new_client_path
       expect(response.body).to include("Novo Cliente")
+    end
+  end
+
+  describe "POST /clients" do
+    context "with valid parameters" do
+      let(:valid_attributes) do
+        { name: "New Client", phone: "11999999999", client_type: "pessoa_fisica" }
+      end
+
+      it "creates a new client" do
+        expect {
+          post clients_path, params: { client: valid_attributes }
+        }.to change(Client, :count).by(1)
+      end
+
+      it "redirects to the clients index" do
+        post clients_path, params: { client: valid_attributes }
+        expect(response).to redirect_to(clients_path)
+      end
+
+      it "sets a success notice" do
+        post clients_path, params: { client: valid_attributes }
+        follow_redirect!
+        expect(response.body).to include("Cliente criado com sucesso")
+      end
+    end
+
+    context "with invalid parameters" do
+      let(:invalid_attributes) do
+        { name: "", phone: "", client_type: "" }
+      end
+
+      it "does not create a new client" do
+        expect {
+          post clients_path, params: { client: invalid_attributes }
+        }.not_to change(Client, :count)
+      end
+
+      it "returns unprocessable entity status" do
+        post clients_path, params: { client: invalid_attributes }
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it "displays error messages" do
+        post clients_path, params: { client: invalid_attributes }
+        expect(response.body).to include("erro")
+      end
     end
   end
 

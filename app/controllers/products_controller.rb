@@ -3,7 +3,7 @@ class ProductsController < ApplicationController
     before_action :set_product, only: [ :show, :edit, :update, :destroy ]
 
     def index
-        @products = Product.all
+        @products = Current.organization.products
         render Views::Products::Index.new(products: @products)
     end
 
@@ -17,8 +17,7 @@ class ProductsController < ApplicationController
     end
 
     def create
-        @product = Product.new(product_params)
-        @product.organization = Current.user.organization
+        @product = Current.organization.products.build(product_params)
 
         if @product.save
             redirect_to products_path, notice: "Produto criado com sucesso"
@@ -51,6 +50,6 @@ class ProductsController < ApplicationController
     end
 
     def set_product
-        @product = Product.find(params[:id])
+        @product = Current.organization.products.find(params[:id])
     end
 end

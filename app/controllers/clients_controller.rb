@@ -3,7 +3,7 @@ class ClientsController < ApplicationController
   before_action :set_client, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @clients = Client.all
+    @clients = Current.organization.clients
     render Views::Clients::Index.new(clients: @clients)
   end
 
@@ -17,8 +17,7 @@ class ClientsController < ApplicationController
   end
 
   def create
-    @client = Client.new(client_params)
-    @client.organization = Current.user.organization
+    @client = Current.organization.clients.build(client_params)
 
     if @client.save
       redirect_to clients_path, notice: "Cliente criado com sucesso!"
@@ -51,6 +50,6 @@ class ClientsController < ApplicationController
   end
 
   def set_client
-    @client = Client.find(params[:id])
+    @client = Current.organization.clients.find(params[:id])
   end
 end

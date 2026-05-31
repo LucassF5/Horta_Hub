@@ -43,7 +43,6 @@ class Views::Products::Index < Views::Base
           render RubyUI::Link.new(href: helpers.product_path(product), variant: :outline) { "Ver" }
           render RubyUI::Link.new(href: helpers.edit_product_path(product), variant: :primary) { "Editar" }
 
-          # Botão de deletar com confirmação
           form_with(
             url: helpers.product_path(product),
             method: :delete,

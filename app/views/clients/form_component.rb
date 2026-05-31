@@ -20,7 +20,6 @@ class Views::Clients::FormComponent < Views::Base
   private
 
   def render_form_fields(form)
-    # Campo Nome
     render RubyUI::FormField.new do
       render RubyUI::FormFieldLabel.new(for: "client_name") { "Nome" }
       form.text_field(
@@ -31,7 +30,6 @@ class Views::Clients::FormComponent < Views::Base
       )
     end
 
-    # Campo Telefone
     render RubyUI::FormField.new do
       render RubyUI::FormFieldLabel.new(for: "client_phone") { "Telefone" }
       form.telephone_field(
@@ -42,7 +40,6 @@ class Views::Clients::FormComponent < Views::Base
       )
     end
 
-    # Campo Tipo de Pessoa
     render RubyUI::FormField.new do
       render RubyUI::FormFieldLabel.new(for: "client_client_type") { "Tipo de pessoa" }
       form.select(
@@ -54,7 +51,6 @@ class Views::Clients::FormComponent < Views::Base
       )
     end
 
-    # Botão Submit
     div(class: "flex items-center justify-between") do
       render RubyUI::Button.new(type: :submit) { "Salvar cliente" }
     end

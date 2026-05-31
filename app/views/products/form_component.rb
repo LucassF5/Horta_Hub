@@ -20,7 +20,6 @@ class Views::Products::FormComponent < Views::Base
   private
 
   def render_form_fields(form)
-    # Campo Nome
     render RubyUI::FormField.new do
       render RubyUI::FormFieldLabel.new(for: "product_name") { "Nome" }
       form.text_field(
@@ -31,7 +30,6 @@ class Views::Products::FormComponent < Views::Base
       )
     end
 
-    # Campo Preço
     render RubyUI::FormField.new do
       render RubyUI::FormFieldLabel.new(for: "product_price") { "Preço" }
       form.number_field(
@@ -43,7 +41,6 @@ class Views::Products::FormComponent < Views::Base
       )
     end
 
-    # Botão Submit
     div(class: "flex items-center justify-between") do
       render RubyUI::Button.new(type: :submit) { "Salvar produto" }
     end

@@ -4,6 +4,7 @@ class OrganizationsController < ApplicationController
   def new
     @organization = Organization.new
     @user = User.new
+    render Views::Organizations::New.new(organization: @organization, user: @user)
   end
 
   def create
@@ -20,7 +21,7 @@ class OrganizationsController < ApplicationController
     redirect_to root_path, notice: "Organização criada com sucesso!"
   rescue ActiveRecord::RecordInvalid
     flash.now[:alert] = "Erro ao criar organização. Verifique os dados e tente novamente."
-    render :new, status: :unprocessable_entity
+    render Views::Organizations::New.new(organization: @organization, user: @user), status: :unprocessable_entity
   end
 
   private

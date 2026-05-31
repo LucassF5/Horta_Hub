@@ -3,6 +3,7 @@ class SessionsController < ApplicationController
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_path, alert: "Tente novamente mais tarde." }
 
   def new
+    render Views::Sessions::New.new(params: params)
   end
 
   def create
@@ -12,7 +13,7 @@ class SessionsController < ApplicationController
       redirect_to after_authentication_url
     else
       flash.now[:alert] = "Email ou senha inválidos."
-      render :new, status: :unprocessable_entity
+      render Views::Sessions::New.new(params: params), status: :unprocessable_entity
     end
   end
 

@@ -62,17 +62,20 @@ Criar em `app/views/nome_do_recurso/`:
 
 - `index.rb` — listagem com cards RubyUI
 - `show.rb` — detalhes do recurso
-- `new.rb` — formulário de criação
-- `edit.rb` — formulário de edição
-- `_form.rb` ou form inline — campos do formulário com RubyUI::Input/Select/Form
+- `new.rb` — formulário de criação (renderiza FormComponent)
+- `edit.rb` — formulário de edição (renderiza FormComponent)
+- `form_component.rb` — componente de formulário compartilhado entre new/edit
 
 Convenções das views:
 - Classe: `Views::NomeDoRecurso::Action < Views::Base`
 - `initialize` recebe dados necessários
 - `view_template` como método principal
 - Seções privadas: `render_header`, `render_form`, etc.
-- Componentes RubyUI para UI
+- Componentes RubyUI para UI (FormField, FormFieldLabel, Button)
 - TailwindCSS para layout
+- `FormComponent` recebe `resource:` e `url:` — new passa `resources_path`, edit passa `resource_path(resource)`
+- Campos com `RubyUI::FormField` + `RubyUI::FormFieldLabel` + form helpers do Rails
+- Classes de input via método privado `input_classes`
 
 ### 6. Factory
 

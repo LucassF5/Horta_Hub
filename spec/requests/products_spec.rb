@@ -12,6 +12,7 @@ RSpec.describe "Products", type: :request do
     allow_any_instance_of(ApplicationController).to receive(:resume_session).and_return(true)
     allow(Current).to receive(:session).and_return(session)
     allow(Current).to receive(:user).and_return(user)
+    allow(Current).to receive(:organization).and_return(organization)
   end
 
   describe "GET /products" do
@@ -197,6 +198,37 @@ RSpec.describe "Products", type: :request do
     it "redirects to login page for new" do
       get new_product_path
       expect(response).to redirect_to(new_session_path)
+    end
+  end
+
+  context "when product belongs to another organization" do
+    let(:other_org) { create(:organization) }
+    let(:other_product) { create(:product, organization: other_org) }
+
+    it "raises not found for show" do
+      get product_path(other_product)
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "raises not found for edit" do
+      get edit_product_path(other_product)
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "raises not found for update" do
+      patch product_path(other_product), params: { product: { name: "Hacked" } }
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "raises not found for destroy" do
+      delete product_path(other_product)
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "does not list products from other organizations" do
+      other_product # force creation
+      get products_path
+      expect(response.body).not_to include(other_product.name)
     end
   end
 end

@@ -12,6 +12,7 @@ RSpec.describe "Clients", type: :request do
     allow_any_instance_of(ApplicationController).to receive(:resume_session).and_return(true)
     allow(Current).to receive(:session).and_return(session)
     allow(Current).to receive(:user).and_return(user)
+    allow(Current).to receive(:organization).and_return(organization)
   end
 
   describe "GET /clients" do
@@ -166,6 +167,37 @@ RSpec.describe "Clients", type: :request do
     it "redirects to login page" do
       get clients_path
       expect(response).to redirect_to(new_session_path)
+    end
+  end
+
+  context "when client belongs to another organization" do
+    let(:other_org) { create(:organization) }
+    let(:other_client) { create(:client, organization: other_org) }
+
+    it "raises not found for show" do
+      get client_path(other_client)
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "raises not found for edit" do
+      get edit_client_path(other_client)
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "raises not found for update" do
+      patch client_path(other_client), params: { client: { name: "Hacked" } }
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "raises not found for destroy" do
+      delete client_path(other_client)
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "does not list clients from other organizations" do
+      other_client # force creation
+      get clients_path
+      expect(response.body).not_to include(other_client.name)
     end
   end
 end

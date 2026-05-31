@@ -12,7 +12,7 @@ RSpec.describe "Products Management", type: :system do
     allow_any_instance_of(ApplicationController).to receive(:authenticated?).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:resume_session).and_return(true)
     allow(Current).to receive(:session).and_return(session)
-    allow(Current).to receive(:user).and_return(user)
+    allow(Current).to receive(:user) { User.find(user.id) }
   end
 
   describe "viewing products" do

@@ -110,3 +110,19 @@ RSpec.describe Product, type: :model do
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: products
+#
+#  id              :integer          not null, primary key
+#  name            :string           not null
+#  price           :decimal(10, 2)   not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  organization_id :integer          not null
+#
+# Foreign Keys
+#
+#  organization_id  (organization_id => organizations.id)
+#

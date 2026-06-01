@@ -3,6 +3,7 @@ class Organization < ApplicationRecord
   has_many :users, through: :memberships
   has_many :products, dependent: :restrict_with_error
   has_many :clients, dependent: :restrict_with_error
+  has_many :sales, dependent: :destroy
 
   enum :status, { active: "active", inactive: "inactive" }
 

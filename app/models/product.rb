@@ -1,5 +1,6 @@
 class Product < ApplicationRecord
     belongs_to :organization
+    has_many :sale_items, dependent: :restrict_with_error
 
     before_save :format_name
 

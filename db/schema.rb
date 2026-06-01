@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_24_123001) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_31_120001) do
   create_table "clients", force: :cascade do |t|
     t.string "client_type", null: false
     t.datetime "created_at", null: false
@@ -48,6 +48,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_123001) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "sale_items", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "product_id", null: false
+    t.integer "quantity", default: 1, null: false
+    t.integer "sale_id", null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_sale_items_on_product_id"
+    t.index ["sale_id"], name: "index_sale_items_on_sale_id"
+  end
+
+  create_table "sales", force: :cascade do |t|
+    t.integer "client_id", null: false
+    t.datetime "created_at", null: false
+    t.text "notes"
+    t.integer "organization_id", null: false
+    t.date "sale_date", null: false
+    t.string "status", default: "pending", null: false
+    t.decimal "total", precision: 10, scale: 2, default: "0.0", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_sales_on_client_id"
+    t.index ["organization_id", "sale_date"], name: "index_sales_on_organization_id_and_sale_date"
+    t.index ["organization_id"], name: "index_sales_on_organization_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address"
@@ -70,5 +95,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_123001) do
   add_foreign_key "memberships", "organizations"
   add_foreign_key "memberships", "users"
   add_foreign_key "products", "organizations"
+  add_foreign_key "sale_items", "products"
+  add_foreign_key "sale_items", "sales"
+  add_foreign_key "sales", "clients"
+  add_foreign_key "sales", "organizations"
   add_foreign_key "sessions", "users"
 end

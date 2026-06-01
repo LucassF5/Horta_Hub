@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   resources :organizations, only: %i[ new create ]
   resources :products
   resources :clients
+  resources :sales
 
   root "home#index"
 end

@@ -60,6 +60,7 @@ class Views::Layouts::ApplicationLayout < Views::Base
               sidebar_menu_item("Home", root_path)
               sidebar_menu_item("Produtos", products_path)
               sidebar_menu_item("Clientes", clients_path)
+              sidebar_menu_item("Vendas", sales_path)
             end
           end
         end

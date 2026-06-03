@@ -28,7 +28,7 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "factory_bot_rails"
   gem "hotwire-spark"
-  gem "rspec-rails", "~> 7.1"
+  gem "rspec-rails", "~> 8.0"
   gem "rubocop-rails-omakase", require: false
 end
 

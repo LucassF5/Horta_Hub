@@ -15,7 +15,7 @@ class Views::Products::New < Views::Base
 
       render Views::Products::FormComponent.new(
         product: @product,
-        url: helpers.products_path
+        url: products_path
       )
     end
   end
@@ -26,7 +26,7 @@ class Views::Products::New < Views::Base
     render RubyUI::Alert.new(variant: :destructive) do
       div do
         h2(class: "font-bold mb-2") do
-          "#{helpers.pluralize(@product.errors.count, "erro")} impediram o produto de ser salvo:"
+          "#{pluralize(@product.errors.count, "erro")} impediram o produto de ser salvo:"
         end
         ul(class: "list-disc list-inside") do
           @product.errors.full_messages.each do |message|

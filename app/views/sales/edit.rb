@@ -17,7 +17,7 @@ class Views::Sales::Edit < Views::Base
 
       render Views::Sales::FormComponent.new(
         sale: @sale,
-        url: helpers.sale_path(@sale),
+        url: sale_path(@sale),
         clients: @clients,
         products: @products
       )
@@ -30,7 +30,7 @@ class Views::Sales::Edit < Views::Base
     render RubyUI::Alert.new(variant: :destructive) do
       div do
         h2(class: "font-bold mb-2") do
-          "#{helpers.pluralize(@sale.errors.count, 'erro')} impediram a venda de ser salva:"
+          "#{pluralize(@sale.errors.count, 'erro')} impediram a venda de ser salva:"
         end
         ul(class: "list-disc list-inside") do
           @sale.errors.full_messages.each do |message|

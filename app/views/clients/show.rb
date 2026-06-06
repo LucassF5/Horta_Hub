@@ -31,10 +31,10 @@ class Views::Clients::Show < Views::Base
 
   def render_actions
     div(class: "flex gap-4") do
-      render RubyUI::Link.new(href: helpers.edit_client_path(@client), variant: :primary) { "Editar" }
+      render RubyUI::Link.new(href: edit_client_path(@client), variant: :primary) { "Editar" }
 
       form_with(
-        url: helpers.client_path(@client),
+        url: client_path(@client),
         method: :delete,
         local: true,
         style: "display: inline;"
@@ -46,7 +46,7 @@ class Views::Clients::Show < Views::Base
         ) { "Deletar" }
       end
 
-      render RubyUI::Link.new(href: helpers.clients_path, variant: :outline) { "Voltar para Clientes" }
+      render RubyUI::Link.new(href: clients_path, variant: :outline) { "Voltar para Clientes" }
     end
   end
 end

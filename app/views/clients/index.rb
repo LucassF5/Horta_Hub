@@ -19,7 +19,7 @@ class Views::Clients::Index < Views::Base
   def render_header
     div(class: "flex justify-between items-center mb-6") do
       h1(class: "text-3xl font-bold text-gray-800") { "Clientes" }
-      render RubyUI::Link.new(href: helpers.new_client_path, variant: :primary) { "Novo Cliente" }
+      render RubyUI::Link.new(href: new_client_path, variant: :primary) { "Novo Cliente" }
     end
   end
 
@@ -55,11 +55,11 @@ class Views::Clients::Index < Views::Base
       render RubyUI::TableCell.new { client.client_type.humanize }
       render RubyUI::TableCell.new(class: "text-right") do
         div(class: "flex justify-end items-center gap-2") do
-          render RubyUI::Link.new(href: helpers.client_path(client), variant: :outline) { "Ver" }
-          render RubyUI::Link.new(href: helpers.edit_client_path(client), variant: :primary) { "Editar" }
+          render RubyUI::Link.new(href: client_path(client), variant: :outline) { "Ver" }
+          render RubyUI::Link.new(href: edit_client_path(client), variant: :primary) { "Editar" }
 
           form_with(
-            url: helpers.client_path(client),
+            url: client_path(client),
             method: :delete,
             local: true,
             style: "display: inline;"

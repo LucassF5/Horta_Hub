@@ -10,6 +10,15 @@ RSpec.describe SaleItem, type: :model do
     subject { build(:sale_item) }
 
     it { should validate_presence_of(:quantity) }
+    it 'is invalid when the product belongs to another organization' do
+      sale = create(:sale, organization: create(:organization))
+      product = create(:product, organization: create(:organization))
+
+      sale_item = build(:sale_item, sale: sale, product: product)
+
+      expect(sale_item).not_to be_valid
+      expect(sale_item.errors[:product]).to include('deve pertencer à mesma organização da venda')
+    end
     it { should validate_presence_of(:unit_price) }
     it { should validate_numericality_of(:quantity).is_greater_than(0).only_integer }
     it { should validate_numericality_of(:unit_price).is_greater_than(0) }

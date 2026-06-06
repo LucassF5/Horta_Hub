@@ -4,6 +4,16 @@ class SaleItem < ApplicationRecord
 
   validates :quantity, presence: true, numericality: { greater_than: 0, only_integer: true }
   validates :unit_price, presence: true, numericality: { greater_than: 0 }
+  validate :product_must_belong_to_sale_organization
+
+  private
+
+  def product_must_belong_to_sale_organization
+    return if sale.blank? || product.blank?
+    return if product.organization_id == sale.organization_id
+
+    errors.add(:product, "deve pertencer à mesma organização da venda")
+  end
 end
 
 # == Schema Information

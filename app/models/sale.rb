@@ -12,6 +12,7 @@ class Sale < ApplicationRecord
   validates :status, presence: true
 
   before_save :calculate_total
+  before_validation :normalize_notes
 
   scope :recent, -> { order(sale_date: :desc) }
 
@@ -19,6 +20,12 @@ class Sale < ApplicationRecord
 
   def calculate_total
     self.total = sale_items.reject(&:marked_for_destruction?).sum { |item| item.quantity * item.unit_price }
+  end
+
+  def normalize_notes
+    return if notes.blank?
+
+    self.notes = notes.strip.squeeze(" ")
   end
 end
 

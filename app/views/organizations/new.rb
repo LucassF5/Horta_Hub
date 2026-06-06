@@ -13,7 +13,7 @@ class Views::Organizations::New < Views::Base
 
       render_errors if @organization.errors.any? || @user.errors.any?
 
-      form_with(url: helpers.organizations_path, method: :post, class: "contents") do |form|
+      form_with(url: organizations_path, method: :post, class: "contents") do |form|
         render_organization_fields(form)
         render_user_fields(form)
 
@@ -25,7 +25,7 @@ class Views::Organizations::New < Views::Base
       div(class: "mt-6 pt-6 border-t border-gray-300") do
         p(class: "text-sm text-gray-500") do
           plain "Já tem uma conta? "
-          a(href: helpers.new_session_path, class: "text-blue-600 underline hover:no-underline") { "Fazer login" }
+          a(href: new_session_path, class: "text-blue-600 underline hover:no-underline") { "Fazer login" }
         end
       end
     end

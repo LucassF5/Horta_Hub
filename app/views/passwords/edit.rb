@@ -9,7 +9,7 @@ class Views::Passwords::Edit < Views::Base
     div(class: "mx-auto md:w-2/3 w-full") do
       h1(class: "font-bold text-4xl") { "Atualize sua senha" }
 
-      form_with(url: helpers.password_path(@token), method: :put, class: "contents") do |form|
+      form_with(url: password_path(@token), method: :put, class: "contents") do |form|
         div(class: "my-5") do
           form.password_field(
             :password,

@@ -17,7 +17,7 @@ class Views::Products::Index < Views::Base
   def render_header
     div(class: "flex justify-between items-center mb-6") do
       h1(class: "text-3xl font-bold text-gray-800") { "Produtos" }
-      render RubyUI::Link.new(href: helpers.new_product_path, variant: :primary) { "Novo Produto" }
+      render RubyUI::Link.new(href: new_product_path, variant: :primary) { "Novo Produto" }
     end
   end
 
@@ -34,17 +34,17 @@ class Views::Products::Index < Views::Base
       render RubyUI::CardHeader.new do
         render RubyUI::CardTitle.new { product.name }
         render RubyUI::CardDescription.new do
-          "Valor: #{helpers.number_to_currency(product.price)}"
+          "Valor: #{number_to_currency(product.price)}"
         end
       end
 
       render RubyUI::CardFooter.new do
         div(class: "flex items-center justify-end gap-2") do
-          render RubyUI::Link.new(href: helpers.product_path(product), variant: :outline) { "Ver" }
-          render RubyUI::Link.new(href: helpers.edit_product_path(product), variant: :primary) { "Editar" }
+          render RubyUI::Link.new(href: product_path(product), variant: :outline) { "Ver" }
+          render RubyUI::Link.new(href: edit_product_path(product), variant: :primary) { "Editar" }
 
           form_with(
-            url: helpers.product_path(product),
+            url: product_path(product),
             method: :delete,
             local: true,
             style: "display: inline;"

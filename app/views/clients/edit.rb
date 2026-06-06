@@ -15,7 +15,7 @@ class Views::Clients::Edit < Views::Base
 
       render Views::Clients::FormComponent.new(
         client: @client,
-        url: helpers.client_path(@client)
+        url: client_path(@client)
       )
     end
   end
@@ -26,7 +26,7 @@ class Views::Clients::Edit < Views::Base
     render RubyUI::Alert.new(variant: :destructive) do
       div do
         h2(class: "font-bold mb-2") do
-          "#{helpers.pluralize(@client.errors.count, 'erro')} impediram o cliente de ser salvo:"
+          "#{pluralize(@client.errors.count, 'erro')} impediram o cliente de ser salvo:"
         end
         ul(class: "list-disc list-inside") do
           @client.errors.full_messages.each do |message|

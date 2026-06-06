@@ -12,12 +12,12 @@ class Views::Products::Show < Views::Base
       div(class: "bg-white shadow-md rounded-lg p-6 mb-8") do
         p(class: "text-gray-700 text-lg mb-4") do
           strong(class: "font-semibold") { "Preço: " }
-          helpers.number_to_currency(@product.price)
+          number_to_currency(@product.price)
         end
 
         div(class: "flex gap-4") do
-          render RubyUI::Link.new(href: helpers.edit_product_path(@product), variant: :primary) { "Editar" }
-          render RubyUI::Link.new(href: helpers.products_path, variant: :outline) { "Voltar para Produtos" }
+          render RubyUI::Link.new(href: edit_product_path(@product), variant: :primary) { "Editar" }
+          render RubyUI::Link.new(href: products_path, variant: :outline) { "Voltar para Produtos" }
         end
       end
     end

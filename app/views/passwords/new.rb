@@ -9,7 +9,7 @@ class Views::Passwords::New < Views::Base
     div(class: "mx-auto md:w-2/3 w-full") do
       h1(class: "font-bold text-4xl") { "Esqueceu sua senha?" }
 
-      form_with(url: helpers.passwords_path, class: "contents") do |form|
+      form_with(url: passwords_path, class: "contents") do |form|
         div(class: "my-5") do
           form.email_field(
             :email_address,

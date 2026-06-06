@@ -44,8 +44,8 @@ class Views::Sales::Show < Views::Base
   def render_details
     div(class: "grid grid-cols-1 md:grid-cols-3 gap-4 mb-6") do
       render_detail("Cliente", @sale.client.name)
-      render_detail("Data", helpers.l(@sale.sale_date, format: :short))
-      render_detail("Total", helpers.number_to_currency(@sale.total, unit: "R$ "))
+      render_detail("Data", l(@sale.sale_date, format: :short))
+      render_detail("Total", number_to_currency(@sale.total, unit: "R$ "))
     end
 
     if @sale.notes.present?
@@ -83,8 +83,8 @@ class Views::Sales::Show < Views::Base
           render RubyUI::TableRow.new do
             render RubyUI::TableCell.new { item.product.name }
             render RubyUI::TableCell.new { item.quantity.to_s }
-            render RubyUI::TableCell.new { helpers.number_to_currency(item.unit_price, unit: "R$ ") }
-            render RubyUI::TableCell.new { helpers.number_to_currency(item.quantity * item.unit_price, unit: "R$ ") }
+            render RubyUI::TableCell.new { number_to_currency(item.unit_price, unit: "R$ ") }
+            render RubyUI::TableCell.new { number_to_currency(item.quantity * item.unit_price, unit: "R$ ") }
           end
         end
       end
@@ -93,10 +93,10 @@ class Views::Sales::Show < Views::Base
 
   def render_actions
     div(class: "flex gap-4 mt-6") do
-      render RubyUI::Link.new(href: helpers.edit_sale_path(@sale), variant: :primary) { "Editar" }
+      render RubyUI::Link.new(href: edit_sale_path(@sale), variant: :primary) { "Editar" }
 
       form_with(
-        url: helpers.sale_path(@sale),
+        url: sale_path(@sale),
         method: :delete,
         local: true,
         style: "display: inline;"
@@ -108,7 +108,7 @@ class Views::Sales::Show < Views::Base
         ) { "Deletar" }
       end
 
-      render RubyUI::Link.new(href: helpers.sales_path, variant: :outline) { "Voltar para Vendas" }
+      render RubyUI::Link.new(href: sales_path, variant: :outline) { "Voltar para Vendas" }
     end
   end
 end

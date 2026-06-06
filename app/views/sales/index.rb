@@ -19,7 +19,7 @@ class Views::Sales::Index < Views::Base
   def render_header
     div(class: "flex justify-between items-center mb-6") do
       h1(class: "text-3xl font-bold text-gray-800") { "Vendas" }
-      render RubyUI::Link.new(href: helpers.new_sale_path, variant: :primary) { "Nova Venda" }
+      render RubyUI::Link.new(href: new_sale_path, variant: :primary) { "Nova Venda" }
     end
   end
 
@@ -51,17 +51,17 @@ class Views::Sales::Index < Views::Base
 
   def render_sale_row(sale)
     render RubyUI::TableRow.new do
-      render RubyUI::TableCell.new { helpers.l(sale.sale_date, format: :short) }
+      render RubyUI::TableCell.new { l(sale.sale_date, format: :short) }
       render RubyUI::TableCell.new { sale.client.name }
       render RubyUI::TableCell.new { render_status_badge(sale) }
-      render RubyUI::TableCell.new { helpers.number_to_currency(sale.total, unit: "R$ ") }
+      render RubyUI::TableCell.new { number_to_currency(sale.total, unit: "R$ ") }
       render RubyUI::TableCell.new(class: "text-right") do
         div(class: "flex justify-end items-center gap-2") do
-          render RubyUI::Link.new(href: helpers.sale_path(sale), variant: :outline) { "Ver" }
-          render RubyUI::Link.new(href: helpers.edit_sale_path(sale), variant: :primary) { "Editar" }
+          render RubyUI::Link.new(href: sale_path(sale), variant: :outline) { "Ver" }
+          render RubyUI::Link.new(href: edit_sale_path(sale), variant: :primary) { "Editar" }
 
           form_with(
-            url: helpers.sale_path(sale),
+            url: sale_path(sale),
             method: :delete,
             local: true,
             style: "display: inline;"

@@ -3,7 +3,7 @@ FactoryBot.define do
     quantity { Faker::Number.between(from: 1, to: 10) }
     unit_price { Faker::Commerce.price(range: 1.0..100.0) }
     association :sale
-    association :product
+    product { association(:product, organization: sale.organization) }
   end
 end
 

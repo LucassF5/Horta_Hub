@@ -10,6 +10,7 @@ class Sale < ApplicationRecord
   validates :sale_date, presence: true
   validates :total, numericality: { greater_than_or_equal_to: 0 }
   validates :status, presence: true
+  validate :client_must_belong_to_organization
 
   before_save :calculate_total
   before_validation :normalize_notes
@@ -26,6 +27,13 @@ class Sale < ApplicationRecord
     return if notes.blank?
 
     self.notes = notes.strip.squeeze(" ")
+  end
+
+  def client_must_belong_to_organization
+    return if organization.blank? || client.blank?
+    return if client.organization_id == organization_id
+
+    errors.add(:client, "deve pertencer à mesma organização da venda")
   end
 end
 

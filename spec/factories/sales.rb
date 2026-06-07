@@ -4,7 +4,7 @@ FactoryBot.define do
     status { "pending" }
     notes { Faker::Lorem.sentence }
     association :organization
-    association :client
+    client { association(:client, organization: organization) }
 
     trait :completed do
       status { "completed" }

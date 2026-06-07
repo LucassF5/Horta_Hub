@@ -13,6 +13,13 @@ RSpec.describe Sale, type: :model do
     it { should validate_presence_of(:sale_date) }
     it { should validate_presence_of(:status) }
     it { should validate_numericality_of(:total).is_greater_than_or_equal_to(0) }
+
+    it 'is invalid when the client belongs to another organization' do
+      sale = build(:sale, organization: create(:organization), client: create(:client, organization: create(:organization)))
+
+      expect(sale).not_to be_valid
+      expect(sale.errors[:client]).to include('deve pertencer à mesma organização da venda')
+    end
   end
 
   describe 'enums' do

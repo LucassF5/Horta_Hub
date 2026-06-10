@@ -53,8 +53,11 @@ jobs:
       - name: Lint code for consistent style
         run: bin/rubocop -f github
 
-  tests:
+  test:
     runs-on: ubuntu-latest
+    env:
+      RAILS_ENV: test
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -64,6 +67,9 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: true
+
+      - name: Prepare test database
+        run: bin/rails db:prepare
 
       - name: Run tests with RSpec
         run: bundle exec rspec

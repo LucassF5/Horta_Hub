@@ -14,5 +14,7 @@ Rails.autoloaders.main.push_dir(
   Rails.root.join("app/components/ruby_ui"), namespace: RubyUI
 )
 
+Rails.autoloaders.main.ignore(Rails.root.glob("app/components/ruby_ui/**/*_docs.rb"))
+
 # Allow using RubyUI::ComponentName instead RubyUI::ComponentName::ComponentName
 Rails.autoloaders.main.collapse(Rails.root.join("app/components/ruby_ui/*"))

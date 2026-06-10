@@ -52,10 +52,10 @@ RSpec.describe Sale, type: :model do
       it 'orders by sale_date descending' do
         organization = create(:organization)
         client = create(:client, organization: organization)
-        old_sale = create(:sale, organization: organization, client: client, sale_date: 1.week.ago)
+        old_sale = create(:sale, organization: organization, client: client, sale_date: Date.current - 1.week)
         new_sale = create(:sale, organization: organization, client: client, sale_date: Date.current)
 
-        expect(Sale.recent).to eq([ new_sale, old_sale ])
+        expect(Sale.where(id: [ old_sale.id, new_sale.id ]).recent).to eq([ new_sale, old_sale ])
       end
     end
   end

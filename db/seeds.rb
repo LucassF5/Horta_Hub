@@ -16,8 +16,7 @@ user.assign_attributes(
 )
 user.save!
 
-Membership.find_or_create_by!(user: user) do |membership|
-  membership.organization = organization
+Membership.find_or_create_by!(user: user, organization: organization) do |membership|
   membership.role = "owner"
 end
 

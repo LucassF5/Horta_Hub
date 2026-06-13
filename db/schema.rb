@@ -10,14 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_13_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_13_090100) do
   create_table "clients", force: :cascade do |t|
     t.string "client_type", null: false
     t.datetime "created_at", null: false
     t.string "name", limit: 65, null: false
     t.integer "organization_id", null: false
     t.string "phone"
+    t.string "slug"
     t.datetime "updated_at", null: false
+    t.index ["organization_id", "slug"], name: "index_clients_on_organization_id_and_slug", unique: true
+  end
+
+  create_table "friendly_id_slugs", force: :cascade do |t|
+    t.datetime "created_at"
+    t.string "scope"
+    t.string "slug", null: false
+    t.integer "sluggable_id", null: false
+    t.string "sluggable_type", limit: 50
+    t.index ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true
+    t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
+    t.index ["sluggable_type", "sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_type_and_sluggable_id"
   end
 
   create_table "memberships", force: :cascade do |t|
@@ -45,7 +58,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_090000) do
     t.string "name", null: false
     t.integer "organization_id", null: false
     t.decimal "price", precision: 10, scale: 2, null: false
+    t.string "slug"
     t.datetime "updated_at", null: false
+    t.index ["organization_id", "slug"], name: "index_products_on_organization_id_and_slug", unique: true
   end
 
   create_table "sale_items", force: :cascade do |t|

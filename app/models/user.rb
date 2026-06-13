@@ -1,13 +1,15 @@
 class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
-  has_one :membership, dependent: :destroy
-  has_one :organization, through: :membership
+  has_many :memberships, dependent: :destroy
+  has_many :organizations, through: :memberships
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
   def membership_for(organization)
-    membership if membership&.organization_id == organization&.id
+    return if organization.blank?
+
+    memberships.find_by(organization: organization)
   end
 
   validates :username, presence: true, length: { minimum: 3, maximum: 30 }

@@ -1,9 +1,13 @@
 class Organization < ApplicationRecord
+  extend FriendlyId
+
   has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships
   has_many :products, dependent: :restrict_with_error
   has_many :clients, dependent: :restrict_with_error
   has_many :sales, dependent: :destroy
+
+  friendly_id :name, use: [ :slugged, :history ]
 
   enum :status, { active: "active", inactive: "inactive" }
 
@@ -13,16 +17,12 @@ class Organization < ApplicationRecord
                    format: { with: /\A[a-z0-9\-]+\z/, message: "only lowercase letters, numbers and hyphens" }
   validates :status, presence: true
 
-  before_validation :generate_slug, on: :create, if: -> { slug.blank? }
-
   def membership_for(user)
     memberships.find_by(user: user)
   end
 
-  private
-
-  def generate_slug
-    self.slug = name.to_s.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/\A-|-\z/, "")
+  def should_generate_new_friendly_id?
+    slug.blank? || (will_save_change_to_name? && !will_save_change_to_slug?)
   end
 end
 

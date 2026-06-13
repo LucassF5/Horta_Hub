@@ -55,9 +55,14 @@ end
 #  client_type     :string           not null
 #  name            :string(65)       not null
 #  phone           :string
+#  slug            :string
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  organization_id :integer          not null
+#
+# Indexes
+#
+#  index_clients_on_organization_id_and_slug  (organization_id,slug) UNIQUE
 #
 # Foreign Keys
 #

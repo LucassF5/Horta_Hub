@@ -50,6 +50,6 @@ class ClientsController < ApplicationController
   end
 
   def set_client
-    @client = Current.organization.clients.find(params[:id])
+    @client = Current.organization.clients.friendly.find(params[:slug])
   end
 end

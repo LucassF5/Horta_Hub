@@ -50,6 +50,6 @@ class ProductsController < ApplicationController
     end
 
     def set_product
-        @product = Current.organization.products.find(params[:id])
+        @product = Current.organization.products.friendly.find(params[:slug])
     end
 end

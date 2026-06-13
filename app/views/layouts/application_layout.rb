@@ -123,9 +123,50 @@ class Views::Layouts::ApplicationLayout < Views::Base
         image_tag("/HortaHubIcon.png", alt: "Horta Hub", class: "size-9 rounded-md shrink-0")
         div(class: "flex min-w-0 flex-col group-data-[collapsible=icon]:hidden") do
           span(class: "truncate text-sm font-semibold") { "Horta Hub" }
-          span(class: "truncate text-xs text-muted-foreground") { "Gestao da horta" }
         end
       end
+      div(class: "group-data-[collapsible=icon]:hidden") do
+        render_organization_context
+      end
+    end
+  end
+
+  def render_organization_context
+    return span(class: "truncate text-xs text-muted-foreground") { "Gestao da horta" } if Current.organization.blank?
+
+    organizations = Current.user.organizations.active.order(:name)
+
+    if organizations.many?
+      form_with(url: current_organization_path, method: :patch, local: true, class: "mt-1", data: { controller: "submit-on-change", action: "change->submit-on-change#submit" }) do
+        render RubyUI::Select.new do
+          render RubyUI::SelectInput.new(
+            type: "hidden",
+            name: "organization_id",
+            value: Current.organization.id,
+            data: { ruby_ui__select_target: "input" }
+          )
+
+          render RubyUI::SelectTrigger.new(
+            class: [
+              "h-8 border-sidebar-border bg-sidebar px-2 text-xs text-sidebar-foreground shadow-none",
+              "focus:ring-sidebar-ring"
+            ],
+            aria: { label: "Organização atual" }
+          ) do
+            render RubyUI::SelectValue.new { Current.organization.name }
+          end
+
+          render RubyUI::SelectContent.new do
+            organizations.each do |organization|
+              render RubyUI::SelectItem.new(value: organization.id, aria_selected: organization.id == Current.organization.id) do
+                organization.name
+              end
+            end
+          end
+        end
+      end
+    else
+      span(class: "truncate text-xs text-muted-foreground") { Current.organization.name }
     end
   end
 

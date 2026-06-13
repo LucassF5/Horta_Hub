@@ -5,7 +5,7 @@ class Membership < ApplicationRecord
   enum :role, { owner: "owner", admin: "admin", manager: "manager", viewer: "viewer" }
 
   validates :role, presence: true
-  validates :user_id, uniqueness: { message: "already assigned to an organization" }
+  validates :user_id, uniqueness: { scope: :organization_id }
 
   def can_manage?
     owner? || admin? || manager?
@@ -31,7 +31,7 @@ end
 #
 #  index_memberships_on_organization_id              (organization_id)
 #  index_memberships_on_organization_id_and_user_id  (organization_id,user_id) UNIQUE
-#  index_memberships_on_user_id_unique               (user_id) UNIQUE
+#  index_memberships_on_user_id                      (user_id)
 #
 # Foreign Keys
 #

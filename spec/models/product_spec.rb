@@ -118,9 +118,14 @@ end
 #  id              :integer          not null, primary key
 #  name            :string           not null
 #  price           :decimal(10, 2)   not null
+#  slug            :string
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  organization_id :integer          not null
+#
+# Indexes
+#
+#  index_products_on_organization_id_and_slug  (organization_id,slug) UNIQUE
 #
 # Foreign Keys
 #

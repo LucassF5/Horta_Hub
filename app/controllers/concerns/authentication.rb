@@ -47,11 +47,38 @@ module Authentication
     def set_current_organization
       return unless authenticated?
 
-      Current.organization = Current.user&.organization
+      Current.membership = current_membership
+      Current.organization = Current.membership&.organization
 
       if Current.organization.nil?
+        session.delete(:organization_id)
         redirect_to new_organization_path, alert: "Você precisa criar ou pertencer a uma organização."
       end
+    end
+
+    def current_membership
+      selected_membership || default_membership
+    end
+
+    def selected_membership
+      return if session[:organization_id].blank?
+
+      Current.user
+        .memberships
+        .includes(:organization)
+        .find_by(organization_id: session[:organization_id])
+        &.then { |membership| membership.organization.active? ? membership : nil }
+    end
+
+    def default_membership
+      Current.user
+        .memberships
+        .includes(:organization)
+        .joins(:organization)
+        .merge(Organization.active)
+        .order(:created_at)
+        .first
+        &.tap { |membership| session[:organization_id] = membership.organization_id }
     end
 
     def start_new_session_for(user)
@@ -63,6 +90,7 @@ module Authentication
 
     def terminate_session
       Current.session.destroy
+      session.delete(:organization_id)
       cookies.delete(:session_id)
     end
 end

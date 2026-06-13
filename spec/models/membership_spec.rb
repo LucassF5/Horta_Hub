@@ -7,10 +7,22 @@ RSpec.describe Membership, type: :model do
   end
 
   describe 'validations' do
-    subject { build(:membership) }
-
     it { should validate_presence_of(:role) }
-    it { should validate_uniqueness_of(:user_id).with_message("already assigned to an organization") }
+
+    it 'prevents duplicate membership in the same organization' do
+      membership = create(:membership)
+      duplicate = build(:membership, user: membership.user, organization: membership.organization)
+
+      expect(duplicate).not_to be_valid
+      expect(duplicate.errors[:user_id]).to be_present
+    end
+
+    it 'allows the same user in different organizations' do
+      user = create(:user)
+      create(:membership, user: user)
+
+      expect(build(:membership, user: user, organization: create(:organization))).to be_valid
+    end
   end
 
   describe 'enums' do
@@ -75,7 +87,7 @@ end
 #
 #  index_memberships_on_organization_id              (organization_id)
 #  index_memberships_on_organization_id_and_user_id  (organization_id,user_id) UNIQUE
-#  index_memberships_on_user_id_unique               (user_id) UNIQUE
+#  index_memberships_on_user_id                      (user_id)
 #
 # Foreign Keys
 #

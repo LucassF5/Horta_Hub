@@ -33,7 +33,7 @@ end
 #
 #  index_memberships_on_organization_id              (organization_id)
 #  index_memberships_on_organization_id_and_user_id  (organization_id,user_id) UNIQUE
-#  index_memberships_on_user_id_unique               (user_id) UNIQUE
+#  index_memberships_on_user_id                      (user_id)
 #
 # Foreign Keys
 #

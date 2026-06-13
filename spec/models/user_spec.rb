@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe User, type: :model do
   describe 'associations' do
     it { should have_many(:sessions).dependent(:destroy) }
-    it { should have_one(:membership).dependent(:destroy) }
-    it { should have_one(:organization).through(:membership) }
+    it { should have_many(:memberships).dependent(:destroy) }
+    it { should have_many(:organizations).through(:memberships) }
   end
 
   describe 'validations' do
@@ -26,11 +26,17 @@ RSpec.describe User, type: :model do
 
   describe '#membership_for' do
     let(:organization) { create(:organization) }
+    let(:other_organization) { create(:organization) }
     let(:user) { create(:user) }
     let!(:membership) { create(:membership, user: user, organization: organization) }
+    let!(:other_membership) { create(:membership, user: user, organization: other_organization, role: "viewer") }
 
     it 'returns membership for matching organization' do
       expect(user.membership_for(organization)).to eq(membership)
+    end
+
+    it 'returns the matching membership when user belongs to multiple organizations' do
+      expect(user.membership_for(other_organization)).to eq(other_membership)
     end
 
     it 'returns nil for non-matching organization' do
@@ -50,7 +56,7 @@ RSpec.describe User, type: :model do
 
     it 'creates user with organization' do
       user = create(:user, :with_organization)
-      expect(user.organization).to be_present
+      expect(user.organizations).to be_present
     end
   end
 end

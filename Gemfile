@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem "action_policy"
 gem "bcrypt", "~> 3.1"
 gem "bootsnap", require: false
 gem "friendly_id", "~> 5.7"

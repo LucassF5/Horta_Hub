@@ -4,7 +4,7 @@ class ProductsController < ApplicationController
     def index
         authorize!
 
-        @products = Current.organization.products
+        @products = Current.organization.products.includes(:sale_items)
         render Views::Products::Index.new(products: @products)
     end
 

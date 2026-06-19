@@ -16,7 +16,7 @@ class Views::Products::Show < Views::Base
         end
 
         div(class: "flex gap-4") do
-          render RubyUI::Link.new(href: edit_product_path(@product), variant: :primary) { "Editar" }
+          render RubyUI::Link.new(href: edit_product_path(@product), variant: :primary) { "Editar" } if allowed_to?(:edit?, @product)
           render RubyUI::Link.new(href: products_path, variant: :outline) { "Voltar para Produtos" }
         end
       end

@@ -1,23 +1,28 @@
 class ProductsController < ApplicationController
-    before_action :require_authentication
     before_action :set_product, only: [ :show, :edit, :update, :destroy ]
 
     def index
+        authorize!
+
         @products = Current.organization.products
         render Views::Products::Index.new(products: @products)
     end
 
     def show
+        authorize! @product
         render Views::Products::Show.new(product: @product)
     end
 
     def new
-        @product = Product.new
+        @product = Current.organization.products.build
+        authorize! @product
+
         render Views::Products::New.new(product: @product)
     end
 
     def create
         @product = Current.organization.products.build(product_params)
+        authorize! @product
 
         if @product.save
             redirect_to products_path, notice: "Produto criado com sucesso"
@@ -27,10 +32,13 @@ class ProductsController < ApplicationController
     end
 
     def edit
+        authorize! @product
         render Views::Products::Edit.new(product: @product)
     end
 
     def update
+        authorize! @product
+
         if @product.update(product_params)
             redirect_to products_path, notice: "Produto atualizado com sucesso"
         else
@@ -39,6 +47,8 @@ class ProductsController < ApplicationController
     end
 
     def destroy
+        authorize! @product
+
         @product.destroy
         redirect_to products_path, alert: "Produto deletado com sucesso", status: :see_other
     end

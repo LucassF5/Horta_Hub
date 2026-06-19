@@ -1,23 +1,28 @@
 class ClientsController < ApplicationController
-  before_action :require_authentication
   before_action :set_client, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @clients = Current.organization.clients
+    authorize!
+
+    @clients = Current.organization.clients.includes(:sales)
     render Views::Clients::Index.new(clients: @clients)
   end
 
   def show
+    authorize! @client
     render Views::Clients::Show.new(client: @client)
   end
 
   def new
-    @client = Client.new
+    @client = Current.organization.clients.build
+    authorize! @client
+
     render Views::Clients::New.new(client: @client)
   end
 
   def create
     @client = Current.organization.clients.build(client_params)
+    authorize! @client
 
     if @client.save
       redirect_to clients_path, notice: "Cliente criado com sucesso!"
@@ -27,10 +32,13 @@ class ClientsController < ApplicationController
   end
 
   def edit
+    authorize! @client
     render Views::Clients::Edit.new(client: @client)
   end
 
   def update
+    authorize! @client
+
     if @client.update(client_params)
       redirect_to clients_path, notice: "Cliente atualizado com sucesso!"
     else
@@ -39,6 +47,8 @@ class ClientsController < ApplicationController
   end
 
   def destroy
+    authorize! @client
+
     @client.destroy
     redirect_to clients_path, alert: "Client deletado com sucesso!", status: :see_other
   end

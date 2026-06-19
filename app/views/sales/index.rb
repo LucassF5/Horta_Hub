@@ -19,7 +19,7 @@ class Views::Sales::Index < Views::Base
   def render_header
     div(class: "flex justify-between items-center mb-6") do
       h1(class: "text-3xl font-bold text-gray-800") { "Vendas" }
-      render RubyUI::Link.new(href: new_sale_path, variant: :primary) { "Nova Venda" }
+      render RubyUI::Link.new(href: new_sale_path, variant: :primary) { "Nova Venda" } if allowed_to?(:create?, Sale)
     end
   end
 
@@ -58,19 +58,21 @@ class Views::Sales::Index < Views::Base
       render RubyUI::TableCell.new(class: "text-right") do
         div(class: "flex justify-end items-center gap-2") do
           render RubyUI::Link.new(href: sale_path(sale), variant: :outline) { "Ver" }
-          render RubyUI::Link.new(href: edit_sale_path(sale), variant: :primary) { "Editar" }
+          render RubyUI::Link.new(href: edit_sale_path(sale), variant: :primary) { "Editar" } if allowed_to?(:edit?, sale)
 
-          form_with(
-            url: sale_path(sale),
-            method: :delete,
-            local: true,
-            style: "display: inline;"
-          ) do
-            render RubyUI::Button.new(
-              type: :submit,
-              variant: :destructive,
-              data: { turbo_confirm: "Tem certeza?" }
-            ) { "Apagar" }
+          if allowed_to?(:destroy?, sale)
+            form_with(
+              url: sale_path(sale),
+              method: :delete,
+              local: true,
+              style: "display: inline;"
+            ) do
+              render RubyUI::Button.new(
+                type: :submit,
+                variant: :destructive,
+                data: { turbo_confirm: "Tem certeza?" }
+              ) { "Apagar" }
+            end
           end
         end
       end

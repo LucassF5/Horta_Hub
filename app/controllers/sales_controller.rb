@@ -2,17 +2,22 @@ class SalesController < ApplicationController
   before_action :set_sale, only: %i[show edit update destroy]
 
   def index
+    authorize!
+
     @sales = Current.organization.sales.includes(:client).recent
     render Views::Sales::Index.new(sales: @sales)
   end
 
   def show
+    authorize! @sale
     render Views::Sales::Show.new(sale: @sale)
   end
 
   def new
     @sale = Current.organization.sales.build(sale_date: Date.current)
     @sale.sale_items.build
+    authorize! @sale
+
     render Views::Sales::New.new(
       sale: @sale,
       clients: Current.organization.clients,
@@ -22,6 +27,7 @@ class SalesController < ApplicationController
 
   def create
     @sale = Current.organization.sales.build(sale_params)
+    authorize! @sale
 
     if @sale.save
       redirect_to sales_path, notice: "Venda criada com sucesso."
@@ -35,6 +41,8 @@ class SalesController < ApplicationController
   end
 
   def edit
+    authorize! @sale
+
     render Views::Sales::Edit.new(
       sale: @sale,
       clients: Current.organization.clients,
@@ -43,6 +51,8 @@ class SalesController < ApplicationController
   end
 
   def update
+    authorize! @sale
+
     if @sale.update(sale_params)
       redirect_to sales_path, notice: "Venda atualizada com sucesso."
     else
@@ -55,6 +65,8 @@ class SalesController < ApplicationController
   end
 
   def destroy
+    authorize! @sale
+
     @sale.destroy
     redirect_to sales_path, notice: "Venda removida com sucesso.", status: :see_other
   end

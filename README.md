@@ -1,84 +1,115 @@
 # Horta Hub
 
-Aplicação Rails minimalista para gerenciar produtos e clientes, com autenticação e componentes Phlex/Tailwind.
+Aplicação Rails para gerenciar organizações, produtos, clientes e vendas, com autenticação, autorização por papel e interface server-rendered em Phlex.
 
-## Sumário
-- [Visão Geral](#visão-geral)
-- [Pré-requisitos](#pré-requisitos)
-- [Configuração Rápida](#configuração-rápida)
-- [Banco de dados](#banco-de-dados)
-- [Executando a Aplicação](#executando-a-aplicação)
-- [Testes](#testes)
-- [Features Implementadas](#features-implementadas)
-- [Melhorias Recomendadas](#melhorias-recomendadas)
-- [Futuras Implementações](#futuras-implementações)
-- [Checklist Privado](#checklist-privado)
+## Tecnologias
 
-## Visão Geral
+- Ruby on Rails 8.1
+- SQLite
+- Phlex, RubyUI e Tailwind CSS
+- Hotwire com Turbo e Stimulus
+- RSpec
+- Action Policy
+- FriendlyId
 
-Este repositório contém a aplicação `Horta_Hub` — uma base para gerenciamento de produtos e clientes com autenticação baseada em senha e uma UI composta por componentes `RubyUI` (Phlex + Tailwind).
+## Funcionalidades Implementadas
 
-## Pré-requisitos
+- Cadastro de organização e usuário proprietário em uma única transação.
+- Autenticação por senha e sessões persistidas em `Session`.
+- Recuperação de senha com token assinado e expiração fornecidos por `has_secure_password`.
+- Usuários vinculados a múltiplas organizações por `Membership`.
+- Seleção da organização ativa pela sessão.
+- Papéis `owner`, `admin`, `manager` e `viewer` por organização.
+- CRUD de produtos e clientes com slugs amigáveis escopados por organização.
+- CRUD de vendas com cliente, status, observações e itens de venda.
+- Cálculo do total da venda a partir dos itens.
+- Isolamento das consultas por `Current.organization`.
+- Autorização de produtos, clientes e vendas com Action Policy.
+- Controles de interface condicionados por `allowed_to?`.
+- Testes de models, requests e policies com RSpec.
 
-- Ruby 3.x / Rails 8.x
-- SQLite (desenvolvimento) ou outro banco suportado
-- Node/npm apenas se você for compilar assets locais (opcional com importmap)
+## Autorização
 
-## Configuração Rápida
+As permissões são determinadas pela `Membership` do usuário na organização ativa.
 
-1. Instale dependências Ruby:
+| Ação | owner | admin | manager | viewer |
+| --- | --- | --- | --- | --- |
+| Listar e visualizar | Sim | Sim | Sim | Sim |
+| Criar | Sim | Sim | Sim | Não |
+| Editar | Sim | Sim | Sim | Não |
+| Excluir | Sim | Sim | Sim | Não |
+
+Regras adicionais:
+
+- Um recurso só pode ser visualizado ou alterado dentro da organização à qual pertence.
+- Produtos utilizados em vendas não podem ser excluídos.
+- Clientes vinculados a vendas não podem ser excluídos.
+- `SaleItem` é autorizado como parte de `Sale`, pois não possui rotas independentes.
+- O backend sempre executa `authorize!`; os controles do frontend servem apenas para adequar a experiência do usuário.
+
+## Configuração
+
+Instale as dependências e prepare o banco:
 
 ```bash
 bundle install
+bin/rails db:prepare
 ```
 
-2. Configure variáveis de ambiente necessárias (ex.: `RAILS_ENV`, `DATABASE_URL`) e a chave mestra se aplicável (`/config/master.key`).
-
-3. Crie/atualize o banco de dados:
+Inicie a aplicação:
 
 ```bash
-rails db:create db:migrate db:seed
+bin/dev
 ```
 
-## Banco de dados
+A aplicação estará disponível em `http://localhost:3000`.
 
-O projeto usa migrations em `db/migrate/`. Em desenvolvimento o SQLite é usado por padrão; para produção configure `DATABASE_URL` com Postgres/MySQL conforme necessário.
+## Seed e População do Banco
 
-## Executando a Aplicação
-
-Inicie o servidor Puma:
+Para popular um banco já preparado com os dados de demonstração:
 
 ```bash
-bin/rails server
+bin/rails db:seed
 ```
 
-Acesse http://localhost:3000
+O seed é idempotente e pode ser executado novamente sem duplicar os registros principais. Ele cria ou atualiza:
 
-## Testes
+- uma organização de demonstração;
+- um usuário proprietário;
+- 10 produtos;
+- 6 clientes;
+- 6 vendas com seus respectivos itens.
 
-Ainda não há uma suíte de testes completa; recomenda-se adicionar `rspec-rails` ou `minitest` e configurar CI para rodar testes, RuboCop e Brakeman.
+Credenciais para acessar os dados de demonstração:
 
-## Features Implementadas
+```text
+E-mail: admin@hortahub.test
+Senha: password123
+```
 
-- Autenticação com `has_secure_password` e sessões persistidas em `Session`.
-- Fluxo de recuperação de senha (mailer + templates; falta gerar/validar token no `User`).
-- CRUD de `Product` e `Client` com validações básicas.
-- UI componetizada com `RubyUI` (Phlex) e Tailwind.
-- Esqueleto PWA (`manifest` e `service-worker.js`) disponível, não ativado por padrão.
+Para apagar o banco de desenvolvimento, recriar a estrutura e executar o seed novamente:
 
-## Melhorias Recomendadas (curto prazo)
+```bash
+bin/rails db:reset
+```
 
-- Consertar `UsersController#create` para não usar `create!` seguido de `save`.
-- Implementar `password_reset_token` seguro (usar `signed_id` ou `has_secure_token`) e expiração.
-- Substituir `params.expect` por `params.require(...).permit(...)` e evitar `update!` em condicionais.
-- Ativar manifest no layout e testar `service-worker` para funcionalidades PWA.
+O comando `db:reset` remove os dados existentes. Não o execute em produção.
 
-## Futuras Implementações (médio/longo prazo)
+## Qualidade
 
-- Painel Admin com controle de permissões por `role`.
-- API JSON versionada com autenticação JWT.
-- Pesquisa e paginação (Pagy/Kaminari), import/export CSV, Web Push, 2FA, OAuth social.
+Execute a suíte de testes:
 
-## Checklist Privado
+```bash
+bundle exec rspec
+```
 
-Existe um checklist local com melhorias e ideias em `CHECKLIST.md` (não comitado por padrão).
+Execute as verificações estáticas:
+
+```bash
+bin/rubocop
+bin/brakeman
+```
+
+## Próximos Passos
+
+As implementações futuras estão registradas em [CHECKLIST.md](CHECKLIST.md). O checklist contém apenas pendências; funcionalidades concluídas permanecem documentadas neste artigo.

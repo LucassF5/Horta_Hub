@@ -93,19 +93,21 @@ class Views::Sales::Show < Views::Base
 
   def render_actions
     div(class: "flex gap-4 mt-6") do
-      render RubyUI::Link.new(href: edit_sale_path(@sale), variant: :primary) { "Editar" }
+      render RubyUI::Link.new(href: edit_sale_path(@sale), variant: :primary) { "Editar" } if allowed_to?(:edit?, @sale)
 
-      form_with(
-        url: sale_path(@sale),
-        method: :delete,
-        local: true,
-        style: "display: inline;"
-      ) do
-        render RubyUI::Button.new(
-          type: :submit,
-          variant: :destructive,
-          data: { turbo_confirm: "Tem certeza que deseja deletar esta venda?" }
-        ) { "Deletar" }
+      if allowed_to?(:destroy?, @sale)
+        form_with(
+          url: sale_path(@sale),
+          method: :delete,
+          local: true,
+          style: "display: inline;"
+        ) do
+          render RubyUI::Button.new(
+            type: :submit,
+            variant: :destructive,
+            data: { turbo_confirm: "Tem certeza que deseja deletar esta venda?" }
+          ) { "Deletar" }
+        end
       end
 
       render RubyUI::Link.new(href: sales_path, variant: :outline) { "Voltar para Vendas" }

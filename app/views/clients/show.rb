@@ -31,19 +31,21 @@ class Views::Clients::Show < Views::Base
 
   def render_actions
     div(class: "flex gap-4") do
-      render RubyUI::Link.new(href: edit_client_path(@client), variant: :primary) { "Editar" }
+      render RubyUI::Link.new(href: edit_client_path(@client), variant: :primary) { "Editar" } if allowed_to?(:edit?, @client)
 
-      form_with(
-        url: client_path(@client),
-        method: :delete,
-        local: true,
-        style: "display: inline;"
-      ) do
-        render RubyUI::Button.new(
-          type: :submit,
-          variant: :destructive,
-          data: { turbo_confirm: "Tem certeza que deseja deletar este cliente?" }
-        ) { "Deletar" }
+      if allowed_to?(:destroy?, @client)
+        form_with(
+          url: client_path(@client),
+          method: :delete,
+          local: true,
+          style: "display: inline;"
+        ) do
+          render RubyUI::Button.new(
+            type: :submit,
+            variant: :destructive,
+            data: { turbo_confirm: "Tem certeza que deseja deletar este cliente?" }
+          ) { "Deletar" }
+        end
       end
 
       render RubyUI::Link.new(href: clients_path, variant: :outline) { "Voltar para Clientes" }

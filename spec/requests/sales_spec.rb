@@ -3,7 +3,8 @@ require 'rails_helper'
 RSpec.describe "Sales", type: :request do
   let(:organization) { create(:organization) }
   let(:user) { create(:user) }
-  let!(:membership) { create(:membership, user: user, organization: organization, role: "owner") }
+  let(:role) { "owner" }
+  let!(:membership) { create(:membership, user: user, organization: organization, role: role) }
   let!(:client) { create(:client, organization: organization) }
   let!(:product) { create(:product, organization: organization) }
   let!(:sale) { create(:sale, organization: organization, client: client) }
@@ -171,6 +172,66 @@ RSpec.describe "Sales", type: :request do
     it "redirects to login page" do
       get sales_path
       expect(response).to redirect_to(new_session_path)
+    end
+  end
+
+  context "when membership is viewer" do
+    let(:role) { "viewer" }
+
+    it "allows access to the sales index without management actions" do
+      get sales_path
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).not_to include("Nova Venda", "Editar", "Apagar")
+    end
+
+    it "allows access to a sale without management actions" do
+      get sale_path(sale)
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).not_to include("Editar", "Deletar")
+    end
+
+    it "denies access to the new sale form" do
+      get new_sale_path
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "does not create a sale" do
+      expect {
+        post sales_path, params: {
+          sale: {
+            client_id: client.id,
+            sale_date: Date.current,
+            status: "pending"
+          }
+        }
+      }.not_to change(Sale, :count)
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "denies access to the edit sale form" do
+      get edit_sale_path(sale)
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "does not update a sale" do
+      expect {
+        patch sale_path(sale), params: { sale: { status: "completed" } }
+      }.not_to change { sale.reload.status }
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "does not destroy a sale" do
+      expect {
+        delete sale_path(sale)
+      }.not_to change(Sale, :count)
+
+      expect(response).to redirect_to(root_path)
     end
   end
 

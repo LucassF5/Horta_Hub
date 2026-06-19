@@ -17,7 +17,7 @@ class Views::Products::Index < Views::Base
   def render_header
     div(class: "flex justify-between items-center mb-6") do
       h1(class: "text-3xl font-bold text-gray-800") { "Produtos" }
-      render RubyUI::Link.new(href: new_product_path, variant: :primary) { "Novo Produto" }
+      render RubyUI::Link.new(href: new_product_path, variant: :primary) { "Novo Produto" } if allowed_to?(:create?, Product)
     end
   end
 
@@ -41,19 +41,21 @@ class Views::Products::Index < Views::Base
       render RubyUI::CardFooter.new do
         div(class: "flex items-center justify-end gap-2") do
           render RubyUI::Link.new(href: product_path(product), variant: :outline) { "Ver" }
-          render RubyUI::Link.new(href: edit_product_path(product), variant: :primary) { "Editar" }
+          render RubyUI::Link.new(href: edit_product_path(product), variant: :primary) { "Editar" } if allowed_to?(:edit?, product)
 
-          form_with(
-            url: product_path(product),
-            method: :delete,
-            local: true,
-            style: "display: inline;"
-          ) do
-            render RubyUI::Button.new(
-              type: :submit,
-              variant: :destructive,
-              data: { turbo_confirm: "Tem certeza que deseja apagar este produto?" }
-            ) { "Apagar" }
+          if allowed_to?(:destroy?, product)
+            form_with(
+              url: product_path(product),
+              method: :delete,
+              local: true,
+              style: "display: inline;"
+            ) do
+              render RubyUI::Button.new(
+                type: :submit,
+                variant: :destructive,
+                data: { turbo_confirm: "Tem certeza que deseja apagar este produto?" }
+              ) { "Apagar" }
+            end
           end
         end
       end

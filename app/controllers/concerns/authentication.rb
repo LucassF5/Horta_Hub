@@ -44,6 +44,14 @@ module Authentication
       session.delete(:return_to_after_authenticating) || root_url
     end
 
+    def current_user
+      Current.user
+    end
+
+    def current_organization
+      Current.organization
+    end
+
     def set_current_organization
       return unless authenticated?
 

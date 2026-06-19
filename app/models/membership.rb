@@ -6,14 +6,6 @@ class Membership < ApplicationRecord
 
   validates :role, presence: true
   validates :user_id, uniqueness: { scope: :organization_id }
-
-  def can_manage?
-    owner? || admin? || manager?
-  end
-
-  def read_only?
-    viewer?
-  end
 end
 
 # == Schema Information

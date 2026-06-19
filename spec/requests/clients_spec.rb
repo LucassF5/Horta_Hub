@@ -3,7 +3,8 @@ require 'rails_helper'
 RSpec.describe "Clients", type: :request do
   let(:organization) { create(:organization) }
   let(:user) { create(:user) }
-  let!(:membership) { create(:membership, user: user, organization: organization, role: "owner") }
+  let(:role) { "owner" }
+  let!(:membership) { create(:membership, user: user, organization: organization, role: role) }
   let!(:client) { create(:client, organization: organization) }
 
   before do
@@ -167,6 +168,84 @@ RSpec.describe "Clients", type: :request do
     it "redirects to login page" do
       get clients_path
       expect(response).to redirect_to(new_session_path)
+    end
+  end
+
+  context "when membership is viewer" do
+    let(:role) { "viewer" }
+
+    it "allows access to the clients index without management actions" do
+      get clients_path
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).not_to include("Novo Cliente", "Editar", "Apagar")
+    end
+
+    it "allows access to a client without management actions" do
+      get client_path(client)
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).not_to include("Editar", "Deletar")
+    end
+
+    it "denies access to the new client form" do
+      get new_client_path
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "does not create a client" do
+      expect {
+        post clients_path, params: {
+          client: {
+            name: "Novo Cliente",
+            phone: "11999999999",
+            client_type: "pessoa_fisica"
+          }
+        }
+      }.not_to change(Client, :count)
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "denies access to the edit client form" do
+      get edit_client_path(client)
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "does not update a client" do
+      expect {
+        patch client_path(client), params: { client: { name: "Nome alterado" } }
+      }.not_to change { client.reload.name }
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "does not destroy a client" do
+      expect {
+        delete client_path(client)
+      }.not_to change(Client, :count)
+
+      expect(response).to redirect_to(root_path)
+    end
+  end
+
+  context "when client has sales" do
+    before { create(:sale, organization: organization, client: client) }
+
+    it "does not render the delete action" do
+      get client_path(client)
+
+      expect(response.body).not_to include("Deletar")
+    end
+
+    it "does not destroy the client" do
+      expect {
+        delete client_path(client)
+      }.not_to change(Client, :count)
+
+      expect(response).to redirect_to(root_path)
     end
   end
 

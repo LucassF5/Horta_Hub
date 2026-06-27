@@ -78,54 +78,27 @@ class Views::Sales::FormComponent < Views::Base
         sale_item_form_prices_value: prices_map.to_json
       }
     ) do
-      form.fields_for :sale_items do |item_form|
-        render_item_fields(item_form)
-      end
-    end
-  end
-
-  def render_item_fields(item_form)
-    div(class: "border rounded-md p-4 mb-4 bg-gray-50", data: { sale_item: true }) do
-      div(class: "grid grid-cols-1 md:grid-cols-3 gap-4") do
-        render RubyUI::FormField.new do
-          render RubyUI::FormFieldLabel.new { "Produto" }
-          item_form.select(
-            :product_id,
-            @products.map { |p| [ "#{p.name}", p.id ] },
-            { prompt: "Selecione um produto" },
-            class: input_classes,
-            data: { action: "change->sale-item-form#selectProduct" }
+      div(id: "sale_items") do
+        @sale.sale_items.each_with_index do |item, index|
+          render Views::Sales::SaleItemFieldsComponent.new(
+            item: item,
+            products: @products,
+            child_index: item.persisted? ? item.id : "new_#{index}"
           )
-        end
-
-        render RubyUI::FormField.new do
-          render RubyUI::FormFieldLabel.new { "Quantidade" }
-          item_form.number_field(
-            :quantity,
-            min: 1,
-            placeholder: "Qtd",
-            class: input_classes
-          )
-        end
-
-        render RubyUI::FormField.new do
-          render RubyUI::FormFieldLabel.new { "Preço Unitário" }
-
-          current_price = item_form.object&.unit_price
-          display_text = current_price ? "R$ #{"%.2f" % current_price}" : "R$ —"
-
-          span(class: "text-sm font-medium text-gray-700 py-1", data: { price_display: true }) { display_text }
-
-          item_form.hidden_field(:unit_price, data: { price_field: true })
         end
       end
 
-      if item_form.object&.persisted?
-        div(class: "mt-2") do
-          item_form.hidden_field :id
-          item_form.label :_destroy, class: "flex items-center gap-2 text-sm text-red-600 cursor-pointer" do
-            item_form.check_box :_destroy, class: "rounded border-gray-300"
-            plain "Remover este item"
+      div(class: "flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between") do
+        a(
+          href: sale_item_fields_sales_path(sale_id: @sale.persisted? ? @sale.id : nil),
+          class: "inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-xs hover:bg-accent hover:text-accent-foreground",
+          data: { turbo_stream: true }
+        ) { "Adicionar item" }
+
+        div(class: "text-right") do
+          span(class: "block text-sm text-gray-500") { "Total da venda" }
+          span(class: "text-lg font-bold text-gray-900", data: { sale_total: true }) do
+            number_to_currency(@sale.total, unit: "R$ ")
           end
         end
       end

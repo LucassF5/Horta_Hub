@@ -8,7 +8,11 @@ Rails.application.routes.draw do
   resources :organizations, only: %i[ new create ]
   resources :products, param: :slug
   resources :clients, param: :slug
-  resources :sales
+  resources :sales do
+    collection do
+      get :sale_item_fields
+    end
+  end
 
   root "home#index"
 end

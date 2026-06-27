@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 class Views::Sales::Index < Views::Base
-  def initialize(sales:)
+  def initialize(sales:, clients:, filters:)
     @sales = sales
+    @clients = clients
+    @filters = filters.to_h.symbolize_keys
   end
 
   def view_template
@@ -24,10 +26,59 @@ class Views::Sales::Index < Views::Base
   end
 
   def render_content
-    if @sales.empty?
-      p(class: "text-gray-600") { "Nenhuma venda cadastrada ainda." }
-    else
-      render_table
+    render_filters
+
+    turbo_frame_tag "sales_results" do
+      if @sales.empty?
+        p(class: "text-gray-600") { "Nenhuma venda encontrada." }
+      else
+        render_table
+      end
+    end
+  end
+
+  def render_filters
+    form_with(
+      url: sales_path,
+      method: :get,
+      local: true,
+      class: "mb-6 grid grid-cols-1 gap-4 rounded-md border bg-white p-4 md:grid-cols-5",
+      data: { turbo_frame: "sales_results" }
+    ) do
+      render RubyUI::FormField.new do
+        render RubyUI::FormFieldLabel.new(for: "start_date") { "De" }
+        input(type: "date", id: "start_date", name: "start_date", value: @filters[:start_date], class: input_classes)
+      end
+
+      render RubyUI::FormField.new do
+        render RubyUI::FormFieldLabel.new(for: "end_date") { "Até" }
+        input(type: "date", id: "end_date", name: "end_date", value: @filters[:end_date], class: input_classes)
+      end
+
+      render RubyUI::FormField.new do
+        render RubyUI::FormFieldLabel.new(for: "status") { "Status" }
+        select(id: "status", name: "status", class: input_classes) do
+          option(value: "") { "Todos" }
+          status_options.each do |label, value|
+            option(value: value, selected: @filters[:status] == value) { label }
+          end
+        end
+      end
+
+      render RubyUI::FormField.new do
+        render RubyUI::FormFieldLabel.new(for: "client_id") { "Cliente" }
+        select(id: "client_id", name: "client_id", class: input_classes) do
+          option(value: "") { "Todos" }
+          @clients.each do |client|
+            option(value: client.id, selected: @filters[:client_id].to_s == client.id.to_s) { client.name }
+          end
+        end
+      end
+
+      div(class: "flex items-end gap-2") do
+        render RubyUI::Button.new(type: :submit, class: "h-9") { "Filtrar" }
+        render RubyUI::Link.new(href: sales_path, variant: :outline, data: { turbo_frame: "sales_results" }) { "Limpar" }
+      end
     end
   end
 
@@ -93,5 +144,22 @@ class Views::Sales::Index < Views::Base
     end
 
     span(class: "px-2 py-1 rounded-full text-xs font-medium #{color}") { label }
+  end
+
+  def status_options
+    [
+      [ "Pendente", "pending" ],
+      [ "Concluída", "completed" ],
+      [ "Cancelada", "cancelled" ]
+    ]
+  end
+
+  def input_classes
+    [
+      "flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] border-border ring-0 ring-ring/0",
+      "placeholder:text-muted-foreground",
+      "disabled:cursor-not-allowed disabled:opacity-50",
+      "focus-visible:outline-none focus-visible:ring-ring/50 focus-visible:ring-2 focus-visible:border-ring focus-visible:shadow-sm"
+    ].join(" ")
   end
 end

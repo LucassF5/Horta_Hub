@@ -8,6 +8,7 @@ class Components::Base < Phlex::HTML
   include Phlex::Rails::Helpers::L
   include Phlex::Rails::Helpers::NumberToCurrency
   include Phlex::Rails::Helpers::Pluralize
+  include Phlex::Rails::Helpers::TurboFrameTag
 
   register_value_helper def allowed_to?(...) = nil
 

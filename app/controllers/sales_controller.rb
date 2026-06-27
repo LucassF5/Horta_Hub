@@ -4,8 +4,12 @@ class SalesController < ApplicationController
   def index
     authorize!
 
-    @sales = Current.organization.sales.includes(:client).recent
-    render Views::Sales::Index.new(sales: @sales)
+    @sales = filter_sales(Current.organization.sales.includes(:client).recent)
+    render Views::Sales::Index.new(
+      sales: @sales,
+      clients: Current.organization.clients.order(:name),
+      filters: sales_filter_params
+    )
   end
 
   def show
@@ -71,6 +75,20 @@ class SalesController < ApplicationController
     redirect_to sales_path, notice: "Venda removida com sucesso.", status: :see_other
   end
 
+  def sale_item_fields
+    sale = sale_for_item_fields
+    authorize! sale, to: sale.persisted? ? :update? : :create?
+
+    item = sale.sale_items.build(quantity: 1)
+    component = Views::Sales::SaleItemFieldsComponent.new(
+      item: item,
+      products: Current.organization.products.order(:name),
+      child_index: SecureRandom.hex(8)
+    )
+
+    render turbo_stream: helpers.turbo_stream.append("sale_items", component)
+  end
+
   private
 
   def set_sale
@@ -78,9 +96,42 @@ class SalesController < ApplicationController
   end
 
   def sale_params
-    params.expect(sale: [
+    params.require(:sale).permit(
       :client_id, :sale_date, :status, :notes,
-      sale_items_attributes: [ [ :id, :product_id, :quantity, :unit_price, :_destroy ] ]
-    ])
+      sale_items_attributes: [ :id, :product_id, :quantity, :unit_price, :_destroy ]
+    )
+  end
+
+  def sales_filter_params
+    params.permit(:start_date, :end_date, :status, :client_id)
+  end
+
+  def filter_sales(scope)
+    filters = sales_filter_params
+
+    scope = scope.where(status: filters[:status]) if filters[:status].present? && Sale.statuses.key?(filters[:status])
+    scope = scope.where(client_id: filters[:client_id]) if filters[:client_id].present?
+
+    if (start_date = parse_filter_date(filters[:start_date]))
+      scope = scope.where(sale_date: start_date..)
+    end
+
+    if (end_date = parse_filter_date(filters[:end_date]))
+      scope = scope.where(sale_date: ..end_date)
+    end
+
+    scope
+  end
+
+  def parse_filter_date(value)
+    Date.iso8601(value) if value.present?
+  rescue Date::Error
+    nil
+  end
+
+  def sale_for_item_fields
+    return Current.organization.sales.find(params[:sale_id]) if params[:sale_id].present?
+
+    Current.organization.sales.build
   end
 end

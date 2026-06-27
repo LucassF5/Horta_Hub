@@ -29,6 +29,12 @@ RSpec.describe "Sales", type: :request do
       get sales_path
       expect(response.body).to include("Vendas")
     end
+
+    it "renders action links that navigate outside the turbo frame" do
+      get sales_path
+
+      expect(response.body).to include('data-turbo-frame="_top"')
+    end
   end
 
   describe "GET /sales/:id" do
@@ -52,6 +58,13 @@ RSpec.describe "Sales", type: :request do
     it "renders the new sale form" do
       get new_sale_path
       expect(response.body).to include("Nova Venda")
+    end
+
+    it "renders nested sale item fields with numeric indexes for Rails 8 params.expect" do
+      get new_sale_path
+
+      expect(response.body).to include("sale[sale_items_attributes][0][product_id]")
+      expect(response.body).not_to include("sale[sale_items_attributes][new_0]")
     end
   end
 
@@ -136,6 +149,15 @@ RSpec.describe "Sales", type: :request do
       get edit_sale_path(sale)
       expect(response.body).to include("Editar Venda")
     end
+
+    it "renders persisted sale items with decimal unit prices" do
+      create(:sale_item, sale: sale, product: product, quantity: 2, unit_price: 4.0)
+
+      get edit_sale_path(sale)
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('value="4.0"')
+    end
   end
 
   describe "PATCH /sales/:id" do
@@ -201,6 +223,7 @@ RSpec.describe "Sales", type: :request do
       expect(response.media_type).to eq(Mime[:turbo_stream].to_s)
       expect(response.body).to include('<turbo-stream action="append" target="sale_items">')
       expect(response.body).to include("sale[sale_items_attributes]")
+      expect(response.body).to match(/sale\[sale_items_attributes\]\[\d+\]\[product_id\]/)
     end
 
     it "authorizes the existing sale when appending fields from the edit form" do

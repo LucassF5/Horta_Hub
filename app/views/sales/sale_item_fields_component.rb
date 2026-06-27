@@ -31,7 +31,7 @@ class Views::Sales::SaleItemFieldsComponent < Views::Base
   private
 
   def render_hidden_fields
-    input(type: "hidden", name: field_name(:id), value: @item.id) if @item.persisted?
+    input(type: "hidden", name: field_name(:id), value: @item.id.to_s) if @item.persisted?
     input(type: "hidden", name: field_name(:_destroy), value: "0", data: { destroy_field: true })
   end
 
@@ -46,7 +46,7 @@ class Views::Sales::SaleItemFieldsComponent < Views::Base
       ) do
         option(value: "") { "Selecione um produto" }
         @products.each do |product|
-          option(value: product.id, selected: product.id == @item.product_id) { product.name }
+          option(value: product.id.to_s, selected: product.id == @item.product_id) { product.name }
         end
       end
     end
@@ -60,7 +60,7 @@ class Views::Sales::SaleItemFieldsComponent < Views::Base
         id: field_id(:quantity),
         name: field_name(:quantity),
         min: 1,
-        value: @item.quantity || 1,
+        value: (@item.quantity || 1).to_s,
         placeholder: "Qtd",
         class: input_classes,
         data: { action: "input->sale-item-form#quantityChanged change->sale-item-form#quantityChanged", quantity_field: true }
@@ -76,7 +76,7 @@ class Views::Sales::SaleItemFieldsComponent < Views::Base
       display_text = current_price.present? ? number_to_currency(current_price, unit: "R$ ") : "R$ -"
 
       span(class: "block text-sm font-medium text-gray-700 py-2", data: { price_display: true }) { display_text }
-      input(type: "hidden", id: field_id(:unit_price), name: field_name(:unit_price), value: current_price, data: { price_field: true })
+      input(type: "hidden", id: field_id(:unit_price), name: field_name(:unit_price), value: decimal_value(current_price), data: { price_field: true })
     end
   end
 
@@ -97,6 +97,10 @@ class Views::Sales::SaleItemFieldsComponent < Views::Base
 
   def field_id(attribute)
     "sale_sale_items_attributes_#{@child_index}_#{attribute}"
+  end
+
+  def decimal_value(value)
+    value&.to_d&.to_s("F")
   end
 
   def input_classes

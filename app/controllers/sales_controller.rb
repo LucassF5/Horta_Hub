@@ -83,7 +83,7 @@ class SalesController < ApplicationController
     component = Views::Sales::SaleItemFieldsComponent.new(
       item: item,
       products: Current.organization.products.order(:name),
-      child_index: SecureRandom.hex(8)
+      child_index: SecureRandom.random_number(1_000_000_000).to_s
     )
 
     render turbo_stream: helpers.turbo_stream.append("sale_items", component)
@@ -96,10 +96,10 @@ class SalesController < ApplicationController
   end
 
   def sale_params
-    params.require(:sale).permit(
+    params.expect(sale: [
       :client_id, :sale_date, :status, :notes,
-      sale_items_attributes: [ :id, :product_id, :quantity, :unit_price, :_destroy ]
-    )
+      sale_items_attributes: [ [ :id, :product_id, :quantity, :unit_price, :_destroy ] ]
+    ])
   end
 
   def sales_filter_params

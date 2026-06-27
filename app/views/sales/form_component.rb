@@ -83,7 +83,7 @@ class Views::Sales::FormComponent < Views::Base
           render Views::Sales::SaleItemFieldsComponent.new(
             item: item,
             products: @products,
-            child_index: item.persisted? ? item.id : "new_#{index}"
+            child_index: item.persisted? ? item.id.to_s : index.to_s
           )
         end
       end

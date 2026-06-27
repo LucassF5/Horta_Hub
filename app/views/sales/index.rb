@@ -108,8 +108,8 @@ class Views::Sales::Index < Views::Base
       render RubyUI::TableCell.new { number_to_currency(sale.total, unit: "R$ ") }
       render RubyUI::TableCell.new(class: "text-right") do
         div(class: "flex justify-end items-center gap-2") do
-          render RubyUI::Link.new(href: sale_path(sale), variant: :outline) { "Ver" }
-          render RubyUI::Link.new(href: edit_sale_path(sale), variant: :primary) { "Editar" } if allowed_to?(:edit?, sale)
+          render RubyUI::Link.new(href: sale_path(sale), variant: :outline, data: { turbo_frame: "_top" }) { "Ver" }
+          render RubyUI::Link.new(href: edit_sale_path(sale), variant: :primary, data: { turbo_frame: "_top" }) { "Editar" } if allowed_to?(:edit?, sale)
 
           if allowed_to?(:destroy?, sale)
             form_with(

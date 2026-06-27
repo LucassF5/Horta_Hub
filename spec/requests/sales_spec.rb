@@ -7,6 +7,7 @@ RSpec.describe "Sales", type: :request do
   let!(:membership) { create(:membership, user: user, organization: organization, role: role) }
   let!(:client) { create(:client, organization: organization) }
   let!(:product) { create(:product, organization: organization) }
+  let!(:second_product) { create(:product, organization: organization) }
   let!(:sale) { create(:sale, organization: organization, client: client) }
 
   before do
@@ -80,6 +81,21 @@ RSpec.describe "Sales", type: :request do
         }.to change(SaleItem, :count).by(1)
       end
 
+      it "creates a sale with multiple items and persists the calculated total" do
+        attributes = valid_attributes.merge(
+          sale_items_attributes: {
+            "0" => { product_id: product.id, quantity: 2, unit_price: 10.50 },
+            "1" => { product_id: second_product.id, quantity: 3, unit_price: 4.25 }
+          }
+        )
+
+        post sales_path, params: { sale: attributes }
+
+        created_sale = Sale.last
+        expect(created_sale.sale_items.count).to eq(2)
+        expect(created_sale.total).to eq(33.75)
+      end
+
       it "redirects to the sales index" do
         post sales_path, params: { sale: valid_attributes }
         expect(response).to redirect_to(sales_path)
@@ -134,6 +150,20 @@ RSpec.describe "Sales", type: :request do
         patch sale_path(sale), params: { sale: { status: "completed" } }
         expect(response).to redirect_to(sales_path)
       end
+
+      it "removes nested sale items marked for destruction" do
+        item = create(:sale_item, sale: sale, product: product)
+
+        expect {
+          patch sale_path(sale), params: {
+            sale: {
+              sale_items_attributes: {
+                "0" => { id: item.id, _destroy: "1" }
+              }
+            }
+          }
+        }.to change(SaleItem, :count).by(-1)
+      end
     end
 
     context "with invalid parameters" do
@@ -160,6 +190,73 @@ RSpec.describe "Sales", type: :request do
     it "redirects to the sales index" do
       delete sale_path(sale)
       expect(response).to redirect_to(sales_path)
+    end
+  end
+
+  describe "GET /sales/sale_item_fields" do
+    it "returns a turbo stream that appends a sale item row" do
+      get sale_item_fields_sales_path, as: :turbo_stream
+
+      expect(response).to have_http_status(:success)
+      expect(response.media_type).to eq(Mime[:turbo_stream].to_s)
+      expect(response.body).to include('<turbo-stream action="append" target="sale_items">')
+      expect(response.body).to include("sale[sale_items_attributes]")
+    end
+
+    it "authorizes the existing sale when appending fields from the edit form" do
+      get sale_item_fields_sales_path(sale_id: sale.id), as: :turbo_stream
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("sale_items")
+    end
+  end
+
+  describe "sales filters" do
+    let!(:pending_client) { create(:client, name: "Cliente Pendente", organization: organization) }
+    let!(:completed_client) { create(:client, name: "Cliente Concluido", organization: organization) }
+    let!(:pending_sale) { create(:sale, organization: organization, client: pending_client, status: "pending", sale_date: Date.new(2026, 1, 10)) }
+    let!(:completed_sale) { create(:sale, organization: organization, client: completed_client, status: "completed", sale_date: Date.new(2026, 2, 10)) }
+
+    it "filters by status" do
+      get sales_path, params: { status: "completed" }
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text).to include("Cliente Concluido")
+      expect(results_text).not_to include("Cliente Pendente")
+    end
+
+    it "filters by client" do
+      get sales_path, params: { client_id: pending_client.id }
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text).to include("Cliente Pendente")
+      expect(results_text).not_to include("Cliente Concluido")
+    end
+
+    it "filters by period" do
+      get sales_path, params: { start_date: "2026-02-01", end_date: "2026-02-28" }
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text).to include("Cliente Concluido")
+      expect(results_text).not_to include("Cliente Pendente")
+    end
+
+    it "keeps filters scoped to the current organization" do
+      other_organization = create(:organization)
+      other_client = create(:client, name: "Cliente Outra Organizacao", organization: other_organization)
+      create(:sale, organization: other_organization, client: other_client, status: "completed", sale_date: Date.new(2026, 2, 10))
+
+      get sales_path, params: { status: "completed" }
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text).to include("Cliente Concluido")
+      expect(results_text).not_to include("Cliente Outra Organizacao")
+    end
+
+    it "ignores invalid dates" do
+      get sales_path, params: { start_date: "invalid-date" }
+
+      expect(response).to have_http_status(:success)
     end
   end
 
@@ -230,6 +327,12 @@ RSpec.describe "Sales", type: :request do
       expect {
         delete sale_path(sale)
       }.not_to change(Sale, :count)
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "denies dynamic sale item fields" do
+      get sale_item_fields_sales_path, as: :turbo_stream
 
       expect(response).to redirect_to(root_path)
     end

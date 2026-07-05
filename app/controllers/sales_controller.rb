@@ -97,7 +97,7 @@ class SalesController < ApplicationController
 
   def sale_params
     params.expect(sale: [
-      :client_id, :sale_date, :status, :notes,
+      :client_id, :sale_date, :status, :responsible_name, :notes,
       sale_items_attributes: [ [ :id, :product_id, :quantity, :unit_price, :_destroy ] ]
     ])
   end

@@ -28,7 +28,7 @@ end
 #  client_type     :string           not null
 #  name            :string(65)       not null
 #  phone           :string
-#  slug            :string
+#  slug            :string           not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  organization_id :integer          not null

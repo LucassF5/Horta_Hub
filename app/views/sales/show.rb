@@ -46,6 +46,7 @@ class Views::Sales::Show < Views::Base
       render_detail("Cliente", @sale.client.name)
       render_detail("Data", l(@sale.sale_date, format: :short))
       render_detail("Total", number_to_currency(@sale.total, unit: "R$ "))
+      render_detail("Responsável", @sale.responsible_name) if @sale.responsible_name.present?
     end
 
     if @sale.notes.present?

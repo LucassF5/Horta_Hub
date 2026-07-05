@@ -47,6 +47,15 @@ RSpec.describe "Sales", type: :request do
       get sale_path(sale)
       expect(response.body).to include("Venda ##{sale.id}")
     end
+
+    it "displays responsible name when present" do
+      sale.update!(responsible_name: "Lucas")
+
+      get sale_path(sale)
+
+      expect(response.body).to include("Responsável")
+      expect(response.body).to include("Lucas")
+    end
   end
 
   describe "GET /sales/new" do
@@ -75,6 +84,7 @@ RSpec.describe "Sales", type: :request do
           client_id: client.id,
           sale_date: Date.current.to_s,
           status: "pending",
+          responsible_name: "Lucas",
           notes: "Venda teste",
           sale_items_attributes: [
             { product_id: product.id, quantity: 2, unit_price: 10.50 }
@@ -92,6 +102,12 @@ RSpec.describe "Sales", type: :request do
         expect {
           post sales_path, params: { sale: valid_attributes }
         }.to change(SaleItem, :count).by(1)
+      end
+
+      it "persists the responsible name" do
+        post sales_path, params: { sale: valid_attributes }
+
+        expect(Sale.last.responsible_name).to eq("Lucas")
       end
 
       it "creates a sale with multiple items and persists the calculated total" do

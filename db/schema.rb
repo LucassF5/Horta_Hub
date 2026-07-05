@@ -10,14 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_13_090100) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_05_120000) do
   create_table "clients", force: :cascade do |t|
     t.string "client_type", null: false
     t.datetime "created_at", null: false
     t.string "name", limit: 65, null: false
     t.integer "organization_id", null: false
     t.string "phone"
-    t.string "slug"
+    t.string "slug", null: false
     t.datetime "updated_at", null: false
     t.index ["organization_id", "slug"], name: "index_clients_on_organization_id_and_slug", unique: true
   end
@@ -58,7 +58,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_090100) do
     t.string "name", null: false
     t.integer "organization_id", null: false
     t.decimal "price", precision: 10, scale: 2, null: false
-    t.string "slug"
+    t.string "slug", null: false
     t.datetime "updated_at", null: false
     t.index ["organization_id", "slug"], name: "index_products_on_organization_id_and_slug", unique: true
   end
@@ -79,6 +79,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_090100) do
     t.datetime "created_at", null: false
     t.text "notes"
     t.integer "organization_id", null: false
+    t.string "responsible_name"
     t.date "sale_date", null: false
     t.string "status", default: "pending", null: false
     t.decimal "total", precision: 10, scale: 2, default: "0.0", null: false

@@ -41,15 +41,16 @@ end
 #
 # Table name: sales
 #
-#  id              :integer          not null, primary key
-#  notes           :text
-#  sale_date       :date             not null
-#  status          :string           default("pending"), not null
-#  total           :decimal(10, 2)   default(0.0), not null
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
-#  client_id       :integer          not null
-#  organization_id :integer          not null
+#  id               :integer          not null, primary key
+#  notes            :text
+#  responsible_name :string
+#  sale_date        :date             not null
+#  status           :string           default("pending"), not null
+#  total            :decimal(10, 2)   default(0.0), not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  client_id        :integer          not null
+#  organization_id  :integer          not null
 #
 # Indexes
 #

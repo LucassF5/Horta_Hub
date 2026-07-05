@@ -118,7 +118,7 @@ end
 #  id              :integer          not null, primary key
 #  name            :string           not null
 #  price           :decimal(10, 2)   not null
-#  slug            :string
+#  slug            :string           not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  organization_id :integer          not null

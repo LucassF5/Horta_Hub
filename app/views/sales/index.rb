@@ -88,6 +88,7 @@ class Views::Sales::Index < Views::Base
         render RubyUI::TableRow.new do
           render RubyUI::TableHead.new { "Data" }
           render RubyUI::TableHead.new { "Cliente" }
+          render RubyUI::TableHead.new { "Responsável" }
           render RubyUI::TableHead.new { "Status" }
           render RubyUI::TableHead.new { "Total" }
           render RubyUI::TableHead.new(class: "text-right") { "Ações" }
@@ -104,6 +105,7 @@ class Views::Sales::Index < Views::Base
     render RubyUI::TableRow.new do
       render RubyUI::TableCell.new { l(sale.sale_date, format: :short) }
       render RubyUI::TableCell.new { sale.client.name }
+      render RubyUI::TableCell.new { sale.responsible_name.presence || "-" }
       render RubyUI::TableCell.new { render_status_badge(sale) }
       render RubyUI::TableCell.new { number_to_currency(sale.total, unit: "R$ ") }
       render RubyUI::TableCell.new(class: "text-right") do

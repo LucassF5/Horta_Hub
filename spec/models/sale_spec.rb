@@ -65,6 +65,12 @@ RSpec.describe Sale, type: :model do
       expect(build(:sale)).to be_valid
     end
 
+    it 'allows a responsible name' do
+      sale = build(:sale, responsible_name: "Lucas")
+
+      expect(sale).to be_valid
+    end
+
     it 'creates completed sales' do
       sale = build(:sale, :completed)
       expect(sale.status).to eq("completed")
@@ -81,15 +87,16 @@ end
 #
 # Table name: sales
 #
-#  id              :integer          not null, primary key
-#  notes           :text
-#  sale_date       :date             not null
-#  status          :string           default("pending"), not null
-#  total           :decimal(10, 2)   default(0.0), not null
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
-#  client_id       :integer          not null
-#  organization_id :integer          not null
+#  id               :integer          not null, primary key
+#  notes            :text
+#  responsible_name :string
+#  sale_date        :date             not null
+#  status           :string           default("pending"), not null
+#  total            :decimal(10, 2)   default(0.0), not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  client_id        :integer          not null
+#  organization_id  :integer          not null
 #
 # Indexes
 #

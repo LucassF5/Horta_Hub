@@ -1,6 +1,7 @@
 class Organization < ApplicationRecord
   extend FriendlyId
 
+  has_many :import_batches, dependent: :destroy
   has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships
   has_many :products, dependent: :restrict_with_error

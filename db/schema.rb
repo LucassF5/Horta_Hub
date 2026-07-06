@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_05_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_06_054012) do
   create_table "clients", force: :cascade do |t|
     t.string "client_type", null: false
     t.datetime "created_at", null: false
@@ -31,6 +31,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_120000) do
     t.index ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true
     t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
     t.index ["sluggable_type", "sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_type_and_sluggable_id"
+  end
+
+  create_table "import_batches", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.json "error_details", default: [], null: false
+    t.integer "failed_rows", default: 0, null: false
+    t.datetime "finished_at"
+    t.integer "organization_id", null: false
+    t.integer "processed_rows", default: 0, null: false
+    t.datetime "started_at"
+    t.string "status", default: "pending", null: false
+    t.integer "successful_rows", default: 0, null: false
+    t.integer "total_rows", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.integer "year", null: false
+    t.index ["organization_id"], name: "index_import_batches_on_organization_id"
+    t.index ["user_id"], name: "index_import_batches_on_user_id"
   end
 
   create_table "memberships", force: :cascade do |t|
@@ -108,6 +126,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_120000) do
   end
 
   add_foreign_key "clients", "organizations"
+  add_foreign_key "import_batches", "organizations"
+  add_foreign_key "import_batches", "users"
   add_foreign_key "memberships", "organizations"
   add_foreign_key "memberships", "users"
   add_foreign_key "products", "organizations"

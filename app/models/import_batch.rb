@@ -1,6 +1,16 @@
 class ImportBatch < ApplicationRecord
   belongs_to :organization
   belongs_to :user
+
+  enum :status, {
+    pending: "pending",
+    processing: "processing",
+    completed: "completed",
+    failed: "failed"
+  }
+
+  validates :status, presence: true
+  validates :year, presence: true
 end
 
 # == Schema Information

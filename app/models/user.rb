@@ -3,6 +3,7 @@ class User < ApplicationRecord
   has_many :sessions, dependent: :destroy
   has_many :memberships, dependent: :destroy
   has_many :organizations, through: :memberships
+  ahas_many :import_batches, dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 

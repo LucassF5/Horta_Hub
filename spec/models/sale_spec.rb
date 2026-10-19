@@ -20,6 +20,30 @@ RSpec.describe Sale, type: :model do
       expect(sale).not_to be_valid
       expect(sale.errors[:client]).to include('deve pertencer à mesma organização da venda')
     end
+
+    it 'is invalid without sale items' do
+      sale = build(:sale)
+      sale.sale_items = []
+
+      expect(sale).not_to be_valid
+      expect(sale.errors[:base]).to include('A venda deve ter ao menos um item.')
+    end
+
+    it 'is invalid when all sale items are marked for destruction' do
+      sale = create(:sale)
+      sale.sale_items.each(&:mark_for_destruction)
+
+      expect(sale).not_to be_valid
+      expect(sale.errors[:base]).to include('A venda deve ter ao menos um item.')
+    end
+
+    it 'is valid when at least one sale item is kept' do
+      sale = create(:sale)
+      create(:sale_item, sale: sale)
+      sale.sale_items.reload.first.mark_for_destruction
+
+      expect(sale).to be_valid
+    end
   end
 
   describe 'enums' do
@@ -29,20 +53,28 @@ RSpec.describe Sale, type: :model do
   describe 'callbacks' do
     describe '#calculate_total' do
       it 'calculates total from sale items before save' do
-        sale = create(:sale)
-        create(:sale_item, sale: sale, quantity: 2, unit_price: 10.0, custom_price: true)
-        create(:sale_item, sale: sale, quantity: 3, unit_price: 5.0, custom_price: true)
-        sale.sale_items.reload
+        sale = build(:sale)
+        sale.sale_items = [
+          build(:sale_item, sale: sale, quantity: 2, unit_price: 10.0, custom_price: true),
+          build(:sale_item, sale: sale, quantity: 3, unit_price: 5.0, custom_price: true)
+        ]
         sale.save!
         sale.reload
         expect(sale.total).to eq(35.0)
       end
 
-      it 'sets total to 0 when no items' do
-        sale = create(:sale)
+      it 'ignores sale items marked for destruction' do
+        sale = build(:sale)
+        sale.sale_items = [
+          build(:sale_item, sale: sale, quantity: 2, unit_price: 10.0, custom_price: true),
+          build(:sale_item, sale: sale, quantity: 3, unit_price: 5.0, custom_price: true)
+        ]
+        sale.save!
+
+        sale.sale_items.last.mark_for_destruction
         sale.save!
         sale.reload
-        expect(sale.total).to eq(0)
+        expect(sale.total).to eq(20.0)
       end
     end
   end

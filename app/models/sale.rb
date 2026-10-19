@@ -11,6 +11,7 @@ class Sale < ApplicationRecord
   validates :total, numericality: { greater_than_or_equal_to: 0 }
   validates :status, presence: true
   validate :client_must_belong_to_organization
+  validate :must_have_at_least_one_sale_item
 
   before_save :calculate_total
   before_validation :normalize_notes
@@ -20,7 +21,11 @@ class Sale < ApplicationRecord
   private
 
   def calculate_total
-    self.total = sale_items.reject(&:marked_for_destruction?).sum { |item| item.quantity * item.unit_price }
+    self.total = kept_sale_items.sum { |item| item.quantity * item.unit_price }
+  end
+
+  def kept_sale_items
+    sale_items.reject(&:marked_for_destruction?)
   end
 
   def normalize_notes
@@ -34,6 +39,12 @@ class Sale < ApplicationRecord
     return if client.organization_id == organization_id
 
     errors.add(:client, "deve pertencer à mesma organização da venda")
+  end
+
+  def must_have_at_least_one_sale_item
+    return if kept_sale_items.any?
+
+    errors.add(:base, "A venda deve ter ao menos um item.")
   end
 end
 

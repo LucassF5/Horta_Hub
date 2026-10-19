@@ -68,7 +68,8 @@ class Views::Sales::FormComponent < Views::Base
   end
 
   def render_sale_items(form)
-    h3(class: "text-lg font-semibold text-gray-800 mb-4 mt-6") { "Itens da Venda" }
+    h3(class: "text-lg font-semibold text-gray-800 mb-1 mt-6") { "Itens da Venda" }
+    p(class: "text-sm text-gray-500 mb-4") { "A venda deve ter ao menos um item." }
 
     prices_map = @products.each_with_object({}) { |p, h| h[p.id.to_s] = p.price.to_f }
 

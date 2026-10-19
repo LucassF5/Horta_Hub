@@ -6,6 +6,10 @@ FactoryBot.define do
     association :organization
     client { association(:client, organization: organization) }
 
+    after(:build) do |sale|
+      sale.sale_items << build(:sale_item, sale: sale) if sale.sale_items.empty?
+    end
+
     trait :completed do
       status { "completed" }
     end

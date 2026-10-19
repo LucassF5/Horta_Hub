@@ -69,6 +69,12 @@ RSpec.describe "Sales", type: :request do
       expect(response.body).to include("Nova Venda")
     end
 
+    it "tells the user that the sale needs at least one item" do
+      get new_sale_path
+
+      expect(response.body).to include("A venda deve ter ao menos um item.")
+    end
+
     it "renders nested sale item fields with numeric indexes for Rails 8 params.expect" do
       get new_sale_path
 
@@ -189,6 +195,34 @@ RSpec.describe "Sales", type: :request do
       end
     end
 
+    context "without sale items" do
+      let(:attributes_without_items) do
+        { client_id: client.id, sale_date: Date.current.to_s, status: "pending" }
+      end
+
+      it "does not create a sale without items" do
+        expect {
+          post sales_path, params: { sale: attributes_without_items }
+        }.not_to change(Sale, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to include("A venda deve ter ao menos um item.")
+      end
+
+      it "does not create a sale when all items are blank" do
+        attributes = attributes_without_items.merge(
+          sale_items_attributes: [ { product_id: "", quantity: "", unit_price: "" } ]
+        )
+
+        expect {
+          post sales_path, params: { sale: attributes }
+        }.not_to change(Sale, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to include("A venda deve ter ao menos um item.")
+      end
+    end
+
     context "with an invalid custom price" do
       [ "", "-1", "abc" ].each do |unit_price|
         it "does not create the sale and shows an error for #{unit_price.inspect}" do
@@ -268,7 +302,8 @@ RSpec.describe "Sales", type: :request do
 
       it "keeps the registered unit price when the product price changes later" do
         product.update!(price: 10.00)
-        item = create(:sale_item, sale: sale, product: product, quantity: 2)
+        item = sale.sale_items.sole
+        item.update!(product: product, quantity: 2)
         product.update!(price: 25.00)
 
         patch sale_path(sale), params: {
@@ -286,7 +321,8 @@ RSpec.describe "Sales", type: :request do
 
       it "updates an item to use a custom price" do
         product.update!(price: 10.00)
-        item = create(:sale_item, sale: sale, product: product, quantity: 2)
+        item = sale.sale_items.sole
+        item.update!(product: product, quantity: 2)
 
         patch sale_path(sale), params: {
           sale: {
@@ -326,6 +362,19 @@ RSpec.describe "Sales", type: :request do
       it "returns unprocessable entity status" do
         patch sale_path(sale), params: { sale: { sale_date: nil } }
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it "does not remove all sale items" do
+        items_attributes = sale.sale_items.each_with_index.to_h do |item, index|
+          [ index.to_s, { id: item.id, _destroy: "1" } ]
+        end
+
+        expect {
+          patch sale_path(sale), params: { sale: { sale_items_attributes: items_attributes } }
+        }.not_to change(SaleItem, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to include("A venda deve ter ao menos um item.")
       end
     end
   end

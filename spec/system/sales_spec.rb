@@ -37,8 +37,17 @@ RSpec.describe "Sales Management", type: :system do
   end
 
   describe "editing a sale" do
-    let!(:sale) { create(:sale, organization: organization, client: client) }
-    let!(:item) { create(:sale_item, sale: sale, product: product, quantity: 2, unit_price: 4.00, custom_price: true) }
+    let!(:sale) do
+      create(
+        :sale,
+        organization: organization,
+        client: client,
+        sale_items_attributes: [
+          { product_id: product.id, quantity: 2, unit_price: 4.00, custom_price: true }
+        ]
+      )
+    end
+    let!(:item) { sale.sale_items.sole }
 
     it "updates the custom price without changing the product price" do
       visit edit_sale_path(sale)

@@ -130,10 +130,13 @@ module Imports
         )
 
         rows.each do |row|
+          product = find_or_create_product(row[:product_name], row[:unit_price])
+
           sale.sale_items.build(
-            product: find_or_create_product(row[:product_name], row[:unit_price]),
+            product: product,
             quantity: row[:quantity],
-            unit_price: row[:unit_price]
+            unit_price: row[:unit_price],
+            custom_price: row[:unit_price] != product.price
           )
         end
 

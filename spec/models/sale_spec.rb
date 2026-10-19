@@ -30,8 +30,8 @@ RSpec.describe Sale, type: :model do
     describe '#calculate_total' do
       it 'calculates total from sale items before save' do
         sale = create(:sale)
-        create(:sale_item, sale: sale, quantity: 2, unit_price: 10.0)
-        create(:sale_item, sale: sale, quantity: 3, unit_price: 5.0)
+        create(:sale_item, sale: sale, quantity: 2, unit_price: 10.0, custom_price: true)
+        create(:sale_item, sale: sale, quantity: 3, unit_price: 5.0, custom_price: true)
         sale.sale_items.reload
         sale.save!
         sale.reload

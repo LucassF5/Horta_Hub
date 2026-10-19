@@ -18,7 +18,7 @@ RSpec.describe "Home", type: :request do
       status: status,
       sale_date: sale_date,
       sale_items_attributes: [
-        { product_id: product.id, quantity: quantity, unit_price: unit_price }
+        { product_id: product.id, quantity: quantity, unit_price: unit_price, custom_price: true }
       ]
     )
   end
@@ -115,7 +115,7 @@ RSpec.describe "Home", type: :request do
         status: "completed",
         sale_date: Date.current,
         sale_items_attributes: [
-          { product_id: current_product.id, quantity: 2, unit_price: 10 }
+          { product_id: current_product.id, quantity: 2, unit_price: 10, custom_price: true }
         ]
       )
 
@@ -129,7 +129,7 @@ RSpec.describe "Home", type: :request do
         status: "completed",
         sale_date: Date.current,
         sale_items_attributes: [
-          { product_id: other_product.id, quantity: 50, unit_price: 100 }
+          { product_id: other_product.id, quantity: 50, unit_price: 100, custom_price: true }
         ]
       )
 

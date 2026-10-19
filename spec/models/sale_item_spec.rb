@@ -7,7 +7,7 @@ RSpec.describe SaleItem, type: :model do
   end
 
   describe 'validations' do
-    subject { build(:sale_item) }
+    subject { build(:sale_item, custom_price: true) }
 
     it { should validate_presence_of(:quantity) }
     it 'is invalid when the product belongs to another organization' do
@@ -24,6 +24,84 @@ RSpec.describe SaleItem, type: :model do
     it { should validate_numericality_of(:unit_price).is_greater_than(0) }
   end
 
+  describe 'unit price' do
+    let(:sale) { create(:sale) }
+    let(:product) { create(:product, organization: sale.organization, price: 10.0) }
+
+    it 'uses the product price when custom price is disabled' do
+      sale_item = create(:sale_item, sale: sale, product: product, unit_price: 99.0)
+
+      expect(sale_item.unit_price).to eq(10.0)
+    end
+
+    it 'uses the informed price when custom price is enabled' do
+      sale_item = create(:sale_item, sale: sale, product: product, unit_price: 7.5, custom_price: true)
+
+      expect(sale_item.unit_price).to eq(7.5)
+    end
+
+    it 'does not change the product price when custom price is used' do
+      create(:sale_item, sale: sale, product: product, unit_price: 7.5, custom_price: true)
+
+      expect(product.reload.price).to eq(10.0)
+    end
+
+    it 'keeps the registered price when the product price changes later' do
+      sale_item = create(:sale_item, sale: sale, product: product)
+      product.update!(price: 20.0)
+
+      sale_item.update!(quantity: 3)
+
+      expect(sale_item.reload.unit_price).to eq(10.0)
+    end
+
+    it 'ignores a changed unit price when custom price stays disabled' do
+      sale_item = create(:sale_item, sale: sale, product: product)
+
+      sale_item.update!(unit_price: 1.0)
+
+      expect(sale_item.reload.unit_price).to eq(10.0)
+    end
+
+    it 'uses the current product price when the product changes' do
+      sale_item = create(:sale_item, sale: sale, product: product)
+      other_product = create(:product, organization: sale.organization, price: 15.0)
+
+      sale_item.update!(product: other_product)
+
+      expect(sale_item.reload.unit_price).to eq(15.0)
+    end
+
+    it 'goes back to the product price when custom price is disabled' do
+      sale_item = create(:sale_item, sale: sale, product: product, unit_price: 7.5, custom_price: true)
+
+      sale_item.update!(custom_price: false)
+
+      expect(sale_item.reload.unit_price).to eq(10.0)
+    end
+
+    it 'is invalid with a blank custom price' do
+      sale_item = build(:sale_item, sale: sale, product: product, unit_price: "", custom_price: true)
+
+      expect(sale_item).not_to be_valid
+      expect(sale_item.errors[:unit_price]).to include('não pode ficar em branco')
+    end
+
+    it 'is invalid with a negative custom price' do
+      sale_item = build(:sale_item, sale: sale, product: product, unit_price: -1, custom_price: true)
+
+      expect(sale_item).not_to be_valid
+      expect(sale_item.errors[:unit_price]).to include('deve ser maior que 0')
+    end
+
+    it 'is invalid with a non numeric custom price' do
+      sale_item = build(:sale_item, sale: sale, product: product, unit_price: "abc", custom_price: true)
+
+      expect(sale_item).not_to be_valid
+      expect(sale_item.errors[:unit_price]).to include('não é um número')
+    end
+  end
+
   describe 'factory' do
     it 'has a valid factory' do
       expect(build(:sale_item)).to be_valid
@@ -35,13 +113,14 @@ end
 #
 # Table name: sale_items
 #
-#  id         :integer          not null, primary key
-#  quantity   :integer          default(1), not null
-#  unit_price :decimal(10, 2)   not null
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  product_id :integer          not null
-#  sale_id    :integer          not null
+#  id           :integer          not null, primary key
+#  custom_price :boolean          default(FALSE), not null
+#  quantity     :integer          default(1), not null
+#  unit_price   :decimal(10, 2)   not null
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  product_id   :integer          not null
+#  sale_id      :integer          not null
 #
 # Indexes
 #

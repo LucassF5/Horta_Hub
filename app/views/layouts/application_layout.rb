@@ -18,7 +18,8 @@ class Views::Layouts::ApplicationLayout < Views::Base
     { label: "Home", path: :root_path, controller: "home", icon: PhlexIcons::Lucide::House },
     { label: "Produtos", path: :products_path, controller: "products", icon: PhlexIcons::Lucide::Package },
     { label: "Clientes", path: :clients_path, controller: "clients", icon: PhlexIcons::Lucide::Users },
-    { label: "Vendas", path: :sales_path, controller: "sales", icon: PhlexIcons::Lucide::ShoppingCart }
+    { label: "Vendas", path: :sales_path, controller: "sales", icon: PhlexIcons::Lucide::ShoppingCart },
+    { label: "Importações", path: :import_batches_path, controller: "import_batches", icon: PhlexIcons::Lucide::FileSpreadsheet }
   ].freeze
 
   def view_template(&block)
@@ -194,18 +195,10 @@ class Views::Layouts::ApplicationLayout < Views::Base
     end
   end
 
+  # Contêiner sempre presente para que turbo streams possam atualizar o flash.
   def render_flash_messages
-    return unless flash.any?
-
-    div(class: "mb-4") do
-      flash.each do |type, message|
-        css = if type.to_s == "alert"
-          "py-2 px-3 bg-red-50 mb-2 text-red-500 font-medium rounded-lg inline-block"
-        else
-          "py-2 px-3 bg-green-50 mb-2 text-green-500 font-medium rounded-lg inline-block"
-        end
-        p(class: css, id: type) { message }
-      end
+    div(id: "flash_messages") do
+      render Components::FlashMessages.new(messages: flash)
     end
   end
 end

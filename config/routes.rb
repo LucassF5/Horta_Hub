@@ -6,6 +6,9 @@ Rails.application.routes.draw do
   resources :users, only: %i[ destroy ]
   resources :passwords, param: :token
   resources :organizations, only: %i[ new create ]
+  resources :import_batches, only: %i[ index show new create ] do
+    get :progress, on: :member
+  end
   resources :products, param: :slug
   resources :clients, param: :slug
   resources :sales do

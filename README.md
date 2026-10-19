@@ -23,6 +23,7 @@ Aplicação Rails para gerenciar organizações, produtos, clientes e vendas, co
 - CRUD de produtos e clientes com slugs amigáveis escopados por organização.
 - CRUD de vendas com cliente, status, observações e itens de venda.
 - Cálculo do total da venda a partir dos itens.
+- Preço personalizado por item de venda, sem alterar o preço padrão do produto; o preço unitário usado fica registrado no item para preservar o histórico.
 - Isolamento das consultas por `Current.organization`.
 - Autorização de produtos, clientes e vendas com Action Policy.
 - Controles de interface condicionados por `allowed_to?`.

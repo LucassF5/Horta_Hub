@@ -28,25 +28,56 @@ RSpec.describe Product, type: :model do
         other_product = build(:product, name: "Test Product", organization: other_organization)
         expect(other_product).to be_valid
       end
+
+      it 'rejects duplicate name with different case in the same organization' do
+        duplicate_product = build(:product, name: "TEST product", organization: organization)
+        expect(duplicate_product).not_to be_valid
+        expect(duplicate_product.errors[:name]).to be_present
+      end
+
+      it 'rejects duplicate name with extra spaces in the same organization' do
+        duplicate_product = build(:product, name: "  test   product ", organization: organization)
+        expect(duplicate_product).not_to be_valid
+        expect(duplicate_product.errors[:name]).to be_present
+      end
+
+      it 'allows name variations in different organizations' do
+        other_organization = create(:organization)
+        other_product = build(:product, name: "  TEST   product ", organization: other_organization)
+        expect(other_product).to be_valid
+      end
+
+      it 'rejects duplicate name at the database level' do
+        duplicate_product = build(:product, name: "test product", organization: organization)
+        expect { duplicate_product.save(validate: false) }.to raise_error(ActiveRecord::RecordNotUnique)
+      end
     end
   end
 
-  describe 'callbacks' do
-    describe '#format_name' do
-      it 'formats name to titlecase before save' do
-        product = create(:product, name: "test product name")
-        expect(product.reload.name).to eq("Test Product Name")
-      end
+  describe 'name normalization' do
+    it 'formats name to titlecase' do
+      product = create(:product, name: "test product name")
+      expect(product.reload.name).to eq("Test Product Name")
+    end
 
-      it 'handles multiple spaces correctly' do
-        product = create(:product, name: "test  product   name")
-        expect(product.reload.name).to eq("Test  Product   Name")
-      end
+    it 'collapses and strips spaces' do
+      product = create(:product, name: "  test  product   name ")
+      expect(product.reload.name).to eq("Test Product Name")
+    end
 
-      it 'handles already formatted names' do
-        product = create(:product, name: "Test Product Name")
-        expect(product.reload.name).to eq("Test Product Name")
-      end
+    it 'handles already formatted names' do
+      product = create(:product, name: "Test Product Name")
+      expect(product.reload.name).to eq("Test Product Name")
+    end
+
+    it 'normalizes name before validation' do
+      product = build(:product, name: "  TEST   product ")
+      expect(product.name).to eq("Test Product")
+    end
+
+    it 'keeps accented characters' do
+      product = create(:product, name: "MAÇÃ   orgânica")
+      expect(product.reload.name).to eq("Maçã Orgânica")
     end
   end
 
@@ -125,6 +156,7 @@ end
 #
 # Indexes
 #
+#  index_products_on_organization_id_and_name  (organization_id,name) UNIQUE
 #  index_products_on_organization_id_and_slug  (organization_id,slug) UNIQUE
 #
 # Foreign Keys

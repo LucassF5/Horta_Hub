@@ -33,6 +33,7 @@ end
 #
 # Indexes
 #
+#  index_products_on_organization_id_and_name  (organization_id,name) UNIQUE
 #  index_products_on_organization_id_and_slug  (organization_id,slug) UNIQUE
 #
 # Foreign Keys

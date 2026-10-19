@@ -4,7 +4,7 @@ class Product < ApplicationRecord
     belongs_to :organization
     has_many :sale_items, dependent: :restrict_with_error
 
-    before_save :format_name
+    normalizes :name, with: ->(name) { name.squish.downcase.titleize }
 
     friendly_id :name, use: [ :slugged, :scoped, :history ], scope: :organization
 
@@ -14,13 +14,6 @@ class Product < ApplicationRecord
 
     def should_generate_new_friendly_id?
         slug.blank? || (will_save_change_to_name? && !will_save_change_to_slug?)
-    end
-
-    private
-
-    def format_name
-        self.name = name.downcase.titleize
-        Rails.logger.info "Formatted product name to: #{name}"
     end
 end
 
@@ -38,6 +31,7 @@ end
 #
 # Indexes
 #
+#  index_products_on_organization_id_and_name  (organization_id,name) UNIQUE
 #  index_products_on_organization_id_and_slug  (organization_id,slug) UNIQUE
 #
 # Foreign Keys

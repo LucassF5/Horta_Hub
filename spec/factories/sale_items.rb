@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :sale_item do
     quantity { Faker::Number.between(from: 1, to: 10) }
-    unit_price { Faker::Commerce.price(range: 1.0..100.0) }
+    unit_price { product.price }
     association :sale
     product { association(:product, organization: sale.organization) }
   end
@@ -11,13 +11,14 @@ end
 #
 # Table name: sale_items
 #
-#  id         :integer          not null, primary key
-#  quantity   :integer          default(1), not null
-#  unit_price :decimal(10, 2)   not null
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  product_id :integer          not null
-#  sale_id    :integer          not null
+#  id           :integer          not null, primary key
+#  custom_price :boolean          default(FALSE), not null
+#  quantity     :integer          default(1), not null
+#  unit_price   :decimal(10, 2)   not null
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  product_id   :integer          not null
+#  sale_id      :integer          not null
 #
 # Indexes
 #

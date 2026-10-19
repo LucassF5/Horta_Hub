@@ -14,7 +14,7 @@ RSpec.describe Dashboard::OverviewQuery do
       status: status,
       sale_date: sale_date,
       sale_items_attributes: [
-        { product_id: product.id, quantity: quantity, unit_price: unit_price }
+        { product_id: product.id, quantity: quantity, unit_price: unit_price, custom_price: true }
       ]
     )
   end

@@ -185,6 +185,29 @@ RSpec.describe Imports::SalesSpreadsheetImporter do
     expect(organization.products.count).to eq(1)
   end
 
+  it "keeps the spreadsheet price as custom price without changing the existing product price" do
+    product = create(:product, organization: organization, name: "Alface", price: 3)
+
+    importer_for([
+      [ "QUINTA", "02/10/2026", "AGROVALE", "ALFACE", 15, "60,00", "LUCAS", "PG", nil ]
+    ]).call
+
+    item = organization.sales.sole.sale_items.sole
+    expect(item.unit_price).to eq(4)
+    expect(item.custom_price).to be(true)
+    expect(product.reload.price).to eq(3)
+  end
+
+  it "does not mark the item as custom price when the spreadsheet price matches the product price" do
+    importer_for([
+      [ "QUINTA", "02/10/2026", "AGROVALE", "ALFACE", 15, "60,00", "LUCAS", "PG", nil ]
+    ]).call
+
+    item = organization.sales.sole.sale_items.sole
+    expect(item.unit_price).to eq(4)
+    expect(item.custom_price).to be(false)
+  end
+
   it "does not reuse clients or products from another organization" do
     other_organization = create(:organization)
     create(:client, organization: other_organization, name: "Agrovale")

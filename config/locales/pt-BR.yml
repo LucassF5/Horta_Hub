@@ -6,6 +6,14 @@ pt-BR:
       product:
         name: "Nome"
         price: "Preço"
+      sale_item:
+        quantity: "Quantidade"
+        unit_price: "Preço unitário"
+        custom_price: "Preço personalizado"
+      sale/sale_items:
+        product: "Produto do item"
+        quantity: "Quantidade do item"
+        unit_price: "Preço unitário do item"
       import_batch:
         file: "Arquivo"
         year: "Ano"

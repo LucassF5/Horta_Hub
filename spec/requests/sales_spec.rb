@@ -111,6 +111,8 @@ RSpec.describe "Sales", type: :request do
       end
 
       it "creates a sale with multiple items and persists the calculated total" do
+        product.update!(price: 10.50)
+        second_product.update!(price: 4.25)
         attributes = valid_attributes.merge(
           sale_items_attributes: {
             "0" => { product_id: product.id, quantity: 2, unit_price: 10.50 },
@@ -167,7 +169,7 @@ RSpec.describe "Sales", type: :request do
     end
 
     it "renders persisted sale items with decimal unit prices" do
-      create(:sale_item, sale: sale, product: product, quantity: 2, unit_price: 4.0)
+      create(:sale_item, sale: sale, product: product, quantity: 2, unit_price: 4.0, custom_price: true)
 
       get edit_sale_path(sale)
 

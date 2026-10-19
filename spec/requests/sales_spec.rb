@@ -154,6 +154,22 @@ RSpec.describe "Sales", type: :request do
         expect(Sale.last.total).to eq(16.00)
       end
 
+      it "ignores a manipulated unit price sent without the custom price flag" do
+        product.update!(price: 8.00)
+        attributes = valid_attributes.merge(
+          sale_items_attributes: [
+            { product_id: product.id, quantity: 2, unit_price: 0.01 }
+          ]
+        )
+
+        post sales_path, params: { sale: attributes }
+
+        item = Sale.last.sale_items.sole
+        expect(item.unit_price).to eq(8.00)
+        expect(item.custom_price).to be(false)
+        expect(Sale.last.total).to eq(16.00)
+      end
+
       it "uses the informed price when custom price is enabled without changing the product price" do
         product.update!(price: 8.00)
         attributes = valid_attributes.merge(
@@ -317,6 +333,61 @@ RSpec.describe "Sales", type: :request do
 
         expect(item.reload.unit_price).to eq(10.00)
         expect(sale.reload.total).to eq(20.00)
+      end
+
+      it "ignores a manipulated unit price when custom price stays disabled" do
+        product.update!(price: 10.00)
+        item = sale.sale_items.sole
+        item.update!(product: product, quantity: 2)
+
+        patch sale_path(sale), params: {
+          sale: {
+            sale_items_attributes: {
+              "0" => { id: item.id, product_id: product.id, quantity: 3, unit_price: "0.01", custom_price: "0" }
+            }
+          }
+        }
+
+        expect(item.reload.unit_price).to eq(10.00)
+        expect(item.custom_price).to be(false)
+        expect(sale.reload.total).to eq(30.00)
+      end
+
+      it "ignores a manipulated unit price sent without the custom price flag" do
+        product.update!(price: 10.00)
+        item = sale.sale_items.sole
+        item.update!(product: product, quantity: 2)
+
+        patch sale_path(sale), params: {
+          sale: {
+            sale_items_attributes: {
+              "0" => { id: item.id, product_id: product.id, quantity: 2, unit_price: "0.01" }
+            }
+          }
+        }
+
+        expect(item.reload.unit_price).to eq(10.00)
+        expect(sale.reload.total).to eq(20.00)
+      end
+
+      it "uses the product price for a new item with a manipulated unit price" do
+        product.update!(price: 10.00)
+        second_product.update!(price: 5.00)
+        item = sale.sale_items.sole
+        item.update!(product: product, quantity: 2)
+
+        patch sale_path(sale), params: {
+          sale: {
+            sale_items_attributes: {
+              "0" => { id: item.id, product_id: product.id, quantity: 2 },
+              "1" => { product_id: second_product.id, quantity: 4, unit_price: "0.01", custom_price: "0" }
+            }
+          }
+        }
+
+        new_item = sale.sale_items.find_by!(product: second_product)
+        expect(new_item.unit_price).to eq(5.00)
+        expect(sale.reload.total).to eq(40.00)
       end
 
       it "updates an item to use a custom price" do

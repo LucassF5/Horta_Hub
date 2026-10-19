@@ -63,7 +63,7 @@ class Views::Sales::SaleItemFieldsComponent < Views::Base
         value: (@item.quantity || 1).to_s,
         placeholder: "Qtd",
         class: input_classes,
-        data: { action: "input->sale-item-form#quantityChanged change->sale-item-form#quantityChanged", quantity_field: true }
+        data: { action: "input->sale-item-form#recalculate change->sale-item-form#recalculate", quantity_field: true }
       )
     end
   end
@@ -74,9 +74,40 @@ class Views::Sales::SaleItemFieldsComponent < Views::Base
 
       current_price = @item.unit_price
       display_text = current_price.present? ? number_to_currency(current_price, unit: "R$ ") : "R$ -"
+      custom_price = @item.custom_price?
 
-      span(class: "block text-sm font-medium text-gray-700 py-2", data: { price_display: true }) { display_text }
-      input(type: "hidden", id: field_id(:unit_price), name: field_name(:unit_price), value: decimal_value(current_price), data: { price_field: true })
+      span(class: "block text-sm font-medium text-gray-700 py-2", hidden: custom_price, data: { price_display: true }) { display_text }
+      input(
+        type: "number",
+        id: field_id(:unit_price),
+        name: field_name(:unit_price),
+        min: 0.01,
+        step: 0.01,
+        value: decimal_value(current_price),
+        placeholder: "R$ 0,00",
+        hidden: !custom_price,
+        disabled: !custom_price,
+        class: input_classes,
+        data: { action: "input->sale-item-form#recalculate change->sale-item-form#recalculate", price_field: true }
+      )
+
+      render_custom_price_toggle(custom_price)
+    end
+  end
+
+  def render_custom_price_toggle(custom_price)
+    label(for: field_id(:custom_price), class: "mt-2 flex items-center gap-2 text-sm text-gray-700") do
+      input(type: "hidden", name: field_name(:custom_price), value: "0")
+      input(
+        type: "checkbox",
+        id: field_id(:custom_price),
+        name: field_name(:custom_price),
+        value: "1",
+        checked: custom_price,
+        class: "h-4 w-4 rounded border-border",
+        data: { action: "change->sale-item-form#toggleCustomPrice", custom_price_toggle: true }
+      )
+      plain "Preço personalizado"
     end
   end
 

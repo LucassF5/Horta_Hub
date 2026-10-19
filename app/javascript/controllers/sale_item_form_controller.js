@@ -9,7 +9,44 @@ export default class extends Controller {
 
   selectProduct(event) {
     const item = event.target.closest("[data-sale-item]")
-    const productId = event.target.value
+
+    delete item.dataset.defaultPrice
+    if (!this.customPrice(item)) this.applyDefaultPrice(item)
+
+    this.recalculateItem(item)
+    this.recalculateTotal()
+  }
+
+  toggleCustomPrice(event) {
+    const item = event.target.closest("[data-sale-item]")
+    const priceField = item.querySelector("[data-price-field]")
+    const priceDisplay = item.querySelector("[data-price-display]")
+    const customPrice = event.target.checked
+
+    priceField.disabled = !customPrice
+    priceField.hidden = !customPrice
+    priceDisplay.hidden = customPrice
+
+    if (customPrice) {
+      item.dataset.defaultPrice = priceField.value
+      priceField.focus()
+    } else {
+      this.restoreDefaultPrice(item)
+    }
+
+    this.recalculateItem(item)
+    this.recalculateTotal()
+  }
+
+  recalculate(event) {
+    const item = event.target.closest("[data-sale-item]")
+
+    this.recalculateItem(item)
+    this.recalculateTotal()
+  }
+
+  applyDefaultPrice(item) {
+    const productId = item.querySelector("select[name$='[product_id]']").value
     const priceField = item.querySelector("[data-price-field]")
     const priceDisplay = item.querySelector("[data-price-display]")
 
@@ -21,16 +58,20 @@ export default class extends Controller {
       priceField.value = ""
       priceDisplay.textContent = "R$ -"
     }
-
-    this.recalculateItem(item)
-    this.recalculateTotal()
   }
 
-  quantityChanged(event) {
-    const item = event.target.closest("[data-sale-item]")
+  // Item sem troca de produto volta ao preço anterior, como o backend faz ao desmarcar.
+  restoreDefaultPrice(item) {
+    if (!("defaultPrice" in item.dataset)) return this.applyDefaultPrice(item)
 
-    this.recalculateItem(item)
-    this.recalculateTotal()
+    const price = item.dataset.defaultPrice
+    item.querySelector("[data-price-field]").value = price
+    item.querySelector("[data-price-display]").textContent = price ? this.formatCurrency(price) : "R$ -"
+    delete item.dataset.defaultPrice
+  }
+
+  customPrice(item) {
+    return item.querySelector("[data-custom-price-toggle]")?.checked === true
   }
 
   removeItem(event) {

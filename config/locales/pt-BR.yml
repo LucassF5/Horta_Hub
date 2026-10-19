@@ -1,5 +1,14 @@
 pt-BR:
   activerecord:
+    attributes:
+      client:
+        name: "Nome"
+      product:
+        name: "Nome"
+        price: "Preço"
+      import_batch:
+        file: "Arquivo"
+        year: "Ano"
     errors:
       messages:
         record_invalid: "A validação falhou: %{errors}"

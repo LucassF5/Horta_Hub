@@ -1,16 +1,20 @@
 FactoryBot.define do
   factory :import_batch do
-    organization { nil }
-    user { nil }
-    status { "MyString" }
-    year { 1 }
-    total_rows { 1 }
-    processed_rows { 1 }
-    successful_rows { 1 }
-    failed_rows { 1 }
-    error_details { "" }
-    started_at { "2026-07-06 02:40:12" }
-    finished_at { "2026-07-06 02:40:12" }
+    association :organization
+    association :user
+    status { "pending" }
+    year { 2026 }
+    error_details { [] }
+
+    after(:build) do |import_batch|
+      next if import_batch.file.attached?
+
+      import_batch.file.attach(
+        io: StringIO.new("xlsx-#{SecureRandom.hex(8)}"),
+        filename: "vendas.xlsx",
+        content_type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      )
+    end
   end
 end
 

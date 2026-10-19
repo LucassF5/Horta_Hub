@@ -132,6 +132,39 @@ RSpec.describe "Sales", type: :request do
         expect(response).to redirect_to(sales_path)
       end
 
+      it "uses the product price when custom price is disabled" do
+        product.update!(price: 8.00)
+        attributes = valid_attributes.merge(
+          sale_items_attributes: [
+            { product_id: product.id, quantity: 2, unit_price: 99.00, custom_price: "0" }
+          ]
+        )
+
+        post sales_path, params: { sale: attributes }
+
+        item = Sale.last.sale_items.sole
+        expect(item.unit_price).to eq(8.00)
+        expect(item.custom_price).to be(false)
+        expect(Sale.last.total).to eq(16.00)
+      end
+
+      it "uses the informed price when custom price is enabled without changing the product price" do
+        product.update!(price: 8.00)
+        attributes = valid_attributes.merge(
+          sale_items_attributes: [
+            { product_id: product.id, quantity: 2, unit_price: "6.50", custom_price: "1" }
+          ]
+        )
+
+        post sales_path, params: { sale: attributes }
+
+        item = Sale.last.sale_items.sole
+        expect(item.unit_price).to eq(6.50)
+        expect(item.custom_price).to be(true)
+        expect(Sale.last.total).to eq(13.00)
+        expect(product.reload.price).to eq(8.00)
+      end
+
       it "sets a success notice" do
         post sales_path, params: { sale: valid_attributes }
         follow_redirect!
@@ -155,6 +188,28 @@ RSpec.describe "Sales", type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
+
+    context "with an invalid custom price" do
+      [ "", "-1", "abc" ].each do |unit_price|
+        it "does not create the sale and shows an error for #{unit_price.inspect}" do
+          attributes = {
+            client_id: client.id,
+            sale_date: Date.current.to_s,
+            status: "pending",
+            sale_items_attributes: [
+              { product_id: product.id, quantity: 1, unit_price: unit_price, custom_price: "1" }
+            ]
+          }
+
+          expect {
+            post sales_path, params: { sale: attributes }
+          }.not_to change(Sale, :count)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.body).to include("Preço unitário do item")
+        end
+      end
+    end
   end
 
   describe "GET /sales/:id/edit" do
@@ -176,6 +231,26 @@ RSpec.describe "Sales", type: :request do
       expect(response).to have_http_status(:success)
       expect(response.body).to include('value="4.0"')
     end
+
+    it "renders the custom price toggle checked with an enabled price field" do
+      item = create(:sale_item, sale: sale, product: product, unit_price: 4.0, custom_price: true)
+
+      get edit_sale_path(sale)
+
+      form = Capybara.string(response.body)
+      expect(form).to have_checked_field("sale_sale_items_attributes_#{item.id}_custom_price")
+      expect(form).to have_field("sale_sale_items_attributes_#{item.id}_unit_price", disabled: false, visible: :all)
+    end
+
+    it "renders the custom price toggle unchecked with a disabled price field" do
+      item = create(:sale_item, sale: sale, product: product)
+
+      get edit_sale_path(sale)
+
+      form = Capybara.string(response.body)
+      expect(form).to have_unchecked_field("sale_sale_items_attributes_#{item.id}_custom_price")
+      expect(form).to have_field("sale_sale_items_attributes_#{item.id}_unit_price", disabled: true, visible: :all)
+    end
   end
 
   describe "PATCH /sales/:id" do
@@ -189,6 +264,41 @@ RSpec.describe "Sales", type: :request do
       it "redirects to the sales index" do
         patch sale_path(sale), params: { sale: { status: "completed" } }
         expect(response).to redirect_to(sales_path)
+      end
+
+      it "keeps the registered unit price when the product price changes later" do
+        product.update!(price: 10.00)
+        item = create(:sale_item, sale: sale, product: product, quantity: 2)
+        product.update!(price: 25.00)
+
+        patch sale_path(sale), params: {
+          sale: {
+            notes: "Atualizada",
+            sale_items_attributes: {
+              "0" => { id: item.id, product_id: product.id, quantity: 2, custom_price: "0" }
+            }
+          }
+        }
+
+        expect(item.reload.unit_price).to eq(10.00)
+        expect(sale.reload.total).to eq(20.00)
+      end
+
+      it "updates an item to use a custom price" do
+        product.update!(price: 10.00)
+        item = create(:sale_item, sale: sale, product: product, quantity: 2)
+
+        patch sale_path(sale), params: {
+          sale: {
+            sale_items_attributes: {
+              "0" => { id: item.id, product_id: product.id, quantity: 2, unit_price: "7.25", custom_price: "1" }
+            }
+          }
+        }
+
+        expect(item.reload.unit_price).to eq(7.25)
+        expect(sale.reload.total).to eq(14.50)
+        expect(product.reload.price).to eq(10.00)
       end
 
       it "removes nested sale items marked for destruction" do

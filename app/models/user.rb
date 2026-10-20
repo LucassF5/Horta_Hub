@@ -7,14 +7,33 @@ class User < ApplicationRecord
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
+  validates :username, presence: true, length: { minimum: 3, maximum: 30 }
+  validates :email_address, presence: true, uniqueness: true
+
+  def self.generate_password
+    SecureRandom.alphanumeric(8)
+  end
+
   def membership_for(organization)
     return if organization.blank?
 
     memberships.find_by(organization: organization)
   end
 
-  validates :username, presence: true, length: { minimum: 3, maximum: 30 }
-  validates :email_address, presence: true, uniqueness: true
+  def reset_password!
+    password = self.class.generate_password
+
+    transaction do
+      update!(password: password, password_confirmation: password)
+      sessions.destroy_all
+    end
+
+    password
+  end
+
+  def member_of_active_organization?
+    organizations.active.exists?
+  end
 end
 
 # == Schema Information

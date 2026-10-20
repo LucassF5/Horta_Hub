@@ -35,6 +35,14 @@ RSpec.describe "Sales", type: :request do
 
       expect(response.body).to include('data-turbo-frame="_top"')
     end
+
+    it "shows each sale's seller" do
+      sale.update!(seller: user)
+      create(:sale, organization: organization, client: client)
+      get sales_path
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text).to include(user.username, "Não vinculado")
+    end
   end
 
   describe "GET /sales/:id" do
@@ -55,6 +63,12 @@ RSpec.describe "Sales", type: :request do
 
       expect(response.body).to include("Responsável")
       expect(response.body).to include("Lucas")
+    end
+
+    it "displays the seller username" do
+      sale.update!(seller: user)
+      get sale_path(sale)
+      expect(Capybara.string(response.body).find("dl").text).to include("Responsável", user.username)
     end
   end
 
@@ -80,6 +94,12 @@ RSpec.describe "Sales", type: :request do
 
       expect(response.body).to include("sale[sale_items_attributes][0][product_id]")
       expect(response.body).not_to include("sale[sale_items_attributes][new_0]")
+    end
+
+    it "shows the signed-in user as the read-only responsible" do
+      get new_sale_path
+      expect(Capybara.string(response.body).find("#sale_seller").text).to eq(user.username)
+      expect(response.body).not_to include('name="sale[responsible_name]"', 'name="sale[seller_id]"')
     end
   end
 
@@ -110,10 +130,10 @@ RSpec.describe "Sales", type: :request do
         }.to change(SaleItem, :count).by(1)
       end
 
-      it "persists the responsible name" do
-        post sales_path, params: { sale: valid_attributes }
-
-        expect(Sale.last.responsible_name).to eq("Lucas")
+      it "records the signed-in user as the seller and ignores seller fields from the form" do
+        other_user = create(:user)
+        post sales_path, params: { sale: valid_attributes.merge(seller_id: other_user.id, responsible_name: "Lucas") }
+        expect(Sale.last).to have_attributes(seller_id: user.id, responsible_name: nil)
       end
 
       it "creates a sale with multiple items and persists the calculated total" do
@@ -421,6 +441,16 @@ RSpec.describe "Sales", type: :request do
           }
         }.to change(SaleItem, :count).by(-1)
       end
+
+      it "keeps the original seller" do
+        seller = create(:user)
+        create(:membership, user: seller, organization: organization, role: "manager")
+        sale.update!(seller: seller, responsible_name: "VENDEDOR ORIGINAL")
+
+        patch sale_path(sale), params: { sale: { status: "completed", seller_id: user.id, responsible_name: "Outro" } }
+
+        expect(sale.reload).to have_attributes(seller_id: seller.id, responsible_name: "VENDEDOR ORIGINAL")
+      end
     end
 
     context "with invalid parameters" do
@@ -542,6 +572,18 @@ RSpec.describe "Sales", type: :request do
       completed_sale.update!(responsible_name: "Maria Feirante")
 
       get sales_path, params: { q: "feirante" }
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text).to include("Cliente Concluido")
+      expect(results_text).not_to include("Cliente Pendente")
+    end
+
+    it "searches by seller username" do
+      seller = create(:user, username: "joana_feira")
+      create(:membership, user: seller, organization: organization, role: "manager")
+      completed_sale.update!(seller: seller)
+
+      get sales_path, params: { q: "joana" }
 
       results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
       expect(results_text).to include("Cliente Concluido")

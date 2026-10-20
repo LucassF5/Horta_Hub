@@ -55,6 +55,11 @@ class Views::Sales::FormComponent < Views::Base
     end
 
     render RubyUI::FormField.new do
+      p(class: "text-sm font-medium leading-none") { "Responsável" }
+      p(id: "sale_seller", class: "flex h-10 w-full items-center rounded-md border bg-gray-50 px-3 text-sm text-gray-900") { @sale.seller_display_name }
+    end
+
+    render RubyUI::FormField.new do
       render RubyUI::FormFieldLabel.new(for: "sale_notes") { "Observações" }
       form.text_area(
         :notes,

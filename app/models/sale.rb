@@ -24,8 +24,8 @@ class Sale < ApplicationRecord
   scope :search, ->(term) {
     next if term.blank?
 
-    joins(:client).where(
-      "clients.name LIKE :term ESCAPE '\\' OR sales.responsible_name LIKE :term ESCAPE '\\'",
+    joins(:client).left_joins(:seller).where(
+      "clients.name LIKE :term ESCAPE '\\' OR sales.responsible_name LIKE :term ESCAPE '\\' OR users.username LIKE :term ESCAPE '\\'",
       term: "%#{sanitize_sql_like(term)}%"
     )
   }

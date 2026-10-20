@@ -98,8 +98,12 @@ RSpec.describe "Products", type: :request do
     end
 
     it "displays the product price" do
+      product.update!(price: 12.5)
+
       get product_path(product)
+
       expect(response.body).to include("Preço")
+      expect(response.body).to include("R$ 12,50")
     end
   end
 

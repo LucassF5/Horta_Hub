@@ -12,7 +12,7 @@ class Views::Products::Show < Views::Base
       div(class: "bg-white shadow-md rounded-lg p-6 mb-8") do
         p(class: "text-gray-700 text-lg mb-4") do
           strong(class: "font-semibold") { "Preço: " }
-          number_to_currency(@product.price)
+          plain number_to_currency(@product.price)
         end
 
         div(class: "flex gap-4") do

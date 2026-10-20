@@ -120,7 +120,19 @@ RSpec.describe "Clients", type: :request do
     it "displays client details" do
       get client_path(client)
       expect(response.body).to include(client.name)
-      expect(response.body).to include("Tipo do cliente")
+      expect(response.body).to include("Tipo de pessoa")
+    end
+
+    it "summarizes the client sales, ignoring cancelled ones in the totals" do
+      completed = create(:sale, organization: organization, client: client, status: "completed")
+      create(:sale, organization: organization, client: client, status: "cancelled")
+
+      get client_path(client)
+
+      details = Capybara.string(response.body).find("dl")
+      expect(details).to have_css("div", text: "Vendas1")
+      expect(details).to have_css("div", text: "Total comprado#{ActiveSupport::NumberHelper.number_to_currency(completed.total, locale: :"pt-BR")}")
+      expect(response.body).to include("Venda ##{completed.id}")
     end
   end
 

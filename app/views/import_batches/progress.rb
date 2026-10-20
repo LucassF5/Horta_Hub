@@ -36,7 +36,7 @@ class Views::ImportBatches::Progress < Views::Base
 
   def render_progress_bar
     div(class: "mb-6") do
-      div(class: "mb-1 flex justify-between text-sm text-gray-600") do
+      div(class: "mb-1 flex flex-wrap justify-between gap-x-4 text-sm text-gray-600") do
         span { status_label }
         span { "#{@import_batch.processed_rows}/#{@import_batch.total_rows} linhas (#{percentage}%)" }
       end
@@ -48,7 +48,7 @@ class Views::ImportBatches::Progress < Views::Base
   end
 
   def render_summary
-    div(class: "mb-8 grid grid-cols-1 gap-4 md:grid-cols-3") do
+    div(class: "mb-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3") do
       render_detail("Arquivo", @import_batch.file_name)
       render_detail("Ano", @import_batch.year.to_s)
       render_detail("Status", status_label)
@@ -62,14 +62,14 @@ class Views::ImportBatches::Progress < Views::Base
   end
 
   def render_detail(label, value)
-    div(class: "rounded-md border bg-white p-4") do
-      p(class: "text-sm font-semibold text-gray-500") { label }
-      p(class: "mt-1 text-lg text-gray-800") { value.presence || "-" }
+    div(class: "min-w-0 rounded-lg border bg-white p-4") do
+      p(class: "text-sm text-gray-500") { label }
+      p(class: "mt-1 break-words text-lg font-medium text-gray-900") { value.presence || "-" }
     end
   end
 
   def render_errors
-    div(class: "rounded-md border bg-white p-4") do
+    div(class: "min-w-0 rounded-lg border bg-white p-4") do
       h2(class: "mb-4 text-xl font-semibold text-gray-800") { "Erros" }
 
       render RubyUI::Table.new do

@@ -16,7 +16,15 @@ class ProductsController < ApplicationController
 
     def show
         authorize! @product
-        render Views::Products::Show.new(product: @product)
+
+        # Vendas canceladas aparecem na lista, mas não contam como vendidas.
+        sold_items = @product.sale_items.joins(:sale).where.not(sales: { status: "cancelled" })
+        render Views::Products::Show.new(
+            product: @product,
+            recent_items: @product.sale_items.includes(sale: :client).joins(:sale).merge(Sale.recent).limit(5),
+            sales_count: sold_items.distinct.count(:sale_id),
+            units_sold: sold_items.sum(:quantity)
+        )
     end
 
     def new

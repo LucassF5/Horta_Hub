@@ -16,7 +16,15 @@ class ClientsController < ApplicationController
 
   def show
     authorize! @client
-    render Views::Clients::Show.new(client: @client)
+
+    # Vendas canceladas aparecem na lista, mas não entram nos totais.
+    kept_sales = @client.sales.where.not(status: "cancelled")
+    render Views::Clients::Show.new(
+      client: @client,
+      recent_sales: @client.sales.recent.limit(5),
+      sales_count: kept_sales.count,
+      total_bought: kept_sales.sum(:total)
+    )
   end
 
   def new

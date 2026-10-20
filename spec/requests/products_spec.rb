@@ -105,6 +105,28 @@ RSpec.describe "Products", type: :request do
       expect(response.body).to include("Preço")
       expect(response.body).to include("R$ 12,50")
     end
+
+    it "summarizes the product sales, ignoring cancelled ones in the totals" do
+      client = create(:client, name: "Cliente do Produto", organization: organization)
+      [ [ "completed", 3 ], [ "pending", 2 ], [ "cancelled", 10 ] ].each do |status, quantity|
+        create(:sale, organization: organization, client: client, status: status,
+          sale_items_attributes: [ { product_id: product.id, quantity: quantity, unit_price: 4, custom_price: true } ])
+      end
+
+      get product_path(product)
+
+      details = Capybara.string(response.body).find("dl")
+      expect(details).to have_css("div", text: "Vendas2")
+      expect(details).to have_css("div", text: "Unidades vendidas5")
+      expect(response.body).to include("Cliente do Produto")
+      expect(response.body).to include("3 × R$ 4,00")
+    end
+
+    it "explains when the product was never sold" do
+      get product_path(product)
+
+      expect(response.body).to include("Este produto ainda não entrou em nenhuma venda.")
+    end
   end
 
   describe "GET /products/new" do

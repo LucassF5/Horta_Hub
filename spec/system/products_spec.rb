@@ -128,7 +128,7 @@ RSpec.describe "Products Management", type: :system do
 
     it "navigates back from show page to index" do
       visit product_path(product)
-      click_link "Voltar para Produtos"
+      click_link "Voltar para produtos"
 
       expect(page).to have_content("Produtos")
       expect(page).to have_current_path(products_path)

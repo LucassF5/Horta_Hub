@@ -49,6 +49,41 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '.generate_password' do
+    it "generates 8-character alphanumeric passwords" do
+      expect(User.generate_password).to match(/\A[a-zA-Z0-9]{8}\z/)
+    end
+  end
+
+  describe '#reset_password!' do
+    it "resets the password and ends sessions" do
+      user = create(:user)
+      create_list(:session, 2, user: user)
+
+      password = user.reset_password!
+
+      expect(user.reload.authenticate(password)).to be_truthy
+      expect(user.authenticate("password123")).to be false
+      expect(user.sessions.count).to eq(0)
+    end
+  end
+
+  describe '#member_of_active_organization?' do
+    it "knows whether it belongs to an active organization" do
+      user = create(:user)
+
+      expect(user.member_of_active_organization?).to be false
+
+      create(:membership, user: user, organization: create(:organization, status: "inactive"))
+
+      expect(user.member_of_active_organization?).to be false
+
+      create(:membership, user: user, organization: create(:organization))
+
+      expect(user.member_of_active_organization?).to be true
+    end
+  end
+
   describe 'factory' do
     it 'has a valid factory' do
       expect(build(:user)).to be_valid

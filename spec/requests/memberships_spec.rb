@@ -72,6 +72,15 @@ RSpec.describe "Memberships", type: :request do
           expect(flash[:alert]).to include("Você não tem permissão")
         end
 
+        it "refuses POST /memberships" do
+          expect {
+            post memberships_path, params: new_member_params
+          }.not_to change(User, :count)
+
+          expect(response).to redirect_to(root_path)
+          expect(Membership.count).to eq(1)
+        end
+
         it "hides the Funcionários sidebar item" do
           get clients_path
 
@@ -220,6 +229,13 @@ RSpec.describe "Memberships", type: :request do
           expect(response).to redirect_to(memberships_path)
           expect(flash[:notice]).to eq("Cargo atualizado com sucesso.")
           expect(viewer.reload).to be_manager
+        end
+
+        it "refuses an unknown role without erroring" do
+          patch membership_path(viewer), params: { membership: { role: "superuser" } }
+
+          expect(response).to redirect_to(root_path)
+          expect(viewer.reload).to be_viewer
         end
 
         it "refuses changing the owner's own membership" do

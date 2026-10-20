@@ -24,37 +24,44 @@ class Views::Layouts::ApplicationLayout < Views::Base
 
   def view_template(&block)
     doctype
-    html do
-      head do
-        title { content_for(:title) || "Horta Hub" }
-        meta(name: "viewport", content: "width=device-width,initial-scale=1")
-        meta(name: "apple-mobile-web-app-capable", content: "yes")
-        meta(name: "mobile-web-app-capable", content: "yes")
-        csrf_meta_tags
-        csp_meta_tag
-        link(rel: "icon", href: "/HortaHubIcon.png", type: "image/png")
-        link(rel: "icon", href: "/icon.svg", type: "image/svg+xml")
-        link(rel: "apple-touch-icon", href: "/icon.png")
-        stylesheet_link_tag :app, "data-turbo-track": "reload"
-        javascript_importmap_tags
-      end
-
-      body(class: "text-foreground min-h-screen flex flex-col") do
-        render RubyUI::SidebarWrapper.new do
-          render_sidebar if authenticated?
-
-          main(class: "min-w-0 flex-1 bg-neutral-100 px-3 pb-6 md:m-4 md:rounded-lg md:px-5") do
-            render_application_toolbar if authenticated?
-            render_page_header
-            render_flash_messages
-            yield
-          end
-        end
-      end
+    html(lang: "pt-BR") do
+      render_head
+      render_body(&block)
     end
   end
 
   private
+
+  def render_head
+    head do
+      title { content_for(:title) || "Horta Hub" }
+      meta(name: "viewport", content: "width=device-width,initial-scale=1")
+      meta(name: "apple-mobile-web-app-capable", content: "yes")
+      meta(name: "mobile-web-app-capable", content: "yes")
+      csrf_meta_tags
+      csp_meta_tag
+      link(rel: "icon", href: "/HortaHubIcon.png", type: "image/png")
+      link(rel: "icon", href: "/icon.svg", type: "image/svg+xml")
+      link(rel: "apple-touch-icon", href: "/icon.png")
+      stylesheet_link_tag :app, "data-turbo-track": "reload"
+      javascript_importmap_tags
+    end
+  end
+
+  def render_body(&block)
+    body(class: "text-foreground min-h-screen flex flex-col") do
+      render RubyUI::SidebarWrapper.new do
+        render_sidebar if authenticated?
+
+        main(class: "min-w-0 flex-1 bg-neutral-100 px-3 pb-6 md:m-4 md:rounded-lg md:px-5") do
+          render_application_toolbar if authenticated?
+          render_page_header
+          render_flash_messages
+          yield
+        end
+      end
+    end
+  end
 
   def authenticated?
     Current.session.present?

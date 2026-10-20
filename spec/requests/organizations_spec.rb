@@ -9,18 +9,30 @@ RSpec.describe "Organizations", type: :request do
 
     it "renders the registration form" do
       get new_organization_path
-      expect(response.body).to include("Criar Organização")
+
+      page = Capybara.string(response.body)
+      expect(page).to have_css("h1", text: "Criar organização")
+      expect(page).to have_button("Criar organização")
     end
 
     it "shows organization and user fields" do
       get new_organization_path
-      expect(response.body).to include("Dados da Organização")
-      expect(response.body).to include("Sua Conta (Administrador)")
+
+      page = Capybara.string(response.body)
+      expect(page).to have_css("legend", text: "Organização")
+      expect(page).to have_css("legend", text: "Sua conta")
+      expect(page).to have_field("organization[name]")
+      expect(page).to have_field("user[username]")
+      expect(page).to have_field("user[email_address]")
+      expect(page).to have_field("user[password]")
     end
 
     it "shows login link" do
       get new_organization_path
-      expect(response.body).to include("Fazer login")
+
+      page = Capybara.string(response.body)
+      expect(page).to have_link("Entrar", href: new_session_path)
+      expect(page).not_to have_field("email_address")
     end
   end
 

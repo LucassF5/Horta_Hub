@@ -1,4 +1,6 @@
 class MembershipsController < ApplicationController
+  before_action :set_membership, only: %i[edit update destroy reset_password]
+
   def index
     authorize!
 
@@ -35,7 +37,53 @@ class MembershipsController < ApplicationController
     end
   end
 
+  def edit
+    authorize! @membership
+
+    render Views::Memberships::Edit.new(membership: @membership)
+  end
+
+  def update
+    # O cargo novo vai para o registro antes do authorize!: a policy confere o cargo atual e o novo.
+    @membership.role = params.expect(membership: [ :role ])[:role]
+    authorize! @membership
+
+    if @membership.save
+      redirect_to memberships_path, notice: "Cargo atualizado com sucesso."
+    else
+      render Views::Memberships::Edit.new(membership: @membership), status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    authorize! @membership
+
+    user = @membership.user
+    if @membership.destroy
+      user.sessions.destroy_all unless user.member_of_active_organization?
+      redirect_to memberships_path, notice: "Funcionário removido da organização.", status: :see_other
+    else
+      redirect_to memberships_path, alert: @membership.errors.full_messages.to_sentence, status: :see_other
+    end
+  end
+
+  def reset_password
+    authorize! @membership
+
+    password = @membership.user.reset_password!
+    response.headers["Cache-Control"] = "no-store"
+    render Views::Memberships::Credentials.new(
+      membership: @membership,
+      password: password,
+      notice: "Nova senha gerada com sucesso."
+    )
+  end
+
   private
+
+  def set_membership
+    @membership = Current.organization.memberships.includes(:user).find(params[:id])
+  end
 
   def member_params
     params.expect(member: [ :username, :email_address, :role ])

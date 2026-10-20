@@ -113,6 +113,7 @@ RSpec.describe "Memberships", type: :request do
           expect(response.headers["Cache-Control"]).to include("no-store")
           expect(response.body).to include("Funcionário adicionado com sucesso.")
           expect(response.body).to include("Esta senha não será mostrada novamente")
+          expect(response.body).to include("data-turbo-temporary")
           expect(extract_password(response.body)).to be_present
         end
 
@@ -291,6 +292,7 @@ RSpec.describe "Memberships", type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.headers["Cache-Control"]).to include("no-store")
           expect(response.body).to include("Nova senha gerada com sucesso.")
+          expect(response.body).to include("data-turbo-temporary")
           password = extract_password(response.body)
           expect(viewer.user.reload.authenticate(password)).to be_truthy
           expect(viewer.user.sessions.count).to eq(0)

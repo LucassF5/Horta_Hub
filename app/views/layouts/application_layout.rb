@@ -22,6 +22,11 @@ class Views::Layouts::ApplicationLayout < Views::Base
     { label: "Importações", path: :import_batches_path, controller: "import_batches", icon: PhlexIcons::Lucide::FileSpreadsheet }
   ].freeze
 
+  # Abas do celular, na ordem de uso no dia a dia; o restante fica em "Mais".
+  MOBILE_TAB_ITEMS = %w[home sales clients products].map do |controller|
+    SIDEBAR_NAV_ITEMS.find { |item| item[:controller] == controller }
+  end.freeze
+
   def view_template(&block)
     doctype
     html(lang: "pt-BR") do
@@ -35,7 +40,7 @@ class Views::Layouts::ApplicationLayout < Views::Base
   def render_head
     head do
       title { content_for(:title) || "Horta Hub" }
-      meta(name: "viewport", content: "width=device-width,initial-scale=1")
+      meta(name: "viewport", content: "width=device-width,initial-scale=1,viewport-fit=cover")
       meta(name: "apple-mobile-web-app-capable", content: "yes")
       meta(name: "mobile-web-app-capable", content: "yes")
       csrf_meta_tags
@@ -53,12 +58,15 @@ class Views::Layouts::ApplicationLayout < Views::Base
       render RubyUI::SidebarWrapper.new do
         render_sidebar if authenticated?
 
-        main(class: "min-w-0 flex-1 bg-neutral-100 px-3 pb-6 md:m-4 md:rounded-lg md:px-5") do
+        # O espaço extra no rodapé evita que a barra de abas do celular cubra o fim da página.
+        main(class: [ "min-w-0 flex-1 bg-neutral-100 px-3 md:m-4 md:rounded-lg md:px-5", authenticated? ? "pb-28 md:pb-6" : "pb-6" ]) do
           render_application_toolbar if authenticated?
           render_page_header
           render_flash_messages
           yield
         end
+
+        render_mobile_tab_bar if authenticated?
       end
     end
   end
@@ -114,13 +122,17 @@ class Views::Layouts::ApplicationLayout < Views::Base
     ) do
       div(class: "flex min-w-0 items-center gap-2 md:hidden") do
         image_tag("/HortaHubIcon.png", alt: "Horta Hub", class: "size-8 rounded-md")
-        span(class: "truncate text-sm font-semibold") { "Horta Hub" }
+        div(class: "min-w-0") do
+          p(class: "truncate text-sm font-semibold leading-tight") { "Horta Hub" }
+          p(class: "truncate text-xs text-muted-foreground") { Current.organization.name } if Current.organization
+        end
       end
 
+      # No celular o menu completo abre pela aba "Mais".
       render RubyUI::SidebarTrigger.new(
         title: "Abrir menu",
         aria: { label: "Abrir menu" },
-        class: "h-9 w-9 md:h-7 md:w-7"
+        class: "hidden md:inline-flex md:h-7 md:w-7"
       )
     end
   end
@@ -187,6 +199,58 @@ class Views::Layouts::ApplicationLayout < Views::Base
         span(class: "group-data-[collapsible=icon]:hidden") { item[:label] }
       end
     end
+  end
+
+  def render_mobile_tab_bar
+    nav(
+      aria: { label: "Navegação principal" },
+      class: [
+        "fixed inset-x-0 bottom-0 z-30 border-t border-neutral-200 bg-white/95 backdrop-blur",
+        "pb-[env(safe-area-inset-bottom)] md:hidden"
+      ]
+    ) do
+      ul(class: "grid grid-cols-5") do
+        MOBILE_TAB_ITEMS.each { |item| li { mobile_tab_link(item) } }
+        li { mobile_more_button }
+      end
+    end
+  end
+
+  def mobile_tab_link(item)
+    active = sidebar_item_active?(item[:controller])
+
+    a(href: public_send(item[:path]), aria: { current: ("page" if active) }, class: mobile_tab_classes(active)) do
+      mobile_tab_content(item[:icon], item[:label], active)
+    end
+  end
+
+  # Abre a sidebar como gaveta, com as seções que não cabem nas abas, a troca de organização e o logout.
+  def mobile_more_button
+    active = MOBILE_TAB_ITEMS.none? { |item| sidebar_item_active?(item[:controller]) }
+
+    button(
+      type: "button",
+      class: mobile_tab_classes(active),
+      aria: { haspopup: "dialog" },
+      data: { action: "click->ruby-ui--sidebar#toggle" }
+    ) do
+      mobile_tab_content(PhlexIcons::Lucide::Menu, "Mais", active)
+    end
+  end
+
+  def mobile_tab_content(icon, label, active)
+    span(class: [ "flex h-7 w-12 items-center justify-center rounded-full transition-colors", ("bg-green-100" if active) ]) do
+      render icon.new(class: "size-5", aria: { hidden: true })
+    end
+    span { label }
+  end
+
+  def mobile_tab_classes(active)
+    [
+      "flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+      active ? "text-green-800" : "text-neutral-500 hover:text-neutral-900"
+    ]
   end
 
   def sidebar_item_active?(item_controller)

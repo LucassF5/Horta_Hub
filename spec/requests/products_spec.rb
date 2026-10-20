@@ -243,9 +243,9 @@ RSpec.describe "Products", type: :request do
       allow(Current).to receive(:organization).and_return(nil)
     end
 
-    it "redirects to new organization page" do
+    it "logs the user out" do
       get products_path
-      expect(response).to redirect_to(new_organization_path)
+      expect(response).to redirect_to(new_session_path)
     end
   end
 end

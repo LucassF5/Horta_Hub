@@ -59,8 +59,8 @@ module Authentication
       Current.organization = Current.membership&.organization
 
       if Current.organization.nil?
-        session.delete(:organization_id)
-        redirect_to new_organization_path, alert: "Você precisa criar ou pertencer a uma organização."
+        terminate_session
+        redirect_to new_session_path, alert: "Você não pertence a nenhuma organização."
       end
     end
 

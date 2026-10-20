@@ -4,7 +4,9 @@ module AuthenticationHelper
       user_agent: "Test User Agent",
       ip_address: "127.0.0.1"
     )
-    cookies.signed[:session_id] = session.id
+    jar = ActionDispatch::TestRequest.create.cookie_jar
+    jar.signed[:session_id] = session.id
+    cookies[:session_id] = jar[:session_id]
   end
 
   def sign_out

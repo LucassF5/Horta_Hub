@@ -323,6 +323,7 @@ RSpec.describe "Memberships", type: :request do
           expect(response.body).to include(%(href="#{edit_membership_path(viewer)}"))
           expect(response.body).to include(%(action="#{membership_path(viewer)}"))
           expect(response.body).to include(%(action="#{reset_password_membership_path(viewer)}"))
+          expect(response.body).to include('data-controller="confirm"')
           expect(response.body).not_to include(%(href="#{edit_membership_path(membership)}"))
           expect(response.body).not_to include(%(action="#{membership_path(membership)}"))
           expect(response.body).not_to include(%(action="#{reset_password_membership_path(membership)}"))

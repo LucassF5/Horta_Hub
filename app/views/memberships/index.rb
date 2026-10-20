@@ -19,7 +19,7 @@ class Views::Memberships::Index < Views::Base
   def render_header
     div(class: "flex justify-between items-center mb-6") do
       h1(class: "text-3xl font-bold text-gray-800") { "Funcionários" }
-      render RubyUI::Link.new(href: new_membership_path, variant: :primary) { "Novo funcionário" } if allowed_to?(:index?, Membership)
+      render RubyUI::Link.new(href: new_membership_path, variant: :primary) { "Novo funcionário" }
     end
   end
 
@@ -56,12 +56,17 @@ class Views::Memberships::Index < Views::Base
 
     if allowed_to?(:reset_password?, membership)
       # Sem Turbo: a resposta 200 com a nova senha precisa ser renderizada.
-      # Por isso não há turbo_confirm aqui, ele não roda com Turbo desligado.
+      # turbo_confirm não roda com Turbo desligado, por isso a confirmação é do controller "confirm".
       form_with(
         url: reset_password_membership_path(membership),
         method: :post,
         local: true,
-        data: { turbo: false },
+        data: {
+          turbo: false,
+          controller: "confirm",
+          action: "submit->confirm#ask",
+          confirm_message_value: "Gerar nova senha para este funcionário? A senha atual deixará de funcionar."
+        },
         style: "display: inline;"
       ) do
         render RubyUI::Button.new(type: :submit, variant: :outline) { "Gerar nova senha" }

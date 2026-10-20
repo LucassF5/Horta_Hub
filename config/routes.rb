@@ -11,6 +11,9 @@ Rails.application.routes.draw do
   end
   resources :products, param: :slug
   resources :clients, param: :slug
+  resources :memberships, only: %i[ index new create edit update destroy ] do
+    post :reset_password, on: :member
+  end
   resources :sales do
     collection do
       get :sale_item_fields

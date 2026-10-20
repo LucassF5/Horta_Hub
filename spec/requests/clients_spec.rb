@@ -31,6 +31,84 @@ RSpec.describe "Clients", type: :request do
       get clients_path
       expect(response.body).to include(client.name)
     end
+
+    it "displays the client type label" do
+      create(:client, :pessoa_juridica, organization: organization)
+
+      get clients_path
+
+      expect(response.body).to include("Pessoa Jurídica")
+    end
+
+    it "searches clients by name" do
+      create(:client, name: "Mercado Central", organization: organization)
+      create(:client, name: "Restaurante Sabor", organization: organization)
+
+      get clients_path, params: { q: "mercado" }
+
+      expect(response.body).to include("Mercado Central")
+      expect(response.body).not_to include("Restaurante Sabor")
+    end
+
+    it "searches clients by phone" do
+      create(:client, name: "Mercado Central", phone: "11988887777", organization: organization)
+
+      get clients_path, params: { q: "8888" }
+
+      expect(response.body).to include("Mercado Central")
+      expect(response.body).not_to include(client.name)
+    end
+
+    it "does not search clients from other organizations" do
+      create(:client, name: "Mercado Distante", organization: create(:organization))
+
+      get clients_path, params: { q: "mercado" }
+
+      expect(response.body).not_to include("Mercado Distante")
+    end
+
+    it "sorts clients by name" do
+      create(:client, name: "Zeca Hortifruti", organization: organization)
+      create(:client, name: "Ana Verduras", organization: organization)
+
+      get clients_path, params: { sort: "name", direction: "desc" }
+
+      expect(response.body.index("Zeca Hortifruti")).to be < response.body.index("Ana Verduras")
+    end
+
+    it "treats LIKE wildcards in the search term literally" do
+      create(:client, name: "Feira_Norte", organization: organization)
+      create(:client, name: "Feira Norte", organization: organization)
+
+      get clients_path, params: { q: "feira_" }
+
+      expect(response.body).to include("Feira_Norte")
+      expect(response.body).not_to include("Feira Norte")
+    end
+
+    it "sorts names ignoring case" do
+      create(:client, name: "ana verduras", organization: organization)
+      create(:client, name: "Bruno Feirante", organization: organization)
+
+      get clients_path, params: { sort: "name", direction: "asc" }
+
+      expect(response.body.index("ana verduras")).to be < response.body.index("Bruno Feirante")
+    end
+
+    it "explains when the search finds nothing" do
+      get clients_path, params: { q: "inexistente" }
+
+      expect(response.body).to include("Nenhum cliente encontrado")
+      expect(response.body).to include("Limpar busca")
+    end
+
+    it "invites the user to create the first client when there are none" do
+      client.destroy!
+
+      get clients_path
+
+      expect(response.body).to include("Cadastre o primeiro cliente")
+    end
   end
 
   describe "GET /clients/:id" do

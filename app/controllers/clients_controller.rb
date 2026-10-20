@@ -1,11 +1,17 @@
 class ClientsController < ApplicationController
+  CLIENT_SORTS = {
+    "name" => Listing.case_insensitive(Client.arel_table[:name]),
+    "client_type" => Client.arel_table[:client_type]
+  }.freeze
+
   before_action :set_client, only: [ :show, :edit, :update, :destroy ]
 
   def index
     authorize!
 
-    @clients = Current.organization.clients.includes(:sales)
-    render Views::Clients::Index.new(clients: @clients)
+    listing = Listing.new(params, columns: CLIENT_SORTS, default_sort: "name")
+    @clients = listing.apply(Current.organization.clients.includes(:sales).search(listing.query)).load
+    render Views::Clients::Index.new(clients: @clients, listing: listing)
   end
 
   def show

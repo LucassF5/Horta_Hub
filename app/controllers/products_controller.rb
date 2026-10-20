@@ -1,11 +1,17 @@
 class ProductsController < ApplicationController
+    PRODUCT_SORTS = {
+        "name" => Listing.case_insensitive(Product.arel_table[:name]),
+        "price" => Product.arel_table[:price]
+    }.freeze
+
     before_action :set_product, only: [ :show, :edit, :update, :destroy ]
 
     def index
         authorize!
 
-        @products = Current.organization.products.includes(:sale_items)
-        render Views::Products::Index.new(products: @products)
+        listing = Listing.new(params, columns: PRODUCT_SORTS, default_sort: "name")
+        @products = listing.apply(Current.organization.products.includes(:sale_items).search(listing.query)).load
+        render Views::Products::Index.new(products: @products, listing: listing)
     end
 
     def show

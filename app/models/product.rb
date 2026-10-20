@@ -8,6 +8,10 @@ class Product < ApplicationRecord
 
     friendly_id :name, use: [ :slugged, :scoped, :history ], scope: :organization
 
+    # O ESCAPE explícito é necessário: o LIKE do SQLite não tem caractere de escape padrão.
+    # SQL com bind evita que o normalizes de name altere o padrão escapado.
+    scope :search, ->(term) { where("products.name LIKE ? ESCAPE '\\'", "%#{sanitize_sql_like(term)}%") if term.present? }
+
     validates :name, length: { in: 3..50 }, uniqueness: { scope: :organization_id }, presence: true
     validates :price, numericality: { greater_than: 0 }, presence: true
     validates :slug, presence: true, uniqueness: { scope: :organization_id }

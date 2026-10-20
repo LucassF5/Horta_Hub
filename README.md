@@ -25,6 +25,10 @@ Aplicação Rails para gerenciar organizações, produtos, clientes e vendas, co
 - Cálculo do total da venda a partir dos itens.
 - Preço personalizado por item de venda, sem alterar o preço padrão do produto; o preço unitário usado fica registrado no item para preservar o histórico.
 - Isolamento das consultas por `Current.organization`.
+- Listagens de produtos, clientes e vendas com busca, ordenação por coluna e estados vazios que levam ao primeiro cadastro.
+  - Produtos: busca por nome; ordena por nome ou preço.
+  - Clientes: busca por nome ou telefone; ordena por nome ou tipo.
+  - Vendas: busca por cliente ou responsável, combinada aos filtros de período, status e cliente; ordena por data, cliente, status ou total.
 - Autorização de produtos, clientes e vendas com Action Policy.
 - Controles de interface condicionados por `allowed_to?`.
 - Testes de models, requests e policies com RSpec.

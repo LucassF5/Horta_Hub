@@ -9,7 +9,9 @@ class Views::Memberships::Credentials < Views::Base
   end
 
   def view_template
-    div(class: "container mx-auto px-4 py-8") do
+    # turbo_temporary: o Turbo não guarda esta página no cache de snapshots,
+    # então voltar no histórico não mostra a senha de novo.
+    div(class: "container mx-auto px-4 py-8", data: { turbo_temporary: true }) do
       render Components::FlashMessages.new(messages: { notice: @notice })
 
       h1(class: "text-3xl font-bold text-gray-800 mb-6") { "Credenciais do funcionário" }

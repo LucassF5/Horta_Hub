@@ -28,7 +28,7 @@ class MembershipsController < ApplicationController
     elsif @creation.existing_user?
       redirect_to memberships_path, notice: "Usuário já existente adicionado à organização."
     else
-      response.headers["Cache-Control"] = "no-store"
+      no_store
       render Views::Memberships::Credentials.new(
         membership: @creation.membership,
         password: @creation.generated_password,
@@ -71,7 +71,7 @@ class MembershipsController < ApplicationController
     authorize! @membership
 
     password = @membership.user.reset_password!
-    response.headers["Cache-Control"] = "no-store"
+    no_store
     render Views::Memberships::Credentials.new(
       membership: @membership,
       password: password,

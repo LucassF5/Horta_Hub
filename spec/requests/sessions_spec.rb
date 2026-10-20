@@ -13,12 +13,25 @@ RSpec.describe "Sessions", type: :request do
 
     it "renders the login form" do
       get new_session_path
-      expect(response.body).to include("Sign in")
+
+      page = Capybara.string(response.body)
+      expect(page).to have_css("h1", text: "Entrar")
+      expect(page).to have_field("email_address", type: "email")
+      expect(page).to have_field("password", type: "password")
+      expect(page).to have_button("Entrar")
     end
 
-    it "shows link to create organization" do
+    it "presents Horta Hub to the visitor" do
       get new_session_path
-      expect(response.body).to include("Criar Organização")
+      expect(response.body).to include("Gestão de vendas para quem vive da horta")
+    end
+
+    it "links to the registration page without rendering its fields" do
+      get new_session_path
+
+      page = Capybara.string(response.body)
+      expect(page).to have_link("Criar organização", href: new_organization_path)
+      expect(page).not_to have_field("organization[name]")
     end
 
     it "shows forgot password link" do

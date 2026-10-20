@@ -6,6 +6,12 @@ class Client < ApplicationRecord
 
     friendly_id :name, use: [ :slugged, :scoped, :history ], scope: :organization
 
+    scope :search, ->(term) {
+        next if term.blank?
+
+        where("clients.name LIKE :term ESCAPE '\\' OR clients.phone LIKE :term ESCAPE '\\'", term: "%#{sanitize_sql_like(term)}%")
+    }
+
     validates :name, presence: true, length: { minimum: 3, maximum: 30 }
     validates :client_type, presence: true
     validates :slug, presence: true, uniqueness: { scope: :organization_id }

@@ -128,7 +128,7 @@ RSpec.describe "Products Management", type: :system do
 
     it "navigates back from show page to index" do
       visit product_path(product)
-      click_link "Voltar para Produtos"
+      click_link "Voltar para produtos"
 
       expect(page).to have_content("Produtos")
       expect(page).to have_current_path(products_path)
@@ -150,13 +150,13 @@ RSpec.describe "Products Management", type: :system do
     end
   end
 
-  describe "product cards display" do
+  describe "products table display" do
     let!(:product) { create(:product, name: "Test Product", price: 15.50, organization: organization) }
 
-    it "displays product information in cards" do
+    it "displays product information in the table" do
       visit products_path
 
-      within(".grid") do
+      within("table") do
         expect(page).to have_content("Test Product")
         expect(page).to have_content("R$ 15,50")
       end
@@ -165,7 +165,7 @@ RSpec.describe "Products Management", type: :system do
     it "displays action buttons for each product" do
       visit products_path
 
-      within(".grid") do
+      within("table") do
         expect(page).to have_link("Ver")
         expect(page).to have_link("Editar")
         expect(page).to have_button("Apagar")

@@ -529,6 +529,91 @@ RSpec.describe "Sales", type: :request do
 
       expect(response).to have_http_status(:success)
     end
+
+    it "searches by client name" do
+      get sales_path, params: { q: "pendente" }
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text).to include("Cliente Pendente")
+      expect(results_text).not_to include("Cliente Concluido")
+    end
+
+    it "searches by responsible name" do
+      completed_sale.update!(responsible_name: "Maria Feirante")
+
+      get sales_path, params: { q: "feirante" }
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text).to include("Cliente Concluido")
+      expect(results_text).not_to include("Cliente Pendente")
+    end
+
+    it "combines search with filters" do
+      get sales_path, params: { q: "cliente", status: "pending" }
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text).to include("Cliente Pendente")
+      expect(results_text).not_to include("Cliente Concluido")
+    end
+
+    it "keeps search scoped to the current organization" do
+      other_organization = create(:organization)
+      other_client = create(:client, name: "Cliente Outra Organizacao", organization: other_organization)
+      create(:sale, organization: other_organization, client: other_client)
+
+      get sales_path, params: { q: "outra" }
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text).not_to include("Cliente Outra Organizacao")
+    end
+
+    it "sorts by sale date descending by default" do
+      get sales_path
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text.index("Cliente Concluido")).to be < results_text.index("Cliente Pendente")
+    end
+
+    it "sorts by client name" do
+      get sales_path, params: { sort: "client", direction: "asc" }
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text.index("Cliente Concluido")).to be < results_text.index("Cliente Pendente")
+    end
+
+    it "keeps the current sort when filters are submitted" do
+      get sales_path, params: { sort: "total", direction: "asc" }
+
+      form = Capybara.string(response.body).find("form[action='#{sales_path}']")
+      expect(form).to have_field("sort", type: :hidden, with: "total")
+      expect(form).to have_field("direction", type: :hidden, with: "asc")
+    end
+
+    it "explains when no sale matches the filters" do
+      get sales_path, params: { q: "inexistente" }
+
+      results_text = Capybara.string(response.body).find("turbo-frame#sales_results").text
+      expect(results_text).to include("Nenhuma venda encontrada")
+      expect(results_text).to include("Limpar filtros")
+    end
+  end
+
+  describe "sales empty state" do
+    it "invites the user to register the first sale" do
+      sale.destroy!
+
+      get sales_path
+
+      expect(response.body).to include("Registre a primeira venda")
+    end
+
+    it "keeps the results frame so filter submissions can replace it" do
+      sale.destroy!
+
+      get sales_path, headers: { "Turbo-Frame" => "sales_results" }
+
+      expect(Capybara.string(response.body)).to have_css("turbo-frame#sales_results", text: "Registre a primeira venda")
+    end
   end
 
   context "when not authenticated" do

@@ -23,6 +23,26 @@ RSpec.describe "Home", type: :request do
     )
   end
 
+  describe "mobile tab bar" do
+    it "links the main sections and marks the current one" do
+      get sales_path
+
+      tab_bar = Capybara.string(response.body).find("nav[aria-label='Navegação principal']")
+      expect(tab_bar).to have_link("Home", href: root_path)
+      expect(tab_bar).to have_link("Clientes", href: clients_path)
+      expect(tab_bar).to have_link("Produtos", href: products_path)
+      expect(tab_bar).to have_css("a[aria-current='page'][href='#{sales_path}']", text: "Vendas")
+      expect(tab_bar).to have_button("Mais")
+    end
+
+    it "is not rendered on the login page" do
+      delete session_path
+      get new_session_path
+
+      expect(response.body).not_to include("Navegação principal")
+    end
+  end
+
   describe "GET /" do
     it "renders the operational dashboard without scaffold content" do
       get root_path

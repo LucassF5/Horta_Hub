@@ -6,16 +6,16 @@ class Views::Home::Index < Views::Base
   end
 
   def view_template
-    div(class: "container mx-auto py-4 md:py-8") do
+    div(class: "container mx-auto px-0 py-4 sm:px-8 md:py-8") do
       render_header
       render_metrics
 
-      div(class: "mt-6 grid gap-6 xl:grid-cols-2") do
+      div(class: "mt-6 grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-2") do
         render_recent_sales
         render_top_products
       end
 
-      div(class: "mt-6") { render_cancelled_sales }
+      div(class: "mt-6 min-w-0") { render_cancelled_sales }
     end
   end
 
@@ -26,7 +26,7 @@ class Views::Home::Index < Views::Base
   def render_header
     div(class: "mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between") do
       div do
-        h1(class: "text-3xl font-bold tracking-tight text-gray-900") { "Dashboard" }
+        h1(class: "text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl") { "Dashboard" }
         p(class: "mt-1 text-sm text-gray-600") { "Visão operacional de #{I18n.l(Date.current, format: "%B de %Y")}." }
       end
 
@@ -43,15 +43,16 @@ class Views::Home::Index < Views::Base
 
     return if actions.empty?
 
-    div(class: "flex flex-wrap gap-2", aria: { label: "Atalhos" }) do
-      actions.each do |_allowed, path, label, variant|
-        render RubyUI::Link.new(href: path, variant: variant) { label }
+    # No celular os atalhos ocupam a largura toda; a ação principal fica sozinha na primeira linha.
+    div(class: "grid grid-cols-2 gap-2 sm:flex sm:flex-wrap", aria: { label: "Atalhos" }) do
+      actions.each_with_index do |(_allowed, path, label, variant), index|
+        render RubyUI::Link.new(href: path, variant: variant, class: ("col-span-2" if index.zero? && actions.size.odd?)) { label }
       end
     end
   end
 
   def render_metrics
-    div(class: "grid gap-4 sm:grid-cols-2 xl:grid-cols-3") do
+    div(class: "grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3") do
       render_metric_card(
         id: "revenue",
         title: "Receita do mês",
@@ -92,12 +93,12 @@ class Views::Home::Index < Views::Base
   end
 
   def render_metric_card(id:, title:, value:, detail:)
-    render RubyUI::Card.new(id: "metric-#{id}", class: "h-full") do
-      render RubyUI::CardHeader.new(class: "pb-2") do
+    render RubyUI::Card.new(id: "metric-#{id}", class: "h-full min-w-0") do
+      render RubyUI::CardHeader.new(class: "p-4 pb-2 sm:p-6 sm:pb-2") do
         render RubyUI::CardDescription.new { title }
-        render RubyUI::CardTitle.new(class: "text-3xl") { value }
+        render RubyUI::CardTitle.new(class: "break-words text-xl tabular-nums sm:text-3xl") { value }
       end
-      render RubyUI::CardContent.new do
+      render RubyUI::CardContent.new(class: "p-4 pt-0 sm:p-6 sm:pt-0") do
         p(class: "text-xs text-muted-foreground") { detail }
       end
     end
@@ -112,7 +113,7 @@ class Views::Home::Index < Views::Base
         render_empty_state("Nenhuma venda cadastrada ainda.")
       else
         ul(class: "divide-y divide-gray-100") do
-          dashboard.recent_sales.each { |sale| render_sale_item(sale) }
+          dashboard.recent_sales.each { |sale| render Components::Sales::ListItem.new(sale: sale) }
         end
       end
     end
@@ -127,25 +128,7 @@ class Views::Home::Index < Views::Base
         render_empty_state("Nenhuma venda cancelada neste mês.")
       else
         ul(class: "grid divide-y divide-gray-100 lg:grid-cols-2 lg:gap-x-8 lg:divide-y-0") do
-          dashboard.cancelled_sales.each { |sale| render_sale_item(sale) }
-        end
-      end
-    end
-  end
-
-  def render_sale_item(sale)
-    li do
-      a(
-        href: sale_path(sale),
-        class: "flex items-center justify-between gap-4 rounded-md px-1 py-3 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
-      ) do
-        div(class: "min-w-0") do
-          p(class: "truncate font-medium text-gray-900") { sale.client.name }
-          p(class: "mt-1 text-xs text-gray-500") { I18n.l(sale.sale_date, format: :short) }
-        end
-        div(class: "flex shrink-0 items-center gap-3") do
-          render_status_badge(sale.status)
-          span(class: "font-medium tabular-nums text-gray-900") { currency(sale.total) }
+          dashboard.cancelled_sales.each { |sale| render Components::Sales::ListItem.new(sale: sale) }
         end
       end
     end
@@ -184,27 +167,17 @@ class Views::Home::Index < Views::Base
   end
 
   def render_list_card(title:, description:, &block)
-    render RubyUI::Card.new(class: "h-full") do
-      render RubyUI::CardHeader.new do
+    render RubyUI::Card.new(class: "h-full min-w-0") do
+      render RubyUI::CardHeader.new(class: "p-4 sm:p-6") do
         render RubyUI::CardTitle.new { title }
         render RubyUI::CardDescription.new { description }
       end
-      render RubyUI::CardContent.new(&block)
+      render RubyUI::CardContent.new(class: "p-4 pt-0 sm:p-6 sm:pt-0", &block)
     end
   end
 
   def render_empty_state(message)
     div(class: "rounded-lg border border-dashed border-gray-200 px-4 py-8 text-center text-sm text-gray-500") { message }
-  end
-
-  def render_status_badge(status)
-    label, classes = case status
-    when "completed" then [ "Concluída", "bg-green-100 text-green-700" ]
-    when "pending" then [ "Pendente", "bg-yellow-100 text-yellow-700" ]
-    when "cancelled" then [ "Cancelada", "bg-red-100 text-red-700" ]
-    end
-
-    span(class: "rounded-full px-2 py-1 text-xs font-medium #{classes}") { label }
   end
 
   def comparison_text(change)

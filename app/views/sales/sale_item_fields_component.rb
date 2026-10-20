@@ -8,17 +8,18 @@ class Views::Sales::SaleItemFieldsComponent < Views::Base
   end
 
   def view_template
-    div(class: "border rounded-md p-4 mb-4 bg-gray-50", data: { sale_item: true }) do
+    div(class: "rounded-md border bg-gray-50 p-3 sm:p-4", data: { sale_item: true }) do
       render_hidden_fields
 
-      div(class: "grid grid-cols-1 md:grid-cols-4 gap-4") do
-        render_product_field
-        render_quantity_field
-        render_unit_price_field
-        render_subtotal_field
+      # No celular o produto ocupa a linha toda; quantidade e preço dividem a seguinte.
+      div(class: "grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1.5fr)]") do
+        div(class: "col-span-2 min-w-0 md:col-span-1") { render_product_field }
+        div(class: "min-w-0") { render_quantity_field }
+        div(class: "min-w-0") { render_unit_price_field }
       end
 
-      div(class: "mt-3 flex justify-end") do
+      div(class: "mt-3 flex items-center justify-between gap-3 border-t pt-3") do
+        render_subtotal
         button(
           type: "button",
           class: "text-sm font-medium text-red-600 hover:text-red-700",
@@ -96,7 +97,7 @@ class Views::Sales::SaleItemFieldsComponent < Views::Base
   end
 
   def render_custom_price_toggle(custom_price)
-    label(for: field_id(:custom_price), class: "mt-2 flex items-center gap-2 text-sm text-gray-700") do
+    label(for: field_id(:custom_price), class: "mt-2 flex items-center gap-2 text-xs text-gray-700 sm:text-sm") do
       input(type: "hidden", name: field_name(:custom_price), value: "0")
       input(
         type: "checkbox",
@@ -111,14 +112,12 @@ class Views::Sales::SaleItemFieldsComponent < Views::Base
     end
   end
 
-  def render_subtotal_field
-    render RubyUI::FormField.new do
-      render RubyUI::FormFieldLabel.new { "Subtotal" }
+  def render_subtotal
+    subtotal = (@item.quantity || 0) * (@item.unit_price || 0)
 
-      subtotal = (@item.quantity || 0) * (@item.unit_price || 0)
-      span(class: "block text-sm font-semibold text-gray-800 py-2", data: { subtotal_display: true }) do
-        number_to_currency(subtotal, unit: "R$ ")
-      end
+    p(class: "text-sm text-gray-600") do
+      plain "Subtotal "
+      span(class: "font-semibold tabular-nums text-gray-900", data: { subtotal_display: true }) { number_to_currency(subtotal, unit: "R$ ") }
     end
   end
 
@@ -136,7 +135,7 @@ class Views::Sales::SaleItemFieldsComponent < Views::Base
 
   def input_classes
     [
-      "flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] border-border ring-0 ring-ring/0",
+      "flex h-10 w-full min-w-0 rounded-md border bg-background px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] border-border ring-0 ring-ring/0",
       "placeholder:text-muted-foreground",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "focus-visible:outline-none focus-visible:ring-ring/50 focus-visible:ring-2 focus-visible:border-ring focus-visible:shadow-sm"

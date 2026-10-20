@@ -6,13 +6,16 @@ class Views::ImportBatches::Show < Views::Base
   end
 
   def view_template
-    div(class: "container mx-auto px-4 py-8") do
-      div(class: "mb-6 flex items-center justify-between") do
-        h1(class: "text-3xl font-bold text-gray-800") { "Importação ##{@import_batch.id}" }
-        render RubyUI::Link.new(href: import_batches_path, variant: :outline) { "Voltar" }
-      end
+    div(class: "container mx-auto px-0 py-4 sm:px-8 md:py-8") do
+      div(class: "max-w-4xl") do
+        render Components::PageHeader.new(
+          title: "Importação ##{@import_batch.id}",
+          description: @import_batch.file_name,
+          back: [ "Voltar para importações", import_batches_path ]
+        )
 
-      render Views::ImportBatches::Progress.new(import_batch: @import_batch)
+        render Views::ImportBatches::Progress.new(import_batch: @import_batch)
+      end
     end
   end
 end

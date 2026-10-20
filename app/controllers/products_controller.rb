@@ -1,16 +1,30 @@
 class ProductsController < ApplicationController
+    PRODUCT_SORTS = {
+        "name" => Listing.case_insensitive(Product.arel_table[:name]),
+        "price" => Product.arel_table[:price]
+    }.freeze
+
     before_action :set_product, only: [ :show, :edit, :update, :destroy ]
 
     def index
         authorize!
 
-        @products = Current.organization.products.includes(:sale_items)
-        render Views::Products::Index.new(products: @products)
+        listing = Listing.new(params, columns: PRODUCT_SORTS, default_sort: "name")
+        @products = listing.apply(Current.organization.products.includes(:sale_items).search(listing.query)).load
+        render Views::Products::Index.new(products: @products, listing: listing)
     end
 
     def show
         authorize! @product
-        render Views::Products::Show.new(product: @product)
+
+        # Vendas canceladas aparecem na lista, mas não contam como vendidas.
+        sold_items = @product.sale_items.joins(:sale).where.not(sales: { status: "cancelled" })
+        render Views::Products::Show.new(
+            product: @product,
+            recent_items: @product.sale_items.includes(sale: :client).joins(:sale).merge(Sale.recent).limit(5),
+            sales_count: sold_items.distinct.count(:sale_id),
+            units_sold: sold_items.sum(:quantity)
+        )
     end
 
     def new

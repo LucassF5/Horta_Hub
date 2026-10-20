@@ -1,5 +1,6 @@
 class SessionsController < ApplicationController
   unauthenticated_access_only only: %i[ new create ]
+  layout -> { Views::Layouts::AuthLayout }
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_path, alert: "Tente novamente mais tarde." }
 
   def new

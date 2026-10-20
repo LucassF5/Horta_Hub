@@ -26,6 +26,64 @@ RSpec.describe "Products", type: :request do
       get products_path
       expect(response.body).to include("Produtos")
     end
+
+    it "searches products by name" do
+      create(:product, name: "Alface Crespa", organization: organization)
+      create(:product, name: "Tomate Cereja", organization: organization)
+
+      get products_path, params: { q: "alface" }
+
+      expect(response.body).to include("Alface Crespa")
+      expect(response.body).not_to include("Tomate Cereja")
+    end
+
+    it "treats LIKE wildcards in the search term literally" do
+      create(:product, name: "Kit 50%", organization: organization)
+      create(:product, name: "Kit 500", organization: organization)
+
+      get products_path, params: { q: "50%" }
+
+      expect(response.body).to include("Kit 50%")
+      expect(response.body).not_to include("Kit 500")
+    end
+
+    it "does not search products from other organizations" do
+      create(:product, name: "Alface Roxa", organization: create(:organization))
+
+      get products_path, params: { q: "alface" }
+
+      expect(response.body).not_to include("Alface Roxa")
+    end
+
+    it "sorts products by price" do
+      create(:product, name: "Produto Caro", price: 90, organization: organization)
+      create(:product, name: "Produto Barato", price: 1, organization: organization)
+
+      get products_path, params: { sort: "price", direction: "desc" }
+
+      expect(response.body.index("Produto Caro")).to be < response.body.index("Produto Barato")
+    end
+
+    it "ignores unknown sort columns" do
+      get products_path, params: { sort: "organization_id; DROP TABLE products", direction: "sideways" }
+
+      expect(response).to have_http_status(:success)
+    end
+
+    it "explains when the search finds nothing" do
+      get products_path, params: { q: "inexistente" }
+
+      expect(response.body).to include("Nenhum produto encontrado")
+      expect(response.body).to include("Limpar busca")
+    end
+
+    it "invites the user to create the first product when there are none" do
+      product.destroy!
+
+      get products_path
+
+      expect(response.body).to include("Cadastre o primeiro produto")
+    end
   end
 
   describe "GET /products/:id" do
@@ -40,8 +98,34 @@ RSpec.describe "Products", type: :request do
     end
 
     it "displays the product price" do
+      product.update!(price: 12.5)
+
       get product_path(product)
+
       expect(response.body).to include("Preço")
+      expect(response.body).to include("R$ 12,50")
+    end
+
+    it "summarizes the product sales, ignoring cancelled ones in the totals" do
+      client = create(:client, name: "Cliente do Produto", organization: organization)
+      [ [ "completed", 3 ], [ "pending", 2 ], [ "cancelled", 10 ] ].each do |status, quantity|
+        create(:sale, organization: organization, client: client, status: status,
+          sale_items_attributes: [ { product_id: product.id, quantity: quantity, unit_price: 4, custom_price: true } ])
+      end
+
+      get product_path(product)
+
+      details = Capybara.string(response.body).find("dl")
+      expect(details).to have_css("div", text: "Vendas2")
+      expect(details).to have_css("div", text: "Unidades vendidas5")
+      expect(response.body).to include("Cliente do Produto")
+      expect(response.body).to include("3 × R$ 4,00")
+    end
+
+    it "explains when the product was never sold" do
+      get product_path(product)
+
+      expect(response.body).to include("Este produto ainda não entrou em nenhuma venda.")
     end
   end
 

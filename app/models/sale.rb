@@ -17,6 +17,14 @@ class Sale < ApplicationRecord
   before_validation :normalize_notes
 
   scope :recent, -> { order(sale_date: :desc) }
+  scope :search, ->(term) {
+    next if term.blank?
+
+    joins(:client).where(
+      "clients.name LIKE :term ESCAPE '\\' OR sales.responsible_name LIKE :term ESCAPE '\\'",
+      term: "%#{sanitize_sql_like(term)}%"
+    )
+  }
 
   private
 

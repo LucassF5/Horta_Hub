@@ -1,16 +1,30 @@
 class ClientsController < ApplicationController
+  CLIENT_SORTS = {
+    "name" => Listing.case_insensitive(Client.arel_table[:name]),
+    "client_type" => Client.arel_table[:client_type]
+  }.freeze
+
   before_action :set_client, only: [ :show, :edit, :update, :destroy ]
 
   def index
     authorize!
 
-    @clients = Current.organization.clients.includes(:sales)
-    render Views::Clients::Index.new(clients: @clients)
+    listing = Listing.new(params, columns: CLIENT_SORTS, default_sort: "name")
+    @clients = listing.apply(Current.organization.clients.includes(:sales).search(listing.query)).load
+    render Views::Clients::Index.new(clients: @clients, listing: listing)
   end
 
   def show
     authorize! @client
-    render Views::Clients::Show.new(client: @client)
+
+    # Vendas canceladas aparecem na lista, mas não entram nos totais.
+    kept_sales = @client.sales.where.not(status: "cancelled")
+    render Views::Clients::Show.new(
+      client: @client,
+      recent_sales: @client.sales.recent.limit(5),
+      sales_count: kept_sales.count,
+      total_bought: kept_sales.sum(:total)
+    )
   end
 
   def new

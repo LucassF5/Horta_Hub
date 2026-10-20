@@ -8,35 +8,21 @@ class Views::Sales::New < Views::Base
   end
 
   def view_template
-    div(class: "mx-auto bg-background flex flex-col justify-center items-center") do
-      div(class: "container mx-auto px-4 py-8") do
-        h1(class: "text-3xl font-bold text-gray-800 mb-8") { "Nova Venda" }
-
-        render_errors if @sale.errors.any?
-      end
-
-      render Views::Sales::FormComponent.new(
-        sale: @sale,
-        url: sales_path,
-        clients: @clients,
-        products: @products
-      )
-    end
-  end
-
-  private
-
-  def render_errors
-    render RubyUI::Alert.new(variant: :destructive) do
-      div do
-        h2(class: "font-bold mb-2") do
-          "#{pluralize(@sale.errors.count, 'erro')} impediram a venda de ser salva:"
-        end
-        ul(class: "list-disc list-inside") do
-          @sale.errors.full_messages.each do |message|
-            li { message }
-          end
-        end
+    div(class: "container mx-auto px-0 py-4 sm:px-8 md:py-8") do
+      div(class: "max-w-4xl") do
+        render Components::PageHeader.new(
+          title: "Nova Venda",
+          description: "Escolha o cliente e os produtos; o total é calculado pelos itens.",
+          back: [ "Voltar para vendas", sales_path ]
+        )
+        render Components::Forms::Errors.new(record: @sale, subject: "a venda")
+        render Views::Sales::FormComponent.new(
+          sale: @sale,
+          url: sales_path,
+          clients: @clients,
+          products: @products,
+          cancel_href: sales_path
+        )
       end
     end
   end

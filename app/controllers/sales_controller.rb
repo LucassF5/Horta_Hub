@@ -1,14 +1,24 @@
 class SalesController < ApplicationController
+  SALE_SORTS = {
+    "sale_date" => Sale.arel_table[:sale_date],
+    "client" => Listing.case_insensitive(Client.arel_table[:name]),
+    "status" => Sale.arel_table[:status],
+    "total" => Sale.arel_table[:total]
+  }.freeze
+
   before_action :set_sale, only: %i[show edit update destroy]
 
   def index
     authorize!
 
-    @sales = filter_sales(Current.organization.sales.includes(:client).recent)
+    listing = Listing.new(params, columns: SALE_SORTS, default_sort: "sale_date", default_direction: "desc")
+    sales = Current.organization.sales.joins(:client).includes(:client).search(listing.query)
+    @sales = listing.apply(filter_sales(sales)).load
     render Views::Sales::Index.new(
       sales: @sales,
       clients: Current.organization.clients.order(:name),
-      filters: sales_filter_params
+      filters: sales_filter_params,
+      listing: listing
     )
   end
 

@@ -182,6 +182,165 @@ RSpec.describe "Memberships", type: :request do
         end
       end
     end
+
+    describe "member actions" do
+      let!(:viewer) { create(:membership, :viewer, organization: organization) }
+      let(:foreign_membership) { create(:membership, :viewer, organization: create(:organization)) }
+
+      def create_sessions_for(member, count: 2)
+        create_list(:session, count, user: member.user)
+      end
+
+      describe "GET /memberships/:id/edit" do
+        it "renders the role select for an owner" do
+          get edit_membership_path(viewer)
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to include("Editar funcionário")
+          expect(response.body).to include("Dono", "Administrador", "Gerente", "Visualizador")
+        end
+
+        context "when an admin edits an owner" do
+          let(:role) { "admin" }
+          let!(:owner_member) { create(:membership, organization: organization) }
+
+          it "refuses access" do
+            get edit_membership_path(owner_member)
+
+            expect(response).to redirect_to(root_path)
+          end
+        end
+      end
+
+      describe "PATCH /memberships/:id" do
+        it "lets an owner change a viewer to manager" do
+          patch membership_path(viewer), params: { membership: { role: "manager" } }
+
+          expect(response).to redirect_to(memberships_path)
+          expect(flash[:notice]).to eq("Cargo atualizado com sucesso.")
+          expect(viewer.reload).to be_manager
+        end
+
+        it "refuses changing the owner's own membership" do
+          patch membership_path(membership), params: { membership: { role: "admin" } }
+
+          expect(response).to redirect_to(root_path)
+          expect(membership.reload).to be_owner
+        end
+
+        it "returns 404 for a membership of another organization" do
+          patch membership_path(foreign_membership), params: { membership: { role: "manager" } }
+
+          expect(response).to have_http_status(:not_found)
+          expect(foreign_membership.reload).to be_viewer
+        end
+
+        context "when an admin promotes a viewer to owner" do
+          let(:role) { "admin" }
+
+          it "refuses the change" do
+            patch membership_path(viewer), params: { membership: { role: "owner" } }
+
+            expect(response).to redirect_to(root_path)
+            expect(viewer.reload).to be_viewer
+          end
+        end
+      end
+
+      describe "DELETE /memberships/:id" do
+        it "removes a sole-organization viewer and ends their sessions" do
+          create_sessions_for(viewer)
+
+          expect {
+            delete membership_path(viewer)
+          }.to change(Membership, :count).by(-1).and change(User, :count).by(0)
+
+          expect(response).to redirect_to(memberships_path)
+          expect(response).to have_http_status(:see_other)
+          expect(flash[:notice]).to eq("Funcionário removido da organização.")
+          expect(viewer.user.sessions.count).to eq(0)
+        end
+
+        it "keeps the sessions of a viewer who belongs to another active organization" do
+          create(:membership, :viewer, user: viewer.user, organization: create(:organization))
+          create_sessions_for(viewer)
+
+          delete membership_path(viewer)
+
+          expect(response).to redirect_to(memberships_path)
+          expect(viewer.user.sessions.count).to eq(2)
+        end
+
+        it "returns 404 for a membership of another organization" do
+          foreign_membership
+
+          expect {
+            delete membership_path(foreign_membership)
+          }.not_to change(Membership, :count)
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      describe "POST /memberships/:id/reset_password" do
+        it "shows a new password for a sole-organization viewer and ends their sessions" do
+          create_sessions_for(viewer)
+
+          post reset_password_membership_path(viewer)
+
+          expect(response).to have_http_status(:ok)
+          expect(response.headers["Cache-Control"]).to include("no-store")
+          expect(response.body).to include("Nova senha gerada com sucesso.")
+          password = extract_password(response.body)
+          expect(viewer.user.reload.authenticate(password)).to be_truthy
+          expect(viewer.user.sessions.count).to eq(0)
+        end
+
+        it "refuses a viewer who belongs to another organization" do
+          create(:membership, :viewer, user: viewer.user, organization: create(:organization))
+
+          post reset_password_membership_path(viewer)
+
+          expect(response).to redirect_to(root_path)
+          expect(viewer.user.reload.authenticate("password123")).to be_truthy
+        end
+
+        it "returns 404 for a membership of another organization" do
+          post reset_password_membership_path(foreign_membership)
+
+          expect(response).to have_http_status(:not_found)
+          expect(foreign_membership.user.reload.authenticate("password123")).to be_truthy
+        end
+      end
+
+      describe "GET /memberships row actions" do
+        it "shows the actions for a viewer and none on the owner's own row" do
+          get memberships_path
+
+          expect(response.body).to include("Editar", "Remover", "Gerar nova senha")
+          expect(response.body).to include(%(href="#{edit_membership_path(viewer)}"))
+          expect(response.body).to include(%(action="#{membership_path(viewer)}"))
+          expect(response.body).to include(%(action="#{reset_password_membership_path(viewer)}"))
+          expect(response.body).not_to include(%(href="#{edit_membership_path(membership)}"))
+          expect(response.body).not_to include(%(action="#{membership_path(membership)}"))
+          expect(response.body).not_to include(%(action="#{reset_password_membership_path(membership)}"))
+        end
+
+        context "when the user is an admin" do
+          let(:role) { "admin" }
+          let!(:owner_member) { create(:membership, organization: organization) }
+
+          it "shows no actions on an owner's row" do
+            get memberships_path
+
+            expect(response.body).to include(%(href="#{edit_membership_path(viewer)}"))
+            expect(response.body).not_to include(%(href="#{edit_membership_path(owner_member)}"))
+            expect(response.body).not_to include(%(action="#{membership_path(owner_member)}"))
+            expect(response.body).not_to include(%(action="#{reset_password_membership_path(owner_member)}"))
+          end
+        end
+      end
+    end
   end
 
   context "with a real session" do

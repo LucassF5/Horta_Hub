@@ -1,7 +1,7 @@
 class ImportBatchesController < ApplicationController
   def index
     authorize! ImportBatch
-    @import_batches = Current.organization.import_batches.with_attached_file.order(created_at: :desc)
+    @import_batches = Current.organization.import_batches.order(created_at: :desc)
     render Views::ImportBatches::Index.new(import_batches: @import_batches)
   end
 

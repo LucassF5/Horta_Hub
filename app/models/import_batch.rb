@@ -14,7 +14,10 @@ class ImportBatch < ApplicationRecord
     failed: "failed"
   }
 
-  validates :file, presence: true
+  before_validation :store_file_metadata, on: :create
+
+  # A planilha só é obrigatória no envio: SalesImportJob a remove ao final.
+  validates :file, presence: true, on: :create
   validates :status, presence: true
   validates :year, presence: true,
                    numericality: { only_integer: true, greater_than_or_equal_to: 2000, less_than_or_equal_to: 2100 }
@@ -29,7 +32,20 @@ class ImportBatch < ApplicationRecord
     pending? || processing?
   end
 
+  # Nome e checksum ficam no lote para manter o histórico e o bloqueio de
+  # reimportação depois que o arquivo é apagado.
+  def purge_file
+    file.purge if file.attached?
+  end
+
   private
+
+  def store_file_metadata
+    return unless file.attached?
+
+    self.file_name = file.filename.to_s
+    self.file_checksum = file.blob.checksum
+  end
 
   def file_must_be_xlsx
     return unless file.attached?
@@ -46,8 +62,7 @@ class ImportBatch < ApplicationRecord
     return unless file.attached? && organization
 
     already_imported = organization.import_batches
-      .joins(:file_blob)
-      .where(active_storage_blobs: { checksum: file.blob.checksum })
+      .where(file_checksum: file_checksum)
       .where("import_batches.status != ? OR import_batches.successful_rows > 0", "failed")
       .exists?
 
@@ -62,6 +77,8 @@ end
 #  id              :integer          not null, primary key
 #  error_details   :json             not null
 #  failed_rows     :integer          default(0), not null
+#  file_checksum   :string
+#  file_name       :string
 #  finished_at     :datetime
 #  processed_rows  :integer          default(0), not null
 #  started_at      :datetime
@@ -76,8 +93,9 @@ end
 #
 # Indexes
 #
-#  index_import_batches_on_organization_id  (organization_id)
-#  index_import_batches_on_user_id          (user_id)
+#  index_import_batches_on_organization_id                    (organization_id)
+#  index_import_batches_on_organization_id_and_file_checksum  (organization_id,file_checksum)
+#  index_import_batches_on_user_id                            (user_id)
 #
 # Foreign Keys
 #

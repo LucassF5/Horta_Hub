@@ -24,6 +24,8 @@ class SalesImportJob < ApplicationJob
       status: :completed,
       finished_at: Time.current
     )
+    # A planilha só alimenta o sistema; dados pessoais não ficam guardados.
+    import_batch.purge_file
   rescue Imports::SalesSpreadsheetImporter::Error => error
     fail_import(import_batch, error.message)
   rescue => error
@@ -51,5 +53,6 @@ class SalesImportJob < ApplicationJob
       finished_at: Time.current
     )
     import_batch.add_error_detail(row: nil, message: message)
+    import_batch.purge_file
   end
 end

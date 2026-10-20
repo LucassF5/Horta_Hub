@@ -28,6 +28,26 @@ RSpec.describe SalesImportJob, type: :job do
     expect(sales.last).to have_attributes(status: "pending", notes: "Cliente solicitou prazo")
   end
 
+  it "removes the spreadsheet once the import is completed" do
+    import_batch = import_batch_with_fixture
+    blob = import_batch.file.blob
+
+    described_class.perform_now(import_batch)
+
+    expect(import_batch.reload).to be_completed
+    expect(import_batch.file).not_to be_attached
+    expect(ActiveStorage::Blob.exists?(blob.id)).to be(false)
+  end
+
+  it "keeps the spreadsheet of an import that is no longer pending" do
+    import_batch = import_batch_with_fixture
+    import_batch.update!(status: :processing)
+
+    described_class.perform_now(import_batch)
+
+    expect(import_batch.reload.file).to be_attached
+  end
+
   it "does not process an import that is no longer pending" do
     import_batch = import_batch_with_fixture
     import_batch.update!(status: :completed)
@@ -47,6 +67,7 @@ RSpec.describe SalesImportJob, type: :job do
       "row" => nil,
       "message" => "Arquivo XLSX inválido ou corrompido."
     )
+    expect(import_batch.file).not_to be_attached
   end
 
   it "rejects archives whose uncompressed content exceeds the limit" do
@@ -74,5 +95,6 @@ RSpec.describe SalesImportJob, type: :job do
       "row" => nil,
       "message" => "Erro inesperado ao processar a importação."
     )
+    expect(import_batch.file).not_to be_attached
   end
 end

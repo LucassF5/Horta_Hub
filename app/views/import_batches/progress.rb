@@ -49,7 +49,7 @@ class Views::ImportBatches::Progress < Views::Base
 
   def render_summary
     div(class: "mb-8 grid grid-cols-1 gap-4 md:grid-cols-3") do
-      render_detail("Arquivo", @import_batch.file.filename.to_s)
+      render_detail("Arquivo", @import_batch.file_name)
       render_detail("Ano", @import_batch.year.to_s)
       render_detail("Status", status_label)
       render_detail("Total de linhas", @import_batch.total_rows.to_s)

@@ -76,6 +76,21 @@ RSpec.describe "ImportBatches", type: :request do
       expect(response.body).not_to include("Status inválido")
     end
 
+    it "keeps showing the batch history after the spreadsheet was removed" do
+      import_batch = create(:import_batch, organization: organization, user: user, status: :completed, successful_rows: 3)
+      import_batch.purge_file
+
+      get import_batch_path(import_batch)
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("vendas.xlsx")
+
+      get import_batches_path
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("vendas.xlsx")
+    end
+
     it "stops polling once the import is finished" do
       import_batch = create(:import_batch, organization: organization, user: user, status: :completed)
 

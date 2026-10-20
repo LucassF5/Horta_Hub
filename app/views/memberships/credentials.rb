@@ -11,47 +11,49 @@ class Views::Memberships::Credentials < Views::Base
   def view_template
     # turbo_temporary: o Turbo não guarda esta página no cache de snapshots,
     # então voltar no histórico não mostra a senha de novo.
-    div(class: "container mx-auto px-4 py-8", data: { turbo_temporary: true }) do
-      render Components::FlashMessages.new(messages: { notice: @notice })
+    div(class: "container mx-auto px-0 py-4 sm:px-8 md:py-8", data: { turbo_temporary: true }) do
+      div(class: "max-w-2xl") do
+        render Components::FlashMessages.new(messages: { notice: @notice })
 
-      h1(class: "text-3xl font-bold text-gray-800 mb-6") { "Credenciais do funcionário" }
+        render Components::PageHeader.new(
+          title: "Credenciais do funcionário",
+          description: "Repasse estes dados ao funcionário para o primeiro acesso.",
+          back: [ "Voltar para funcionários", memberships_path ]
+        )
 
-      div(class: "bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-lg space-y-4") do
-        render_detail("Nome de usuário", @membership.user.username)
-        render_detail("E-mail", @membership.user.email_address)
-        render_password_field
+        render RubyUI::Card.new(class: "space-y-5 p-4 sm:p-6") do
+          render Components::DetailList.new(items: [
+            [ "Nome de usuário", @membership.user.username ],
+            [ "E-mail", @membership.user.email_address ]
+          ])
+          render_password_field
 
-        render RubyUI::Alert.new(variant: :warning) do
-          plain "Esta senha não será mostrada novamente. Copie e repasse ao funcionário."
+          render RubyUI::Alert.new(variant: :warning) do
+            plain "Esta senha não será mostrada novamente. Copie e repasse ao funcionário."
+          end
         end
-
-        render RubyUI::Link.new(href: memberships_path, variant: :outline) { "Voltar para funcionários" }
       end
     end
   end
 
   private
 
-  def render_detail(label, value)
-    div do
-      p(class: "text-sm font-medium text-gray-600") { label }
-      p(class: "text-base") { value }
-    end
-  end
-
   def render_password_field
     div(data: { controller: "clipboard" }) do
-      label(for: "generated_password", class: "text-sm font-medium text-gray-600") { "Senha" }
-      div(class: "mt-1 flex gap-2") do
+      label(for: "generated_password", class: "text-sm text-gray-500") { "Senha" }
+      div(class: "mt-1 flex flex-col gap-2 sm:flex-row") do
         input(
           type: "text",
           id: "generated_password",
           value: @password,
           readonly: true,
-          class: "flex h-9 w-full rounded-md border border-border bg-background px-3 py-1 font-mono text-sm shadow-xs",
+          class: "flex h-10 w-full rounded-md border border-border bg-background px-3 py-1 font-mono text-base tracking-wider shadow-xs",
           data: { clipboard_target: "source" }
         )
-        render RubyUI::Button.new(type: :button, variant: :outline, data: { action: "clipboard#copy" }) { "Copiar senha" }
+        render RubyUI::Button.new(type: :button, variant: :outline, class: "shrink-0", data: { action: "clipboard#copy" }) do
+          render PhlexIcons::Lucide::Copy.new(class: "size-4", aria: { hidden: true })
+          span { "Copiar senha" }
+        end
       end
     end
   end

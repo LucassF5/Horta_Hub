@@ -79,7 +79,8 @@ A parte 2 depende da 1 apenas no filtro e na tabela de vendedores. O resto funci
 - `User` ganha a associação inversa (ex.: `has_many :sold_sales, class_name: "Sale", foreign_key: :seller_id`).
 - Antes de excluir o usuário, na mesma transação: `seller_id = nil` e `responsible_name = username` em todas as vendas dele, de todas as organizações. Isso sobrescreve o texto importado quando havia, o que não muda nada na prática, porque o texto importado já correspondia ao `username` pela regra de vínculo.
 - A FK não pode impedir a exclusão: o SQLite do projeto aplica foreign keys.
-- Hoje não existe tela para remover um membro da organização. Se um dia existir, o vínculo continua e o nome segue aparecendo.
+- Remover um membro na tela de Funcionários mantém o vínculo das vendas, e o nome segue aparecendo.
+- Se a exclusão da conta for bloqueada (único dono de uma organização), as vendas continuam vinculadas.
 - Nome exibido do vendedor, em ordem: `seller.username` → `responsible_name` → "Não vinculado". Centralizar num método (ex.: `Sale#seller_display_name`).
 
 ### Formulário de venda (decisão minha)
@@ -218,7 +219,7 @@ Texto da variação (decisões minhas):
 Tabela ao lado de Produtos (empilha em tela pequena), ordenada por receita decrescente:
 
 - vendedor, vendas, receita, % da receita total, variação % de receita contra a base.
-- Agrupamento segue a regra da Parte 1: usuário vinculado → nome em texto → "Não vinculado". Nomes em texto aparecem com marcação "(importado)".
+- Agrupamento segue a regra da Parte 1: usuário vinculado → nome em texto → "Não vinculado". Nomes em texto aparecem com a marcação "(sem cadastro)". Era "(importado)", mas vendas de quem excluiu a conta também caem nesse grupo.
 - Agrupar nomes em texto pelo valor normalizado, para "João" e "JOAO" não virarem duas linhas.
 
 ### Arquitetura sugerida

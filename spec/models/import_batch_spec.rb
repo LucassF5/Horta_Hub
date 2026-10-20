@@ -69,6 +69,41 @@ RSpec.describe ImportBatch, type: :model do
 
       expect(other).to be_valid
     end
+
+    it "rejects a file already imported even after its attachment was purged" do
+      existing = create(:import_batch, status: :completed)
+      content = existing.file.download
+      existing.purge_file
+      duplicate = build(:import_batch, organization: existing.organization)
+      duplicate.file.attach(io: StringIO.new(content), filename: "copia.xlsx",
+                            content_type: ImportBatch::XLSX_CONTENT_TYPE)
+
+      expect(duplicate).not_to be_valid
+      expect(duplicate.errors[:file]).to include("já foi importado nesta organização")
+    end
+  end
+
+  describe "file metadata" do
+    it "stores the file name and checksum on create" do
+      import_batch = create(:import_batch)
+
+      expect(import_batch.file_name).to eq("vendas.xlsx")
+      expect(import_batch.file_checksum).to eq(import_batch.file.blob.checksum)
+    end
+  end
+
+  describe "#purge_file" do
+    it "removes the spreadsheet and keeps the batch history" do
+      import_batch = create(:import_batch, status: :completed, total_rows: 3, successful_rows: 3)
+      blob = import_batch.file.blob
+
+      import_batch.purge_file
+
+      expect(import_batch.reload.file).not_to be_attached
+      expect(ActiveStorage::Blob.exists?(blob.id)).to be(false)
+      expect(import_batch).to have_attributes(file_name: "vendas.xlsx", total_rows: 3, successful_rows: 3)
+      expect(import_batch).to be_valid
+    end
   end
 
   describe "#add_error_detail" do
@@ -92,6 +127,8 @@ end
 #  id              :integer          not null, primary key
 #  error_details   :json             not null
 #  failed_rows     :integer          default(0), not null
+#  file_checksum   :string
+#  file_name       :string
 #  finished_at     :datetime
 #  processed_rows  :integer          default(0), not null
 #  started_at      :datetime
@@ -106,8 +143,9 @@ end
 #
 # Indexes
 #
-#  index_import_batches_on_organization_id  (organization_id)
-#  index_import_batches_on_user_id          (user_id)
+#  index_import_batches_on_organization_id                    (organization_id)
+#  index_import_batches_on_organization_id_and_file_checksum  (organization_id,file_checksum)
+#  index_import_batches_on_user_id                            (user_id)
 #
 # Foreign Keys
 #

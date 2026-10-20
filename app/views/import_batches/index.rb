@@ -47,7 +47,7 @@ class Views::ImportBatches::Index < Views::Base
 
   def render_import_batch_row(import_batch)
     render RubyUI::TableRow.new do
-      render RubyUI::TableCell.new { import_batch.file.filename.to_s }
+      render RubyUI::TableCell.new { import_batch.file_name }
       render RubyUI::TableCell.new { import_batch.year.to_s }
       render RubyUI::TableCell.new { status_label(import_batch) }
       render RubyUI::TableCell.new { "#{import_batch.processed_rows}/#{import_batch.total_rows}" }

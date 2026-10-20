@@ -25,6 +25,8 @@ end
 #  id              :integer          not null, primary key
 #  error_details   :json             not null
 #  failed_rows     :integer          default(0), not null
+#  file_checksum   :string
+#  file_name       :string
 #  finished_at     :datetime
 #  processed_rows  :integer          default(0), not null
 #  started_at      :datetime
@@ -39,8 +41,9 @@ end
 #
 # Indexes
 #
-#  index_import_batches_on_organization_id  (organization_id)
-#  index_import_batches_on_user_id          (user_id)
+#  index_import_batches_on_organization_id                    (organization_id)
+#  index_import_batches_on_organization_id_and_file_checksum  (organization_id,file_checksum)
+#  index_import_batches_on_user_id                            (user_id)
 #
 # Foreign Keys
 #

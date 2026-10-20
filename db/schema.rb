@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_20_120000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -75,6 +75,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_130000) do
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.integer "year", null: false
+    t.string "file_name"
+    t.string "file_checksum"
+    t.index ["organization_id", "file_checksum"], name: "index_import_batches_on_organization_id_and_file_checksum"
     t.index ["organization_id"], name: "index_import_batches_on_organization_id"
     t.index ["user_id"], name: "index_import_batches_on_user_id"
   end

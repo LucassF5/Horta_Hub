@@ -29,6 +29,7 @@ Aplicação Rails para gerenciar organizações, produtos, clientes e vendas, co
   - Produtos: busca por nome; ordena por nome ou preço.
   - Clientes: busca por nome ou telefone; ordena por nome ou tipo.
   - Vendas: busca por cliente ou responsável, combinada aos filtros de período, status e cliente; ordena por data, cliente, status ou total.
+- Telas de acesso (login, cadastro de organização e recuperação de senha) com layout próprio, separado da área autenticada.
 - Autorização de produtos, clientes e vendas com Action Policy.
 - Controles de interface condicionados por `allowed_to?`.
 - Testes de models, requests e policies com RSpec.

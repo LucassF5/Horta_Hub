@@ -6,26 +6,33 @@ class Views::Passwords::New < Views::Base
   end
 
   def view_template
-    div(class: "mx-auto md:w-2/3 w-full") do
-      h1(class: "font-bold text-4xl") { "Esqueceu sua senha?" }
+    div(class: "mb-8") do
+      h1(class: "text-3xl font-semibold tracking-tight text-gray-900") { "Esqueceu sua senha?" }
+      p(class: "mt-2 text-sm text-gray-600") { "Informe o e-mail da sua conta e enviaremos um link para criar uma nova senha." }
+    end
 
-      form_with(url: passwords_path, class: "contents") do |form|
-        div(class: "my-5") do
-          form.email_field(
-            :email_address,
-            required: true,
-            autofocus: true,
-            autocomplete: "username",
-            placeholder: "Digite seu email",
-            value: @params[:email_address],
-            class: "block shadow-sm rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full"
-          )
-        end
-
-        div(class: "inline") do
-          render RubyUI::Button.new(type: :submit) { "Enviar instruções de redefinição" }
-        end
+    form_with(url: passwords_path, class: "space-y-5") do
+      render RubyUI::FormField.new do
+        render RubyUI::FormFieldLabel.new(for: "email_address") { "E-mail" }
+        render RubyUI::Input.new(
+          type: :email,
+          id: "email_address",
+          name: "email_address",
+          required: true,
+          autofocus: true,
+          autocomplete: "username",
+          placeholder: "voce@exemplo.com",
+          value: @params[:email_address],
+          class: "h-10"
+        )
       end
+
+      render RubyUI::Button.new(type: :submit, size: :lg, class: "w-full") { "Enviar instruções de redefinição" }
+    end
+
+    p(class: "mt-8 border-t pt-6 text-center text-sm text-gray-600") do
+      plain "Lembrou a senha? "
+      a(href: new_session_path, class: "font-medium text-gray-900 underline underline-offset-4 hover:no-underline") { "Voltar para o login" }
     end
   end
 end

@@ -1,5 +1,6 @@
 class OrganizationsController < ApplicationController
   unauthenticated_access_only only: %i[new create]
+  layout -> { Views::Layouts::AuthLayout }
   skip_before_action :set_current_organization, only: %i[new create]
 
   def new

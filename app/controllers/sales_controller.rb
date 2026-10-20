@@ -12,7 +12,7 @@ class SalesController < ApplicationController
     authorize!
 
     listing = Listing.new(params, columns: SALE_SORTS, default_sort: "sale_date", default_direction: "desc")
-    sales = Current.organization.sales.joins(:client).includes(:client).search(listing.query)
+    sales = Current.organization.sales.joins(:client).includes(:client, :seller).search(listing.query)
     @sales = listing.apply(filter_sales(sales)).load
     render Views::Sales::Index.new(
       sales: @sales,
@@ -28,7 +28,7 @@ class SalesController < ApplicationController
   end
 
   def new
-    @sale = Current.organization.sales.build(sale_date: Date.current)
+    @sale = Current.organization.sales.build(sale_date: Date.current, seller: Current.user)
     @sale.sale_items.build
     authorize! @sale
 
@@ -41,6 +41,7 @@ class SalesController < ApplicationController
 
   def create
     @sale = Current.organization.sales.build(sale_params)
+    @sale.seller = Current.user
     authorize! @sale
 
     if @sale.save
@@ -107,7 +108,7 @@ class SalesController < ApplicationController
 
   def sale_params
     params.expect(sale: [
-      :client_id, :sale_date, :status, :responsible_name, :notes,
+      :client_id, :sale_date, :status, :notes,
       sale_items_attributes: [ [ :id, :product_id, :quantity, :unit_price, :custom_price, :_destroy ] ]
     ])
   end

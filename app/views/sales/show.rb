@@ -39,7 +39,7 @@ class Views::Sales::Show < Views::Base
       render Components::DetailList.new(items: [
         [ "Cliente", @sale.client.name ],
         [ "Data", l(@sale.sale_date, format: :long) ],
-        ([ "Responsável", @sale.responsible_name ] if @sale.responsible_name.present?)
+        [ "Responsável", @sale.seller_display_name ]
       ])
 
       if @sale.notes.present?

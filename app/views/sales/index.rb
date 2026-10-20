@@ -145,7 +145,7 @@ class Views::Sales::Index < Views::Base
           render Components::Sales::StatusBadge.new(status: sale.status)
         end
       end
-      render RubyUI::TableCell.new(class: "hidden lg:table-cell") { sale.responsible_name.presence || "-" }
+      render RubyUI::TableCell.new(class: "hidden lg:table-cell") { sale.seller_display_name }
       render RubyUI::TableCell.new(class: "hidden sm:table-cell") { render Components::Sales::StatusBadge.new(status: sale.status) }
       render RubyUI::TableCell.new(class: "whitespace-nowrap text-right tabular-nums") { number_to_currency(sale.total) }
       render RubyUI::TableCell.new(class: "pr-4") do

@@ -75,10 +75,9 @@ RSpec.describe "Memberships", type: :request do
         it "refuses POST /memberships" do
           expect {
             post memberships_path, params: new_member_params
-          }.not_to change(User, :count)
+          }.to not_change(User, :count).and not_change(Membership, :count)
 
           expect(response).to redirect_to(root_path)
-          expect(Membership.count).to eq(1)
         end
 
         it "hides the Funcionários sidebar item" do
@@ -176,19 +175,17 @@ RSpec.describe "Memberships", type: :request do
         it "refuses the owner role" do
           expect {
             post memberships_path, params: { member: new_member_params[:member].merge(role: "owner") }
-          }.not_to change(User, :count)
+          }.to not_change(User, :count).and not_change(Membership, :count)
 
           expect(response).to redirect_to(root_path)
-          expect(Membership.count).to eq(1)
         end
 
         it "refuses an unknown role without erroring" do
           expect {
             post memberships_path, params: { member: new_member_params[:member].merge(role: "superuser") }
-          }.not_to change(Membership, :count)
+          }.to not_change(User, :count).and not_change(Membership, :count)
 
           expect(response).to redirect_to(root_path)
-          expect(User.count).to eq(1)
         end
       end
     end

@@ -48,6 +48,14 @@ Regras adicionais:
 - `SaleItem` é autorizado como parte de `Sale`, pois não possui rotas independentes.
 - O backend sempre executa `authorize!`; os controles do frontend servem apenas para adequar a experiência do usuário.
 
+## Importação de Vendas e Retenção de Dados
+
+A planilha XLSX enviada na importação serve apenas para alimentar o sistema e não é guardada: o `SalesImportJob` remove o arquivo do Active Storage assim que o lote termina, com status `completed` ou `failed`.
+
+- O lote mantém o nome do arquivo, o checksum, as contagens, o status e as datas, para que o histórico continue consultável.
+- O checksum guardado no lote mantém o bloqueio de reenvio de uma planilha já importada na mesma organização.
+- Planilhas de lotes finalizados antes dessa regra podem ser removidas com `bin/rails import_batches:purge_files`.
+
 ## Configuração
 
 Instale as dependências e prepare o banco:

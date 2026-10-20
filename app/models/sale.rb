@@ -1,6 +1,9 @@
 class Sale < ApplicationRecord
+  UNLINKED_SELLER_NAME = "Não vinculado".freeze
+
   belongs_to :organization
   belongs_to :client
+  belongs_to :seller, class_name: "User", optional: true, inverse_of: :sold_sales
   has_many :sale_items, dependent: :destroy
 
   accepts_nested_attributes_for :sale_items, allow_destroy: true, reject_if: :all_blank
@@ -11,6 +14,7 @@ class Sale < ApplicationRecord
   validates :total, numericality: { greater_than_or_equal_to: 0 }
   validates :status, presence: true
   validate :client_must_belong_to_organization
+  validate :seller_must_belong_to_organization, if: :will_save_change_to_seller_id?
   validate :must_have_at_least_one_sale_item
 
   before_save :calculate_total
@@ -25,6 +29,10 @@ class Sale < ApplicationRecord
       term: "%#{sanitize_sql_like(term)}%"
     )
   }
+
+  def seller_display_name
+    seller&.username || responsible_name.to_s.strip.presence || UNLINKED_SELLER_NAME
+  end
 
   private
 
@@ -49,6 +57,13 @@ class Sale < ApplicationRecord
     errors.add(:client, "deve pertencer à mesma organização da venda")
   end
 
+  def seller_must_belong_to_organization
+    return if organization.blank? || seller.blank?
+    return if organization.users.include?(seller)
+
+    errors.add(:seller, "deve pertencer à mesma organização da venda")
+  end
+
   def must_have_at_least_one_sale_item
     return if kept_sale_items.any?
 
@@ -70,15 +85,18 @@ end
 #  updated_at       :datetime         not null
 #  client_id        :integer          not null
 #  organization_id  :integer          not null
+#  seller_id        :integer
 #
 # Indexes
 #
 #  index_sales_on_client_id                      (client_id)
 #  index_sales_on_organization_id                (organization_id)
 #  index_sales_on_organization_id_and_sale_date  (organization_id,sale_date)
+#  index_sales_on_seller_id                      (seller_id)
 #
 # Foreign Keys
 #
 #  client_id        (client_id => clients.id)
 #  organization_id  (organization_id => organizations.id)
+#  seller_id        (seller_id => users.id)
 #

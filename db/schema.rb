@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_20_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_20_130000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -135,9 +135,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_120000) do
     t.string "status", default: "pending", null: false
     t.decimal "total", precision: 10, scale: 2, default: "0.0", null: false
     t.datetime "updated_at", null: false
+    t.integer "seller_id"
     t.index ["client_id"], name: "index_sales_on_client_id"
     t.index ["organization_id", "sale_date"], name: "index_sales_on_organization_id_and_sale_date"
     t.index ["organization_id"], name: "index_sales_on_organization_id"
+    t.index ["seller_id"], name: "index_sales_on_seller_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -170,5 +172,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_120000) do
   add_foreign_key "sale_items", "sales"
   add_foreign_key "sales", "clients"
   add_foreign_key "sales", "organizations"
+  add_foreign_key "sales", "users", column: "seller_id"
   add_foreign_key "sessions", "users"
 end

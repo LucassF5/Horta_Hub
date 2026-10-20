@@ -5,6 +5,7 @@ RSpec.describe User, type: :model do
     it { should have_many(:sessions).dependent(:destroy) }
     it { should have_many(:memberships).dependent(:destroy) }
     it { should have_many(:organizations).through(:memberships) }
+    it { should have_many(:sold_sales).class_name("Sale").with_foreign_key(:seller_id).inverse_of(:seller) }
   end
 
   describe 'validations' do
@@ -81,6 +82,30 @@ RSpec.describe User, type: :model do
       create(:membership, user: user, organization: create(:organization))
 
       expect(user.member_of_active_organization?).to be true
+    end
+  end
+
+  describe "account deletion" do
+    it "unlinks the user's sales in every organization and keeps the username as text" do
+      user = create(:user, username: "maria")
+      sales = create_list(:organization, 2).map do |organization|
+        create(:membership, user: user, organization: organization, role: "manager")
+        create(:sale, organization: organization, seller: user)
+      end
+
+      user.destroy!
+
+      sales.each { |sale| expect(sale.reload).to have_attributes(seller_id: nil, responsible_name: "maria") }
+    end
+
+    it "keeps the seller link when the account cannot be deleted" do
+      user = create(:user)
+      organization = create(:organization)
+      create(:membership, user: user, organization: organization, role: "owner")
+      sale = create(:sale, organization: organization, seller: user)
+
+      expect(user.destroy).to be(false)
+      expect(sale.reload.seller_id).to eq(user.id)
     end
   end
 

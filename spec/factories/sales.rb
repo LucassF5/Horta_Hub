@@ -46,15 +46,18 @@ end
 #  updated_at       :datetime         not null
 #  client_id        :integer          not null
 #  organization_id  :integer          not null
+#  seller_id        :integer
 #
 # Indexes
 #
 #  index_sales_on_client_id                      (client_id)
 #  index_sales_on_organization_id                (organization_id)
 #  index_sales_on_organization_id_and_sale_date  (organization_id,sale_date)
+#  index_sales_on_seller_id                      (seller_id)
 #
 # Foreign Keys
 #
 #  client_id        (client_id => clients.id)
 #  organization_id  (organization_id => organizations.id)
+#  seller_id        (seller_id => users.id)
 #

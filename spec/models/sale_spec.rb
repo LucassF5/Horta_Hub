@@ -4,6 +4,7 @@ RSpec.describe Sale, type: :model do
   describe 'associations' do
     it { should belong_to(:organization) }
     it { should belong_to(:client) }
+    it { should belong_to(:seller).class_name("User").optional }
     it { should have_many(:sale_items).dependent(:destroy) }
   end
 
@@ -92,6 +93,35 @@ RSpec.describe Sale, type: :model do
     end
   end
 
+  describe "seller" do
+    let(:organization) { create(:organization) }
+    let(:seller) { create(:user, username: "maria") }
+
+    it "accepts a member of the sale organization" do
+      create(:membership, user: seller, organization: organization, role: "manager")
+      expect(build(:sale, organization: organization, seller: seller)).to be_valid
+    end
+
+    it "rejects a user outside the sale organization" do
+      sale = build(:sale, organization: organization, seller: seller)
+      expect(sale).not_to be_valid
+      expect(sale.errors[:seller]).to include("deve pertencer à mesma organização da venda")
+    end
+
+    it "keeps an old sale editable after the seller leaves the organization" do
+      membership = create(:membership, user: seller, organization: organization, role: "manager")
+      sale = create(:sale, organization: organization, seller: seller)
+      membership.destroy!
+      expect(sale.reload.update(notes: "Atualizada")).to be(true)
+    end
+  end
+
+  describe "#seller_display_name" do
+    it("uses the seller username") { expect(build(:sale, seller: build(:user, username: "maria")).seller_display_name).to eq("maria") }
+    it("falls back to the stored name") { expect(build(:sale, responsible_name: "JOAO SILVA").seller_display_name).to eq("JOAO SILVA") }
+    it("shows Não vinculado without seller or name") { expect(build(:sale, responsible_name: " ").seller_display_name).to eq("Não vinculado") }
+  end
+
   describe 'factory' do
     it 'has a valid factory' do
       expect(build(:sale)).to be_valid
@@ -129,15 +159,18 @@ end
 #  updated_at       :datetime         not null
 #  client_id        :integer          not null
 #  organization_id  :integer          not null
+#  seller_id        :integer
 #
 # Indexes
 #
 #  index_sales_on_client_id                      (client_id)
 #  index_sales_on_organization_id                (organization_id)
 #  index_sales_on_organization_id_and_sale_date  (organization_id,sale_date)
+#  index_sales_on_seller_id                      (seller_id)
 #
 # Foreign Keys
 #
 #  client_id        (client_id => clients.id)
 #  organization_id  (organization_id => organizations.id)
+#  seller_id        (seller_id => users.id)
 #

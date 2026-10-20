@@ -59,6 +59,35 @@ RSpec.describe Organization, type: :model do
     end
   end
 
+  describe "#member_named" do
+    let(:organization) { create(:organization) }
+
+    def member(username)
+      create(:user, username: username).tap { |user| create(:membership, user: user, organization: organization, role: "manager") }
+    end
+
+    it "finds the member ignoring case, accents and extra spaces" do
+      joao = member("João Silva")
+      expect(organization.member_named("  JOAO   silva ")).to eq(joao)
+    end
+
+    it "ignores users outside the organization" do
+      create(:user, username: "Pedro")
+      expect(organization.member_named("PEDRO")).to be_nil
+    end
+
+    it "returns nil when more than one member matches" do
+      member("ana")
+      member("Ána")
+      expect(organization.member_named("ANA")).to be_nil
+    end
+
+    it "returns nil for a blank name" do
+      member("maria")
+      expect(organization.member_named(" ")).to be_nil
+    end
+  end
+
   describe 'factory' do
     it 'has a valid factory' do
       expect(build(:organization)).to be_valid

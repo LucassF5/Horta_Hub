@@ -4,11 +4,15 @@ class User < ApplicationRecord
   has_many :memberships, dependent: :destroy
   has_many :organizations, through: :memberships
   has_many :import_batches, dependent: :destroy
+  # Sem dependent: o before_destroy keep_seller_name_on_sold_sales cuida das vendas.
+  has_many :sold_sales, class_name: "Sale", foreign_key: :seller_id, inverse_of: :seller
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
   validates :username, presence: true, length: { minimum: 3, maximum: 30 }
   validates :email_address, presence: true, uniqueness: true
+
+  before_destroy :keep_seller_name_on_sold_sales
 
   def self.generate_password
     SecureRandom.alphanumeric(8)
@@ -33,6 +37,12 @@ class User < ApplicationRecord
 
   def member_of_active_organization?
     organizations.active.exists?
+  end
+
+  private
+
+  def keep_seller_name_on_sold_sales
+    sold_sales.update_all(seller_id: nil, responsible_name: username, updated_at: Time.current)
   end
 end
 

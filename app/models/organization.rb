@@ -22,6 +22,14 @@ class Organization < ApplicationRecord
     memberships.find_by(user: user)
   end
 
+  def member_named(name)
+    normalized_name = PersonName.normalize(name)
+    return if normalized_name.empty?
+
+    matches = users.select { |user| PersonName.normalize(user.username) == normalized_name }
+    matches.first if matches.one?
+  end
+
   def should_generate_new_friendly_id?
     slug.blank? || (will_save_change_to_name? && !will_save_change_to_slug?)
   end

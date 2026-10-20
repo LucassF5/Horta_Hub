@@ -1,4 +1,10 @@
 pt-BR:
+  activemodel:
+    attributes:
+      member:
+        username: "Nome de usuário"
+        email_address: "E-mail"
+        role: "Cargo"
   activerecord:
     attributes:
       client:

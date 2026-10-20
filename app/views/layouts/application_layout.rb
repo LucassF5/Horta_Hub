@@ -19,7 +19,8 @@ class Views::Layouts::ApplicationLayout < Views::Base
     { label: "Produtos", path: :products_path, controller: "products", icon: PhlexIcons::Lucide::Package },
     { label: "Clientes", path: :clients_path, controller: "clients", icon: PhlexIcons::Lucide::Users },
     { label: "Vendas", path: :sales_path, controller: "sales", icon: PhlexIcons::Lucide::ShoppingCart },
-    { label: "Importações", path: :import_batches_path, controller: "import_batches", icon: PhlexIcons::Lucide::FileSpreadsheet }
+    { label: "Importações", path: :import_batches_path, controller: "import_batches", icon: PhlexIcons::Lucide::FileSpreadsheet },
+    { label: "Funcionários", path: :memberships_path, controller: "memberships", icon: PhlexIcons::Lucide::UserCog, rule: :index? }
   ].freeze
 
   def view_template(&block)
@@ -172,6 +173,8 @@ class Views::Layouts::ApplicationLayout < Views::Base
   end
 
   def sidebar_menu_item(item)
+    return if item[:rule] && !allowed_to?(item[:rule], Membership)
+
     path = public_send(item[:path])
 
     render RubyUI::SidebarMenuItem.new do

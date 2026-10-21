@@ -80,8 +80,6 @@ class Dashboard::OverviewQuery
   end
 
   def percentage_change(current_value, previous_value)
-    return if previous_value.zero?
-
-    (((current_value.to_d - previous_value.to_d) / previous_value.to_d) * 100).round(1)
+    Percentage.change(current_value, previous_value)
   end
 end

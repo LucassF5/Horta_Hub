@@ -37,6 +37,15 @@ RSpec.describe Reports::Scope do
     expect(totals(described_class.new(organization: organization, seller_key: "none"), "completed")).to eq(revenue: 10, sales_count: 1, units: 1)
   end
 
+  it "filters by a text-name seller key" do
+    create_report_sale(organization: organization, date: Date.new(2026, 8, 21), responsible_name: "JOAO SILVA", items: [ [ b, 2, 5 ] ])
+    expect(totals(described_class.new(organization: organization, seller_key: "name:JOAO SILVA"), "completed")).to eq(revenue: 10, sales_count: 1, units: 2)
+  end
+
+  it "returns items for a status array" do
+    expect(described_class.new(organization: organization).items(august, status: %w[completed pending]).sum(:quantity)).to eq(8)
+  end
+
   it "counts a sale once even with two items of the same product" do
     create_report_sale(organization: organization, date: Date.new(2026, 8, 20), items: [ [ a, 1, 10 ], [ a, 2, 10 ] ])
     expect(totals(described_class.new(organization: organization, product: a), "completed")).to eq(revenue: 60, sales_count: 3, units: 6)

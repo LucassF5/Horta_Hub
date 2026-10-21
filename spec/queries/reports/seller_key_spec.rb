@@ -29,4 +29,19 @@ RSpec.describe Reports::SellerKey do
     expect(by_name).to contain_exactly(accented, plain)
     expect(by_none).to contain_exactly(unlinked)
   end
+
+  it "restricts every condition to the given organization", :aggregate_failures do
+    plain = create_report_sale(organization: organization, date: Date.new(2026, 8, 1), items: [ [ product, 1, 1 ] ], responsible_name: "JOAO SILVA")
+    unlinked = create_report_sale(organization: organization, date: Date.new(2026, 8, 2), items: [ [ product, 1, 1 ] ])
+    other = create(:organization)
+    other_product = create(:product, organization: other)
+    other_seller = create(:user).tap { |user| create(:membership, user: user, organization: other, role: "manager") }
+    create_report_sale(organization: other, date: Date.new(2026, 8, 1), items: [ [ other_product, 1, 1 ] ], responsible_name: "JOAO SILVA")
+    create_report_sale(organization: other, date: Date.new(2026, 8, 2), items: [ [ other_product, 1, 1 ] ])
+    create_report_sale(organization: other, date: Date.new(2026, 8, 3), items: [ [ other_product, 1, 1 ] ], seller: other_seller)
+
+    expect(Sale.merge(described_class.sales_condition("name:JOAO SILVA", organization: organization))).to contain_exactly(plain)
+    expect(Sale.merge(described_class.sales_condition("none", organization: organization))).to contain_exactly(unlinked)
+    expect(Sale.merge(described_class.sales_condition("user:#{other_seller.id}", organization: organization))).to be_empty
+  end
 end

@@ -4,8 +4,8 @@ RSpec.describe Reports::MonthlyReport do
   let(:today) { Date.new(2026, 10, 20) }
   let(:organization) { create(:organization) }
 
-  def report(month: nil)
-    described_class.new(organization: organization, filters: Reports::Filters.new({ month: month }, organization: organization, today: today))
+  def report(month: nil, seller: nil)
+    described_class.new(organization: organization, filters: Reports::Filters.new({ month: month, seller: seller }, organization: organization, today: today))
   end
 
   it "offers months from the first sale to the current month" do
@@ -16,5 +16,17 @@ RSpec.describe Reports::MonthlyReport do
 
   it "offers only the current month without sales" do
     expect(report.month_options).to eq([ Date.new(2026, 10, 1) ])
+  end
+
+  it "ignores a well-formed seller key that is not among the seller options" do
+    foreign_user = create(:membership, organization: create(:organization)).user
+
+    expect(report(seller: "user:#{foreign_user.id}").seller_key).to be_nil
+  end
+
+  it "keeps a seller key that is among the seller options" do
+    member = create(:membership, organization: organization).user
+
+    expect(report(seller: "user:#{member.id}").seller_key).to eq("user:#{member.id}")
   end
 end

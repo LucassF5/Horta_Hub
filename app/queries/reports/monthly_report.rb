@@ -7,7 +7,7 @@ class Reports::MonthlyReport
     @organization = organization
     @period = filters.period
     @product = filters.product
-    @seller_key = filters.seller_key
+    @seller_key = known_seller_key(filters.seller_key)
   end
 
   def summary
@@ -36,12 +36,19 @@ class Reports::MonthlyReport
   end
 
   def seller_options
-    Reports::SellerKey.options(organization)
+    @seller_options ||= Reports::SellerKey.options(organization)
   end
 
   private
 
   attr_reader :organization
+
+  # Só aplica a chave que está no seletor: senão a filtragem ocorre sem que o select a mostre.
+  def known_seller_key(key)
+    return if key.nil?
+
+    key if seller_options.any? { |_label, option_key| option_key == key }
+  end
 
   def scope
     @scope ||= Reports::Scope.new(organization: organization, product: product, seller_key: seller_key)

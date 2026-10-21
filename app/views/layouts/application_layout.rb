@@ -19,8 +19,9 @@ class Views::Layouts::ApplicationLayout < Views::Base
     { label: "Produtos", path: :products_path, controller: "products", icon: PhlexIcons::Lucide::Package },
     { label: "Clientes", path: :clients_path, controller: "clients", icon: PhlexIcons::Lucide::Users },
     { label: "Vendas", path: :sales_path, controller: "sales", icon: PhlexIcons::Lucide::ShoppingCart },
+    { label: "Relatórios", path: :report_path, controller: "reports", icon: PhlexIcons::Lucide::ChartColumn, rule: :show?, record: :report },
     { label: "Importações", path: :import_batches_path, controller: "import_batches", icon: PhlexIcons::Lucide::FileSpreadsheet },
-    { label: "Funcionários", path: :memberships_path, controller: "memberships", icon: PhlexIcons::Lucide::UserCog, rule: :index? }
+    { label: "Funcionários", path: :memberships_path, controller: "memberships", icon: PhlexIcons::Lucide::UserCog, rule: :index?, record: Membership }
   ].freeze
 
   # Abas do celular, na ordem de uso no dia a dia; o restante fica em "Mais".
@@ -192,7 +193,7 @@ class Views::Layouts::ApplicationLayout < Views::Base
   end
 
   def sidebar_menu_item(item)
-    return if item[:rule] && !allowed_to?(item[:rule], Membership)
+    return if item[:rule] && !allowed_to?(item[:rule], item[:record])
 
     path = public_send(item[:path])
 

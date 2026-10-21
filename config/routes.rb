@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       get :sale_item_fields
     end
   end
+  resource :report, only: :show
 
   root "home#index"
 end

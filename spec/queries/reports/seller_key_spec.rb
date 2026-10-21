@@ -44,4 +44,19 @@ RSpec.describe Reports::SellerKey do
     expect(Sale.merge(described_class.sales_condition("none", organization: organization))).to contain_exactly(unlinked)
     expect(Sale.merge(described_class.sales_condition("user:#{other_seller.id}", organization: organization))).to be_empty
   end
+
+  it "lists seller options: users, text names and unlinked" do
+    joao = create(:user, username: "joao")
+    maria = create(:user, username: "maria")
+    [ joao, maria ].each { |user| create(:membership, user: user, organization: organization, role: "manager") }
+    create_report_sale(organization: organization, date: Date.new(2026, 8, 1), items: [ [ product, 1, 1 ] ], responsible_name: "JOÃO SILVA")
+    create_report_sale(organization: organization, date: Date.new(2026, 8, 2), items: [ [ product, 1, 1 ] ], responsible_name: "Joao Silva")
+
+    expect(described_class.options(organization)).to eq([
+      [ "joao", "user:#{joao.id}" ],
+      [ "maria", "user:#{maria.id}" ],
+      [ "JOÃO SILVA (sem cadastro)", "name:JOAO SILVA" ],
+      [ "Não vinculado", "none" ]
+    ])
+  end
 end

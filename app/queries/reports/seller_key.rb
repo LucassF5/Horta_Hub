@@ -20,6 +20,33 @@ module Reports::SellerKey
     key.is_a?(String) && (key == UNLINKED || USER_KEY.match?(key) || NAME_KEY.match?(key))
   end
 
+  # Rótulo de exibição por chave "name:N": a grafia alfabeticamente menor entre as vendas sem vínculo.
+  def name_labels(organization)
+    variants = organization.sales
+      .where(seller_id: nil)
+      .where.not(responsible_name: nil)
+      .distinct
+      .pluck(:responsible_name)
+
+    variants
+      .group_by { |variant| self.for(seller_id: nil, responsible_name: variant) }
+      .except(UNLINKED)
+      .transform_values(&:min)
+  end
+
+  def options(organization)
+    users = User.where(id: organization.memberships.select(:user_id))
+      .or(User.where(id: organization.sales.where.not(seller_id: nil).select(:seller_id)))
+      .order(:username)
+
+    user_options = users.map { |user| [ user.username, "user:#{user.id}" ] }
+    name_options = name_labels(organization)
+      .sort_by { |_key, label| label }
+      .map { |key, label| [ "#{label} (sem cadastro)", key ] }
+
+    user_options + name_options + [ [ Sale::UNLINKED_SELLER_NAME, UNLINKED ] ]
+  end
+
   def sales_condition(key, organization:)
     base = organization.sales
 

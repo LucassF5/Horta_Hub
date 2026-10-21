@@ -87,7 +87,7 @@ RSpec.describe "Reports", type: :request do
     expect(response.body).to include("R$ 0,00", "Sem base em")
   end
 
-  it "renders the year chart, every sold product and the sellers" do
+  it "renders the year chart, every sold product and the sellers", :aggregate_failures do
     travel_to(Time.zone.local(2026, 10, 20, 12)) do
       maria = create(:user, username: "maria")
       create(:membership, user: maria, organization: organization, role: "manager")
@@ -104,6 +104,12 @@ RSpec.describe "Reports", type: :request do
       expect(response.body).to include("Evolução em 2026", 'title="ago/2026: R$ 17,00"')
       expect(response.body).to include("Rúcula", "▼ 100,0%", "novo")
       expect(response.body).to include("Vendedor", "R$ 12,00", "JOAO SILVA", "(sem cadastro)")
+
+      html = Capybara.string(response.body)
+      expect(html.find("#sellers-table").text).to include("maria", "JOAO SILVA", "(sem cadastro)", "Não vinculado", "R$ 12,00")
+      expect(html.find("#products-table").text).to include("Rúcula", "▼ 100,0%", "novo")
+      expect(response.body).to include('style="height: 74%"')
+      expect(html.find("#year-chart").text).to include("ago/2026: R$ 17,00 (mês escolhido)")
     end
   end
 end

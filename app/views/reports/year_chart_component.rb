@@ -50,12 +50,19 @@ class Views::Reports::YearChartComponent < Views::Base
       end
 
       span(class: "text-xs text-muted-foreground") { month_label(point) }
-      span(class: "sr-only") { column_label(point) } unless future
+      span(class: "sr-only") { accessible_label(point) } unless future
     end
   end
 
   def column_attrs(point, future)
     future ? {} : { title: column_label(point) }
+  end
+
+  # A seleção aparece só por cor no gráfico; o texto acessível precisa dizê-la também.
+  def accessible_label(point)
+    return column_label(point) unless point.month == @selected_month
+
+    "#{column_label(point)} (mês escolhido)"
   end
 
   def render_bar(point)

@@ -3,12 +3,6 @@
 class Views::Reports::MetricCardComponent < Views::Base
   include Views::Reports::Formatting
 
-  TONE_CLASSES = {
-    positive: "text-green-700",
-    negative: "text-red-700",
-    neutral: "text-muted-foreground"
-  }.freeze
-
   # comparisons: Array<{ change:, label: }>, sendo label o texto da janela de comparação.
   def initialize(id:, title:, value:, comparisons:, detail: nil, inverted: false)
     @id = id
@@ -40,9 +34,8 @@ class Views::Reports::MetricCardComponent < Views::Base
   def render_comparison(comparison)
     change = comparison[:change]
     label = comparison[:label]
-    tone = change_tone(change, inverted: @inverted)
     text = change.nil? ? "Sem base em #{label}" : "#{change_text(change)} vs #{label}"
 
-    p(class: [ "text-xs font-medium", TONE_CLASSES.fetch(tone) ]) { text }
+    p(class: [ "text-xs font-medium", tone_class(change, inverted: @inverted) ]) { text }
   end
 end

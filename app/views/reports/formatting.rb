@@ -2,6 +2,12 @@
 
 # Módulo puro: não usa helpers do Phlex, para ser incluído em qualquer classe.
 module Views::Reports::Formatting
+  TONE_CLASSES = {
+    positive: "text-green-700",
+    negative: "text-red-700",
+    neutral: "text-muted-foreground"
+  }.freeze
+
   def currency(value)
     return "—" if value.nil?
 
@@ -28,6 +34,8 @@ module Views::Reports::Formatting
     good = inverted ? change.negative? : change.positive?
     good ? :positive : :negative
   end
+
+  def tone_class(change, inverted: false) = TONE_CLASSES.fetch(change_tone(change, inverted: inverted))
 
   def period_label(range)
     month = I18n.l(range.first, format: "%b/%Y")

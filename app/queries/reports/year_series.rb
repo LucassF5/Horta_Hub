@@ -47,7 +47,7 @@ class Reports::YearSeries
 
   def revenues
     @revenues ||= scope
-      .items(Date.new(period.month.year - 1, 12, 1)..Date.new(period.month.year, 12, 31))
+      .items(Date.new(period.month.year - 1, 12, 1)..Date.new(period.month.year, 12, 31), status: "completed")
       .group(Arel.sql("strftime('%Y-%m', sales.sale_date)"))
       .sum(Arel.sql("sale_items.quantity * sale_items.unit_price"))
   end

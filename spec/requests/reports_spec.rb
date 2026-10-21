@@ -112,4 +112,10 @@ RSpec.describe "Reports", type: :request do
       expect(html.find("#year-chart").text).to include("ago/2026: R$ 17,00 (mês escolhido)")
     end
   end
+
+  it "keeps the year chart's hidden labels inside its scrolling wrapper" do
+    get report_path
+
+    expect(Capybara.string(response.body).find("#year-chart")).to have_css(".relative.overflow-x-auto")
+  end
 end

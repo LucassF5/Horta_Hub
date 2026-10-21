@@ -69,6 +69,18 @@ RSpec.describe "Reports", type: :request do
     end
   end
 
+  it "ignores a seller key from outside the organization" do
+    travel_to(Time.zone.local(2026, 10, 20, 12)) do
+      foreign_user = create(:membership, organization: create(:organization)).user
+      create_report_sale(organization: organization, date: Date.new(2026, 10, 5), items: [ [ product, 3, 10 ] ])
+
+      get report_path(seller: "user:#{foreign_user.id}")
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("R$ 30,00")
+    end
+  end
+
   it "renders an organization without sales" do
     get report_path
     expect(response).to have_http_status(:success)

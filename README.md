@@ -30,6 +30,7 @@ Aplicação Rails para gerenciar organizações, produtos, clientes e vendas, co
   - Produtos: busca por nome; ordena por nome ou preço.
   - Clientes: busca por nome ou telefone; ordena por nome ou tipo.
   - Vendas: busca por cliente ou responsável, combinada aos filtros de período, status e cliente; ordena por data, cliente, status ou total.
+- Relatórios mensais (owner, admin e manager): escolha do mês, comparação com o mês anterior ou com o mês atual (pelos mesmos dias), evolução no ano, produtos e vendedores.
 - Telas de acesso (login, cadastro de organização e recuperação de senha) com layout próprio, separado da área autenticada.
 - Autorização de produtos, clientes e vendas com Action Policy.
 - Controles de interface condicionados por `allowed_to?`.
@@ -45,6 +46,7 @@ As permissões são determinadas pela `Membership` do usuário na organização 
 | Criar | Sim | Sim | Sim | Não |
 | Editar | Sim | Sim | Sim | Não |
 | Excluir | Sim | Sim | Sim | Não |
+| Ver relatórios | Sim | Sim | Sim | Não |
 
 Regras adicionais:
 

@@ -86,4 +86,24 @@ RSpec.describe "Reports", type: :request do
     expect(response).to have_http_status(:success)
     expect(response.body).to include("R$ 0,00", "Sem base em")
   end
+
+  it "renders the year chart, every sold product and the sellers" do
+    travel_to(Time.zone.local(2026, 10, 20, 12)) do
+      maria = create(:user, username: "maria")
+      create(:membership, user: maria, organization: organization, role: "manager")
+      alface = create(:product, organization: organization, name: "Alface")
+      rucula = create(:product, organization: organization, name: "Rúcula")
+      cheiro = create(:product, organization: organization, name: "Cheiro Verde")
+      create_report_sale(organization: organization, date: Date.new(2026, 7, 10), items: [ [ alface, 4, 2 ], [ rucula, 5, 3 ] ])
+      create_report_sale(organization: organization, date: Date.new(2026, 8, 5), seller: maria, items: [ [ alface, 6, 2 ] ])
+      create_report_sale(organization: organization, date: Date.new(2026, 8, 10), responsible_name: "JOAO SILVA", items: [ [ cheiro, 3, 1 ] ])
+      create_report_sale(organization: organization, date: Date.new(2026, 8, 12), items: [ [ alface, 1, 2 ] ])
+
+      get report_path(month: "2026-08")
+
+      expect(response.body).to include("Evolução em 2026", 'title="ago/2026: R$ 17,00"')
+      expect(response.body).to include("Rúcula", "▼ 100,0%", "novo")
+      expect(response.body).to include("Vendedor", "R$ 12,00", "JOAO SILVA", "(sem cadastro)")
+    end
+  end
 end

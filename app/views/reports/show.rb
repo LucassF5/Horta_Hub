@@ -12,6 +12,7 @@ class Views::Reports::Show < Views::Base
       render Components::PageHeader.new(title: "Relatórios", description: "Vendas concluídas de #{I18n.l(period.month, format: "%B de %Y")}.")
       render Views::Reports::FiltersComponent.new(report: report)
       render_metrics
+      render_breakdown
     end
   end
 
@@ -21,6 +22,19 @@ class Views::Reports::Show < Views::Base
 
   def period
     report.period
+  end
+
+  def render_breakdown
+    comparison_label = window_label(period.base_windows.last)
+
+    div(class: "mt-6 space-y-6") do
+      render Views::Reports::YearChartComponent.new(points: report.year_points, selected_month: period.month)
+
+      div(class: "grid gap-6 xl:grid-cols-2") do
+        render Views::Reports::ProductsTableComponent.new(rows: report.product_rows, comparison_label: comparison_label)
+        render Views::Reports::SellersTableComponent.new(rows: report.seller_rows, comparison_label: comparison_label)
+      end
+    end
   end
 
   def render_metrics

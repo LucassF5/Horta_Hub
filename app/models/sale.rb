@@ -30,6 +30,22 @@ class Sale < ApplicationRecord
     )
   }
 
+  # Vincula vendas sem vendedor cujo nome corresponde a um único membro da
+  # organização. update_column evita callbacks e mantém updated_at.
+  def self.link_unlinked_sellers
+    linked = 0
+
+    where(seller_id: nil).where.not(responsible_name: [ nil, "" ]).includes(:organization).find_each do |sale|
+      seller = sale.organization.member_named(sale.responsible_name)
+      next unless seller
+
+      sale.update_column(:seller_id, seller.id)
+      linked += 1
+    end
+
+    linked
+  end
+
   def seller_display_name
     seller&.username || responsible_name.to_s.strip.presence || UNLINKED_SELLER_NAME
   end

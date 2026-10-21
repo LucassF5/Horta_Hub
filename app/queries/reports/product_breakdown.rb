@@ -29,7 +29,7 @@ class Reports::ProductBreakdown
     selected_window, base_window = period.base_windows
     selected = quantities(selected_window)
     base = quantities(base_window)
-    products = Product.where(id: first_sales.keys).index_by(&:id)
+    products = scope.organization.products.where(id: first_sales.keys).index_by(&:id)
 
     first_sales.map do |product_id, first_sold_on|
       quantity, revenue = month_totals.fetch(product_id, [ 0, 0.to_d ])

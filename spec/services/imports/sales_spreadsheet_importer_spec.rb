@@ -267,4 +267,26 @@ RSpec.describe Imports::SalesSpreadsheetImporter do
 
     expect { importer.call }.to raise_error(described_class::Error, /Cabeçalhos ausentes/)
   end
+
+  def row(responsible)
+    [ "QUINTA", "02/10/2026", "AGROVALE", "ALFACE", 15, "60,00", responsible, "PG", nil ]
+  end
+
+  it "links the sale to the member whose username matches RESPONSAVEL" do
+    seller = create(:user, username: "Lucas")
+    create(:membership, user: seller, organization: organization, role: "manager")
+    importer_for([ row("LUCAS") ]).call
+    expect(organization.sales.sole).to have_attributes(seller_id: seller.id, responsible_name: "LUCAS")
+  end
+
+  it "keeps only the name when RESPONSAVEL matches no member" do
+    importer_for([ row("JOAO") ]).call
+    expect(organization.sales.sole).to have_attributes(seller_id: nil, responsible_name: "JOAO")
+  end
+
+  it "keeps only the name when RESPONSAVEL matches more than one member" do
+    %w[ana Ána].each { |username| create(:membership, user: create(:user, username: username), organization: organization, role: "manager") }
+    importer_for([ row("ANA") ]).call
+    expect(organization.sales.sole).to have_attributes(seller_id: nil, responsible_name: "ANA")
+  end
 end

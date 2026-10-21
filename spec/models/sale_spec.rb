@@ -122,6 +122,22 @@ RSpec.describe Sale, type: :model do
     it("shows Não vinculado without seller or name") { expect(build(:sale, responsible_name: " ").seller_display_name).to eq("Não vinculado") }
   end
 
+  describe ".link_unlinked_sellers" do
+    it "links unlinked sales whose name matches one member of the sale organization" do
+      organization = create(:organization)
+      maria = create(:user, username: "maria")
+      create(:membership, user: maria, organization: organization, role: "manager")
+      matching = create(:sale, organization: organization, responsible_name: "MARIA")
+      unmatched = create(:sale, organization: organization, responsible_name: "PEDRO")
+      other_organization_sale = create(:sale, responsible_name: "MARIA")
+
+      expect(Sale.link_unlinked_sellers).to eq(1)
+      expect(matching.reload.seller).to eq(maria)
+      expect(unmatched.reload.seller).to be_nil
+      expect(other_organization_sale.reload.seller).to be_nil
+    end
+  end
+
   describe 'factory' do
     it 'has a valid factory' do
       expect(build(:sale)).to be_valid

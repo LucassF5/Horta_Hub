@@ -125,6 +125,7 @@ module Imports
           client: find_or_create_client(first_row[:client_name]),
           sale_date: first_row[:sale_date],
           status: first_row[:status],
+          seller: organization.member_named(first_row[:responsible_name]),
           responsible_name: first_row[:responsible_name],
           notes: first_row[:notes]
         )

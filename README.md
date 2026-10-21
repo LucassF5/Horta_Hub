@@ -61,6 +61,8 @@ A planilha XLSX enviada na importação serve apenas para alimentar o sistema e 
 - O lote mantém o nome do arquivo, o checksum, as contagens, o status e as datas, para que o histórico continue consultável.
 - O checksum guardado no lote mantém o bloqueio de reenvio de uma planilha já importada na mesma organização.
 - Planilhas de lotes finalizados antes dessa regra podem ser removidas com `bin/rails import_batches:purge_files`.
+- A coluna `RESPONSAVEL` vincula a venda ao membro da organização cujo `username` corresponde ao nome, ignorando maiúsculas, acentos e espaços extras. Sem correspondência única, a venda guarda só o nome em texto.
+- Vendas registradas antes dessa regra podem ser vinculadas com `bin/rails sales:link_sellers`.
 
 ## Configuração
 

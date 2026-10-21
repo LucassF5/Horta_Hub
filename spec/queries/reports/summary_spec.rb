@@ -79,4 +79,12 @@ RSpec.describe Reports::Summary do
     expect(result.ticket.value).to be_nil
     expect(result.pending.share).to be_nil
   end
+
+  it "does not show a ticket change when the selected month has no sales" do
+    sale(Date.new(2026, 5, 10), [ [ a, 1, 10 ] ])
+    result = summary(month: Date.new(2026, 6, 1))
+
+    expect(result.revenue.change).to eq(-100.0)
+    expect(result.ticket.to_h).to eq(value: nil, change: nil, current_change: nil)
+  end
 end

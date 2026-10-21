@@ -21,4 +21,11 @@ RSpec.describe Reports::Filters do
     expect(filters(product_id: create(:product).id).product).to be_nil
     expect(filters(seller: "garbage").seller_key).to be_nil
   end
+
+  it "falls back to the current month for a year before 2000" do
+    [ "0001-01", "1999-12" ].each do |month|
+      expect(filters(month: month).period.month).to eq(Date.new(2026, 10, 1))
+    end
+    expect(filters(month: "2000-01").period.month).to eq(Date.new(2000, 1, 1))
+  end
 end

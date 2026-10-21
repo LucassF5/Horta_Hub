@@ -39,7 +39,7 @@ module Reports::SellerKey
       .or(User.where(id: organization.sales.where.not(seller_id: nil).select(:seller_id)))
       .order(:username)
 
-    user_options = users.map { |user| [ user.username, "user:#{user.id}" ] }
+    user_options = users.pluck(:id, :username).map { |id, username| [ username, "user:#{id}" ] }
     name_options = name_labels(organization)
       .sort_by { |_key, label| label }
       .map { |key, label| [ "#{label} (sem cadastro)", key ] }

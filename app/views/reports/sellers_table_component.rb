@@ -3,12 +3,6 @@
 class Views::Reports::SellersTableComponent < Views::Base
   include Views::Reports::Formatting
 
-  TONE_CLASSES = {
-    positive: "text-green-700",
-    negative: "text-red-700",
-    neutral: "text-muted-foreground"
-  }.freeze
-
   # rows: Array<Reports::SellerBreakdown::Row>; comparison_label: rótulo da janela da base.
   def initialize(rows:, comparison_label:)
     @rows = rows
@@ -50,7 +44,7 @@ class Views::Reports::SellersTableComponent < Views::Base
           render RubyUI::TableHead.new(class: "pl-4 sm:pl-6") { "Vendedor" }
           render RubyUI::TableHead.new(class: "text-right") { "Vendas" }
           render RubyUI::TableHead.new(class: "text-right") { "Receita" }
-          render RubyUI::TableHead.new(class: "hidden text-right sm:table-cell") { "% do total" }
+          render RubyUI::TableHead.new(class: "text-right") { "% do total" }
           render RubyUI::TableHead.new(class: "pr-4 text-right sm:pr-6") { "Variação" }
         end
       end
@@ -66,7 +60,7 @@ class Views::Reports::SellersTableComponent < Views::Base
       render RubyUI::TableCell.new(class: "pl-4 font-medium sm:pl-6") { render_seller_name(row) }
       render RubyUI::TableCell.new(class: "text-right tabular-nums") { row.sales_count.to_s }
       render RubyUI::TableCell.new(class: "whitespace-nowrap text-right tabular-nums") { currency(row.revenue) }
-      render RubyUI::TableCell.new(class: "hidden text-right tabular-nums sm:table-cell") { percent(row.share) }
+      render RubyUI::TableCell.new(class: "text-right tabular-nums") { percent(row.share) }
       render RubyUI::TableCell.new(class: "whitespace-nowrap pr-4 text-right sm:pr-6") { render_variation(row) }
     end
   end
@@ -84,6 +78,6 @@ class Views::Reports::SellersTableComponent < Views::Base
   end
 
   def render_variation(row)
-    span(class: [ "font-medium tabular-nums", TONE_CLASSES.fetch(change_tone(row.change)) ]) { change_text(row.change) }
+    span(class: [ "font-medium tabular-nums", tone_class(row.change) ]) { change_text(row.change) }
   end
 end

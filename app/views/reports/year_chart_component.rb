@@ -3,12 +3,6 @@
 class Views::Reports::YearChartComponent < Views::Base
   include Views::Reports::Formatting
 
-  TONE_CLASSES = {
-    positive: "text-green-700",
-    negative: "text-red-700",
-    neutral: "text-muted-foreground"
-  }.freeze
-
   # points: Array<Reports::YearSeries::Point>, um por mês do ano do mês escolhido.
   def initialize(points:, selected_month:)
     @points = points
@@ -24,7 +18,7 @@ class Views::Reports::YearChartComponent < Views::Base
       end
       render RubyUI::CardContent.new(class: "p-4 pt-0 sm:p-6 sm:pt-0") do
         # Em telas pequenas as colunas rolam dentro do cartão em vez de espremer os rótulos.
-        div(class: "overflow-x-auto") do
+        div(class: "relative overflow-x-auto") do
           div(class: "grid min-w-[40rem] grid-cols-12 gap-2") do
             @points.each { |point| render_column(point) }
           end
@@ -41,7 +35,7 @@ class Views::Reports::YearChartComponent < Views::Base
     future = point.state == :future
 
     div(class: "flex min-w-0 flex-col items-center gap-2", **column_attrs(point, future)) do
-      p(class: [ "h-4 whitespace-nowrap text-[10px] font-medium", TONE_CLASSES.fetch(change_tone(point.change)) ]) do
+      p(class: [ "h-4 whitespace-nowrap text-[10px] font-medium", tone_class(point.change) ]) do
         change_text(point.change) unless future
       end
 

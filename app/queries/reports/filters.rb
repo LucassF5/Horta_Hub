@@ -30,7 +30,8 @@ class Reports::Filters
     value = params[:month]
     return today.beginning_of_month if value.blank?
 
-    Date.strptime(value, "%Y-%m")
+    parsed = Date.strptime(value, "%Y-%m")
+    parsed.year < 2000 ? today.beginning_of_month : parsed
   rescue Date::Error, TypeError, ArgumentError
     today.beginning_of_month
   end

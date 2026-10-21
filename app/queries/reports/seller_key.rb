@@ -21,13 +21,15 @@ module Reports::SellerKey
   end
 
   def sales_condition(key, organization:)
+    base = organization.sales
+
     case key
     when USER_KEY
-      Sale.where(seller_id: Regexp.last_match(1))
+      base.where(seller_id: Regexp.last_match(1))
     when NAME_KEY
-      Sale.where(seller_id: nil, responsible_name: name_variants(Regexp.last_match(1), organization: organization))
+      base.where(seller_id: nil, responsible_name: name_variants(Regexp.last_match(1), organization: organization))
     when UNLINKED
-      Sale.where(seller_id: nil).where("TRIM(COALESCE(sales.responsible_name, '')) = ''")
+      base.where(seller_id: nil).where("TRIM(COALESCE(sales.responsible_name, '')) = ''")
     else
       raise ArgumentError, "chave de vendedor inválida: #{key.inspect}"
     end

@@ -80,11 +80,11 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
+  # Railway sets RAILWAY_PUBLIC_DOMAIN; ALLOWED_HOSTS adds custom domains
+  # (comma separated). With neither set, every host is accepted.
+  allowed_hosts = [ ENV["RAILWAY_PUBLIC_DOMAIN"], *ENV.fetch("ALLOWED_HOSTS", "").split(",") ]
+  config.hosts = allowed_hosts.map(&:to_s).map(&:strip).reject(&:empty?)
+
   # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end
